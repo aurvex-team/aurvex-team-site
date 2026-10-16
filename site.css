@@ -430,3 +430,6 @@ main.home-main{width:min(var(--max),calc(100% - 72px));padding:34px 0 72px}
 :root[data-theme="yui-after-school"] .profile-text{margin-top:12px;padding:20px;border:1px solid #e4cdbd;border-radius:16px;background:linear-gradient(110deg,#fffaf4,#f8e9e1)}
 :root[data-theme="yui-after-school"] .donate-box,
 :root[data-theme="yui-after-school"] .info-box{box-shadow:0 12px 30px #55435712}
+
+.theme-menu .theme-check{opacity:0;transform:scale(.72);transition:opacity .18s,transform .18s}
+.theme-menu .theme-option[aria-pressed="true"] .theme-check{opacity:1;transform:scale(1)}
