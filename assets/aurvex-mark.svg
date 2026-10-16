@@ -1,16 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
-    <linearGradient id="paper" x1="5" y1="2" x2="59" y2="62" gradientUnits="userSpaceOnUse">
+    <linearGradient id="paper" x1="8" y1="5" x2="120" y2="124" gradientUnits="userSpaceOnUse">
       <stop stop-color="#fffef9"/>
       <stop offset="1" stop-color="#f1ead8"/>
     </linearGradient>
-    <linearGradient id="sun" x1="12" y1="10" x2="53" y2="54" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ffdb38"/>
-      <stop offset=".55" stop-color="#f4bd00"/>
-      <stop offset="1" stop-color="#df9700"/>
+    <linearGradient id="gold" x1="31" y1="11" x2="100" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffdc39"/>
+      <stop offset=".62" stop-color="#f2b900"/>
+      <stop offset="1" stop-color="#dc9300"/>
     </linearGradient>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#paper)" stroke="#d8c99c" stroke-width="1.5"/>
-  <path d="M31.8 53.5c-12.4 0-22.3-9.1-22.3-21.2 0-12.7 9.8-22.7 22.4-22.7 12.7 0 22.6 9.2 22.6 21.2 0 10-7.2 17.2-16.6 17.2-8.4 0-14.7-6.1-14.7-14 0-6.2 4.6-10.8 10.8-10.8 5.1 0 8.8 3.6 8.8 8.3 0 3.7-2.4 6.4-5.9 6.4" fill="none" stroke="url(#sun)" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="36.7" cy="37.7" r="2.6" fill="#28251e"/>
+  <rect x="3" y="3" width="122" height="122" rx="31" fill="url(#paper)" stroke="#d8c99c" stroke-width="3"/>
+  <path d="M64 10c5.1 23 12.2 30.1 35 35-22.8 4.9-29.9 12-35 35-5.1-23-12.2-30.1-35-35 22.8-4.9 29.9-12 35-35Z" fill="url(#gold)"/>
+  <path d="M98 25c2.1 9.2 5 12.1 14 14-9 1.9-11.9 4.8-14 14-2.1-9.2-5-12.1-14-14 9-1.9 11.9-4.8 14-14Z" fill="#28251e"/>
+  <circle cx="64" cy="45" r="7" fill="#fffdf7"/>
+  <text x="64" y="103" text-anchor="middle" textLength="103" lengthAdjust="spacingAndGlyphs" fill="#28251e" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="900" letter-spacing="1.4">AURVEX</text>
+  <path d="M27 112h74" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
 </svg>
