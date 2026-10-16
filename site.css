@@ -940,3 +940,15 @@ html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{
   html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{right:7%;width:min(55%,250px);height:88%}
 }
 
+
+/* Full-bleed Yui artwork panel */
+html[data-theme="yui-after-school"] main.home-main>.home-hero{
+  position:relative;width:100vw;max-width:100vw;
+  margin-left:calc(50% - 50vw);border-radius:0
+}
+html[data-theme="yui-after-school"] main.home-main>.home-hero .hero-art{
+  width:100%;height:clamp(240px,34vw,390px);min-height:240px
+}
+@media(max-width:660px){
+  html[data-theme="yui-after-school"] main.home-main>.home-hero .hero-art{height:230px;min-height:230px}
+}
