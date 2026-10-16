@@ -668,3 +668,19 @@ html[data-theme="yui-after-school"] :is(button,[role="button"],.navlinks>a,a[cla
 html[data-theme="yui-after-school"] :is(button,[role="button"],.navlinks>a,a[class*="button"],a[class*="action"],a[class*="link"]):hover{
  transform:translateY(-1px) rotate(-.5deg)!important
 }
+
+/* Yui header: clean navigation controls and a little more room after search */
+html[data-theme="yui-after-school"] :is(.navlinks>a,.theme-menu-button,.lang-toggle){
+ border-style:solid!important;
+ border-width:1px!important;
+ border-radius:12px!important;
+ box-shadow:none!important
+}
+html[data-theme="yui-after-school"] :is(.navlinks>a,.theme-menu-button,.lang-toggle):hover{
+ transform:none!important
+}
+@media(min-width:901px){
+ html[data-theme="yui-after-school"] .header-inner:not(.page-nav) .search{
+  transform:translateX(-16px)
+ }
+}
