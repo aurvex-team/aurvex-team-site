@@ -807,7 +807,7 @@ html[data-theme="lelouch-britannia"] .devive-scene .devive-window{display:none}
 .lelouch-side-photo{display:none}
 html[data-theme="lelouch-britannia"] .hero-art{background:transparent!important;overflow:visible!important}
 html[data-theme="lelouch-britannia"] .hero-art:before{display:none!important}
-html[data-theme="lelouch-britannia"] .hero-art .lelouch-theme-image{inset:auto 0 0 auto;width:min(100%,540px);height:112%;max-width:100%;object-fit:contain;object-position:right bottom;opacity:1;filter:none}
+html[data-theme="lelouch-britannia"] .hero-art .lelouch-theme-image{inset:auto 0 0 auto;width:min(100%,540px);height:100%;max-width:100%;object-fit:contain;object-position:right bottom;opacity:1;filter:none}
 html[data-theme="lelouch-britannia"] .hero-art-label{display:none!important}
 html[data-theme="lelouch-britannia"] .page-main .lelouch-page-photo{display:none!important}
 html[data-theme="lelouch-britannia"] .lelouch-page-layout,
