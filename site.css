@@ -783,3 +783,20 @@ html[data-theme="lelouch-britannia"] .devive-page .devive-release-note{border-co
 html[data-theme="lelouch-britannia"] .devive-gallery-empty{border-color:#634d75!important;background:linear-gradient(120deg,#211a2c,#171321)!important}
 html[data-theme="lelouch-britannia"] .devive-gallery-mark{border-color:#76547f!important;background:#2b2038!important;color:#d6b96c!important}
 html[data-theme="lelouch-britannia"] .devive-page footer{border-color:#392b4c!important;color:#a99bb8!important}
+
+/* Lelouch artwork: show only while the Lelouch theme is active */
+.lelouch-theme-image,.lelouch-page-photo,.lelouch-avatar-photo,.lelouch-scene-image{display:none}
+html[data-theme="lelouch-britannia"] .hero-art{isolation:isolate}
+html[data-theme="lelouch-britannia"] .hero-art svg{display:none!important}
+html[data-theme="lelouch-britannia"] .hero-art .lelouch-theme-image{display:block;position:absolute;z-index:0;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.84;filter:saturate(.8) contrast(1.06)}
+html[data-theme="lelouch-britannia"] .hero-art:before{z-index:1;background:linear-gradient(90deg,#1c1427aa 0%,#1c142733 48%,#0d0b1499 100%),linear-gradient(0deg,#0d0b14 0,transparent 48%)!important}
+html[data-theme="lelouch-britannia"] .hero-art-label{z-index:2}
+html[data-theme="lelouch-britannia"] .page-main .lelouch-page-photo{display:block;position:relative;width:min(100%,900px);height:210px;margin:0 0 26px;overflow:hidden;border:1px solid #634c76;border-radius:20px;background:#171321;box-shadow:0 16px 42px #0007}
+html[data-theme="lelouch-britannia"] .lelouch-page-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 39%;opacity:.88;filter:saturate(.78) contrast(1.04)}
+html[data-theme="lelouch-britannia"] .lelouch-page-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0d0b1440,transparent 55%,#0d0b1433);pointer-events:none}
+html[data-theme="lelouch-britannia"] .lelouch-page-photo[data-lelouch-photo="donate"] img{object-fit:contain;object-position:center;background:radial-gradient(ellipse,#38234b,#0d0b14 72%)}
+html[data-theme="lelouch-britannia"] .member .avatar{display:none!important}
+html[data-theme="lelouch-britannia"] .lelouch-avatar-photo{display:block;width:58px;height:58px;flex:none;object-fit:cover;object-position:center 35%;border:1px solid #d6b96c;border-radius:18px;background:#211a2c;box-shadow:0 0 0 4px #c33a5220}
+html[data-theme="lelouch-britannia"] .devive-scene .lelouch-scene-image{display:block;position:absolute;z-index:1;right:15%;top:18%;width:24%;height:56%;object-fit:cover;object-position:center;border:4px solid #684d79;box-shadow:0 0 0 10px #21172d,0 0 42px #c33a5233;opacity:.88}
+html[data-theme="lelouch-britannia"] .devive-scene .devive-window{display:none}
+@media(max-width:660px){html[data-theme="lelouch-britannia"] .page-main .lelouch-page-photo{height:155px;margin-bottom:20px}html[data-theme="lelouch-britannia"] .devive-scene .lelouch-scene-image{right:8%;top:18%;width:32%;height:46%}}
