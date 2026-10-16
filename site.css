@@ -841,3 +841,29 @@ html[data-theme="lelouch-britannia"] .lelouch-donate-layout>.lelouch-side-photo 
 
 html[data-theme="lelouch-britannia"] .lelouch-team-profile{display:block}
 html[data-theme="lelouch-britannia"] .lelouch-side-photo img{filter:saturate(.76) contrast(1.07) brightness(.78)}
+
+
+/* Lelouch theme only: keep two-column copy blocks compact */
+html[data-theme="lelouch-britannia"] .lelouch-page-layout,
+html[data-theme="lelouch-britannia"] .lelouch-donate-layout,
+html[data-theme="lelouch-britannia"] .lelouch-team-layout{
+  width:100%;
+  max-width:960px;
+  margin-inline:auto;
+  grid-template-columns:minmax(0,1fr) 300px;
+  gap:22px;
+}
+html[data-theme="lelouch-britannia"] .lelouch-page-layout .entry p,
+html[data-theme="lelouch-britannia"] .lelouch-team-profile .profile-text,
+html[data-theme="lelouch-britannia"] .lelouch-team-opening p,
+html[data-theme="lelouch-britannia"] .lelouch-donate-copy p{
+  max-width:560px;
+}
+@media(max-width:760px){
+  html[data-theme="lelouch-britannia"] .lelouch-page-layout,
+  html[data-theme="lelouch-britannia"] .lelouch-donate-layout,
+  html[data-theme="lelouch-britannia"] .lelouch-team-layout{
+    max-width:100%;
+    grid-template-columns:minmax(0,1fr);
+  }
+}
