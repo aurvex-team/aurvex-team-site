@@ -646,5 +646,7 @@ html[data-theme="yui-after-school"] .yui-hero-photo{display:block!important;posi
 @media(max-width:640px){html[data-theme="yui-after-school"] .yui-hero-photo{right:4%;height:90%!important;max-width:48%}}
 
 
-/* Separate the founder bio from the open team invitation */
-.page-content > .profile-text{margin-bottom:30px}
+
+
+/* Add a clear gap between the team bio and invitation card */
+.page-content > .profile-text + .entry{margin-top:30px!important}
