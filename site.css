@@ -894,3 +894,9 @@ html:not([data-theme="yui-after-school"]) .foot{min-height:64px;align-items:cent
   html:not([data-theme="yui-after-school"]) .navlinks{gap:1px}
   html:not([data-theme="yui-after-school"]) .navlinks>a{min-height:34px;padding:0 7px;font-size:8px}
 }
+
+
+@media(min-width:821px){
+  html:not([data-theme="yui-after-school"]) .header-inner.page-nav{grid-template-columns:180px minmax(0,1fr)}
+  html:not([data-theme="yui-after-school"]) .header-inner.page-nav .navlinks{grid-column:2;grid-row:1;justify-content:flex-end}
+}
