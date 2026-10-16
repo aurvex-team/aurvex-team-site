@@ -644,3 +644,7 @@ html[data-theme="yui-after-school"] .hero-art-label{display:none!important}
 /* Transparent Yui cutout on the right side of the home hero */
 html[data-theme="yui-after-school"] .yui-hero-photo{display:block!important;position:absolute!important;z-index:2;right:7%;top:auto!important;bottom:0;width:auto!important;height:100%!important;max-width:42%;transform:none!important;object-fit:contain!important;object-position:center bottom;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
 @media(max-width:640px){html[data-theme="yui-after-school"] .yui-hero-photo{right:4%;height:90%!important;max-width:48%}}
+
+
+/* Separate the founder bio from the open team invitation */
+.page-content > .profile-text{margin-bottom:30px}
