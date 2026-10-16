@@ -688,11 +688,11 @@ html[data-theme="yui-after-school"] :is(.navlinks>a,.theme-menu-button,.lang-tog
 }
 
 /* Yui background color control */
-.theme-color-control[hidden]{display:none!important}
-.theme-color-control{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding:11px 12px;border:1px solid #49372d;border-radius:14px;background:#2b211c;color:#f1e7dd;cursor:pointer}
-.theme-color-copy{display:flex;flex-direction:column;gap:4px}
-.theme-color-copy strong{font-size:12px}
-.theme-color-copy small{color:#baa99b;font-size:10px;line-height:1.4}
-.theme-color-input{width:38px;height:34px;flex:none;padding:2px;border:1px solid #79503c;border-radius:10px;background:#211916;cursor:pointer}
-html[data-theme="yui-after-school"][data-yui-custom-background] body{background:var(--yui-background-custom)!important;background-image:none!important}
-html[data-theme="yui-after-school"][data-yui-custom-background] .search{background:var(--yui-background-custom)!important;border-color:color-mix(in srgb,var(--yui-background-custom) 72%,#f1e7dd)!important}
+html[data-theme="yui-after-school"] .theme-color-control[hidden]{display:none!important}
+html[data-theme="yui-after-school"] .theme-color-control{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding:11px 12px;border:1px solid #49372d;border-radius:14px;background:#2b211c;color:#f1e7dd;cursor:pointer}
+html[data-theme="yui-after-school"] .theme-color-copy{display:flex;flex-direction:column;gap:4px}
+html[data-theme="yui-after-school"] .theme-color-copy strong{font-size:12px}
+html[data-theme="yui-after-school"] .theme-color-copy small{color:#baa99b;font-size:10px;line-height:1.4}
+html[data-theme="yui-after-school"] .theme-color-input{width:38px;height:34px;flex:none;padding:2px;border:1px solid #79503c;border-radius:10px;background:#211916;cursor:pointer}
+html[data-theme="yui-after-school"] html[data-theme="yui-after-school"][data-yui-custom-background] body{background:var(--yui-background-custom)!important;background-image:none!important}
+html[data-theme="yui-after-school"] html[data-theme="yui-after-school"][data-yui-custom-background] .search{background:var(--yui-background-custom)!important;border-color:color-mix(in srgb,var(--yui-background-custom) 72%,#f1e7dd)!important}
