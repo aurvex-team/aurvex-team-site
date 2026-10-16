@@ -793,3 +793,29 @@ html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(3){backgroun
  html[data-theme="yui-after-school"] .home-hero{background:linear-gradient(145deg,#392a30,#201a21)!important}
  html[data-theme="yui-after-school"] .home-hero .hero-copy{padding:28px 23px}
 }
+
+/* Stronger pencil-outline treatment for the hand-drawn theme */
+html[data-theme="yui-after-school"] body,
+html[data-theme="yui-after-school"] :is(h1,h2,h3,p,.brand-word,.entry-meta,.page-label,.hero-eyebrow,.section-kicker,.game-code){
+ font-family:"Comic Neue","Comic Sans MS",sans-serif!important
+}
+html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.search,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option){
+ border-style:dashed!important;border-width:2px!important
+}
+html[data-theme="yui-after-school"] :is(.home-hero,.home-games-grid .game-card,.home-feature,.studio-note,.page-content .entry,.profile-text,.donate-box,.info-box,.devive-showcase,.devive-gallery,.devive-intro,.devive-controls-panel,.devive-release-note,.control,.devive-gallery-empty){
+ border-style:dashed!important;border-width:2px!important;
+ background-image:repeating-linear-gradient(135deg,transparent 0 17px,#ffffff04 18px,#ffffff04 19px),linear-gradient(145deg,#30252c,#292127)!important
+}
+html[data-theme="yui-after-school"] .home-hero{
+ background-image:repeating-linear-gradient(135deg,transparent 0 16px,#ffffff06 17px,#ffffff06 18px),linear-gradient(110deg,#392a30 0%,#30232a 52%,#211a22 52%,#1b171c 100%)!important
+}
+html[data-theme="yui-after-school"] .page-title:after{
+ width:76px!important;border-bottom:3px dashed #ce8b63!important;background:none!important;
+ box-shadow:none!important;height:0!important;transform:rotate(-2deg)
+}
+html[data-theme="yui-after-school"] .hero-title{
+ text-shadow:1px 1px 0 #d6976f24,-1px 1px 0 #d6976f16!important
+}
+html[data-theme="yui-after-school"] :is(.navlinks>a:hover,.hero-primary:hover,.hero-secondary:hover,.feature-action:hover,.primary-button:hover,.donate-button:hover,.filter-chip:hover,.theme-option:hover){
+ transform:translateY(-2px) rotate(-1deg)!important
+}
