@@ -761,3 +761,8 @@ html[data-theme="yui-after-school"] .home-games-grid .game-action{cursor:pointer
   html:not([data-theme="yui-after-school"]) .hero-actions{gap:9px}
   html:not([data-theme="yui-after-school"]) .hero-primary,html:not([data-theme="yui-after-school"]) .hero-secondary{min-height:43px;padding:0 14px}
 }
+
+
+/* Hide the storefront hero in the default theme only; keep the Yui layout intact */
+html:not([data-theme="yui-after-school"]) .home-main > .home-hero{display:none!important}
+html:not([data-theme="yui-after-school"]) .home-main > .library-section{padding-top:8px}
