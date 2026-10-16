@@ -838,3 +838,6 @@ html[data-theme="lelouch-britannia"] .lelouch-donate-layout>.lelouch-side-photo 
  html[data-theme="lelouch-britannia"] .lelouch-team-opening{grid-row:3}
  html[data-theme="lelouch-britannia"] .lelouch-team-aside>.primary-button{grid-row:4}
 }
+
+html[data-theme="lelouch-britannia"] .lelouch-team-profile{display:block}
+html[data-theme="lelouch-britannia"] .lelouch-side-photo img{filter:saturate(.76) contrast(1.07) brightness(.78)}
