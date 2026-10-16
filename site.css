@@ -896,3 +896,27 @@ html[data-theme="yui-after-school"] .lelouch-team-aside>.primary-button{align-se
 :root[data-theme="yui-after-school"] .devive-game-title{color:#f1e7dd}
 @media(max-width:760px){.devive-gallery-top{padding:18px}.devive-gallery-stage{min-height:250px;aspect-ratio:4/3}}
 @media(max-width:430px){.devive-gallery-stage{min-height:220px;aspect-ratio:1/1}}
+
+
+/* Devive theme picker: keep Yui and Lelouch controls visibly distinct */
+html[data-theme="yui-after-school"] .devive-page :is(.navlinks>a,.lang-toggle,.theme-menu-button,.back-link,.theme-option,.theme-reset-colors,.devive-release-button){
+  border-color:#684a39!important;background:#2b211c!important;color:#f1e7dd!important
+}
+html[data-theme="yui-after-school"] .devive-page :is(.navlinks>a:hover,.navlinks>a[aria-current=page],.lang-toggle:hover,.lang-toggle[aria-expanded=true],.theme-menu-button:hover,.theme-menu-button[aria-expanded=true],.back-link:hover,.theme-option:hover){
+  border-color:#c28a55!important;background:#493021!important;color:#fff0e4!important
+}
+html[data-theme="yui-after-school"] .devive-page .theme-option[aria-pressed="true"]{
+  border-color:#d49a54!important;background:#3d2a20!important;color:#fff0e4!important;box-shadow:inset 0 0 0 2px #b77945!important
+}
+html[data-theme="yui-after-school"] .devive-page .theme-reset-colors:hover{border-color:#d49a54!important;background:#70452f!important;color:#fff0e4!important}
+
+html[data-theme="lelouch-britannia"] .devive-page :is(.navlinks>a,.lang-toggle,.theme-menu-button,.back-link,.theme-option,.theme-reset-colors,.devive-release-button){
+  border-color:#58446f!important;background:#211a2c!important;color:#eee8f4!important
+}
+html[data-theme="lelouch-britannia"] .devive-page :is(.navlinks>a:hover,.navlinks>a[aria-current=page],.lang-toggle:hover,.lang-toggle[aria-expanded=true],.theme-menu-button:hover,.theme-menu-button[aria-expanded=true],.back-link:hover,.theme-option:hover){
+  border-color:#d3485e!important;background:#402238!important;color:#fff5f5!important
+}
+html[data-theme="lelouch-britannia"] .devive-page .theme-option[aria-pressed="true"]{
+  border-color:#d3485e!important;background:#33223e!important;color:#fff5f5!important;box-shadow:inset 0 0 0 2px #a52a43!important
+}
+html[data-theme="lelouch-britannia"] .devive-page .theme-reset-colors:hover{border-color:#d3485e!important;background:#a52a43!important;color:#fff5f5!important}
