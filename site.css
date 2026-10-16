@@ -900,3 +900,22 @@ html:not([data-theme="yui-after-school"]) .foot{min-height:64px;align-items:cent
   html:not([data-theme="yui-after-school"]) .header-inner.page-nav{grid-template-columns:180px minmax(0,1fr)}
   html:not([data-theme="yui-after-school"]) .header-inner.page-nav .navlinks{grid-column:2;grid-row:1;justify-content:flex-end}
 }
+
+
+/* Yui homepage: replace the full hero with one studio statement */
+html[data-theme="yui-after-school"] .home-main>.home-hero{
+  display:flex!important;min-height:220px;margin-bottom:28px;padding:0;
+  grid-template-columns:1fr;border:1px solid #49372d;border-radius:22px;
+  background:linear-gradient(120deg,#241c18,#1b1512);
+  box-shadow:0 16px 40px #0005
+}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-art,
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-copy>:not(.hero-title){display:none!important}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-copy{
+  width:100%;min-height:218px;align-items:center;justify-content:center;
+  padding:34px;text-align:center
+}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-title{
+  max-width:none;margin:0;color:#f1e7dd;font-size:clamp(27px,4vw,44px);
+  line-height:1.2;letter-spacing:-.035em;text-shadow:none
+}
