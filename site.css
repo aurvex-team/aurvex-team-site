@@ -661,3 +661,48 @@ html[data-theme="yui-after-school"] .devive-page .theme-coming-icon{background:#
 
 /* Shared wrappers for the team page */
 .team-layout, .team-profile, .team-aside{display:contents}
+
+
+/* Yui Team page: compact profile, photo with both actions beneath */
+:root[data-theme="yui-after-school"] .team-layout{
+  display:grid;
+  grid-template-columns:minmax(0,340px) minmax(0,280px);
+  align-items:start;
+  gap:24px;
+  width:min(100%,644px);
+}
+:root[data-theme="yui-after-school"] .team-copy{display:flex;flex-direction:column;gap:17px;min-width:0}
+:root[data-theme="yui-after-school"] .team-profile{
+  display:block;
+  min-width:0;
+  padding:20px;
+  border:1px solid #49372d;
+  border-radius:18px;
+  background:linear-gradient(145deg,#211916,#1b1512);
+}
+:root[data-theme="yui-after-school"] .team-profile .member{padding:0;border:0}
+:root[data-theme="yui-after-school"] .team-opening{margin:0;padding:20px;border:1px solid #49372d;border-radius:18px;background:#211916}
+:root[data-theme="yui-after-school"] .team-aside{display:flex;flex-direction:column;gap:12px;min-width:0}
+:root[data-theme="yui-after-school"] .team-aside .team-photo{
+  position:relative;
+  inset:auto;
+  display:block;
+  width:100%;
+  height:205px;
+  margin:0;
+  flex:none;
+  border:1px solid #9a603e;
+  border-radius:18px;
+  background:#241c18;
+  box-shadow:0 14px 34px #0008;
+}
+:root[data-theme="yui-after-school"] .team-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;border-radius:inherit}
+:root[data-theme="yui-after-school"] .team-links{display:grid;gap:9px}
+:root[data-theme="yui-after-school"] .team-links .primary-button{width:100%;min-height:42px;margin:0;justify-content:center}
+@media(max-width:700px){
+  :root[data-theme="yui-after-school"] .team-layout{grid-template-columns:minmax(0,1fr) minmax(220px,.82fr);width:100%;gap:18px}
+}
+@media(max-width:540px){
+  :root[data-theme="yui-after-school"] .team-layout{grid-template-columns:1fr;width:100%}
+  :root[data-theme="yui-after-school"] .team-aside{width:min(100%,340px)}
+}
