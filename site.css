@@ -852,3 +852,27 @@ html[data-theme="yui-after-school"] .donate-box p,
 html[data-theme="yui-after-school"] .info-box p{
   max-width:560px;
 }
+
+/* Yui theme only: narrow the two Team columns */
+html[data-theme="yui-after-school"] .lelouch-team-layout{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:22px;
+  width:min(100%,1080px);
+}
+html[data-theme="yui-after-school"] .lelouch-team-profile,
+html[data-theme="yui-after-school"] .lelouch-team-aside{
+  display:block;
+  min-width:0;
+  padding:22px;
+  border:1px solid #49372d;
+  border-radius:20px;
+  background:linear-gradient(145deg,#211916,#1b1512);
+}
+html[data-theme="yui-after-school"] .lelouch-team-aside{display:flex;flex-direction:column;gap:16px}
+html[data-theme="yui-after-school"] .lelouch-team-profile .member{padding:0;border:0}
+html[data-theme="yui-after-school"] .lelouch-team-profile .profile-text{margin-top:18px;padding:18px 0 0;border-top:1px solid #49372d}
+html[data-theme="yui-after-school"] .lelouch-team-opening{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+html[data-theme="yui-after-school"] .lelouch-team-aside>.primary-button{align-self:flex-start;margin:0}
+@media(max-width:760px){html[data-theme="yui-after-school"] .lelouch-team-layout{grid-template-columns:1fr;width:100%}}
