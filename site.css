@@ -598,3 +598,30 @@ main.home-main{width:min(var(--max),calc(100% - 72px));padding:34px 0 72px}
  :root[data-theme="yui-after-school"] .yui-hero-photo{right:5%;width:min(50%,210px);height:82%}
  :root[data-theme="yui-after-school"] .devive-page .yui-devive-photo{right:12px;bottom:12px;width:92px;height:110px}
 }
+
+
+/* Ensure the dark anime palette wins over legacy theme declarations */
+html[data-theme="yui-after-school"]{background:#171311!important;color-scheme:dark}
+html[data-theme="yui-after-school"] body{background-color:#171311!important;background-image:radial-gradient(ellipse at 92% 8%,#56342d55 0,transparent 30%),radial-gradient(ellipse at 5% 55%,#36251f66 0,transparent 37%)!important;color:#f1e7dd!important}
+html[data-theme="yui-after-school"] header{background:#171311ed!important;border-color:#453329!important}
+html[data-theme="yui-after-school"] .navlinks>a,
+html[data-theme="yui-after-school"] .lang-toggle,
+html[data-theme="yui-after-school"] .theme-menu-button{background:#241b17!important;border-color:#533b2e!important;color:#eaded2!important}
+html[data-theme="yui-after-school"] .navlinks>a:hover,
+html[data-theme="yui-after-school"] .navlinks>a[aria-current=page],
+html[data-theme="yui-after-school"] .lang-toggle:hover,
+html[data-theme="yui-after-school"] .lang-toggle[aria-expanded=true],
+html[data-theme="yui-after-school"] .theme-menu-button:hover,
+html[data-theme="yui-after-school"] .theme-menu-button[aria-expanded=true]{background:#70452f!important;border-color:#a66b45!important;color:#fff0e4!important}
+html[data-theme="yui-after-school"] .search{background:#211916!important;border-color:#503a30!important;color:#eee4db!important}
+html[data-theme="yui-after-school"] .search input{color:#f1e7dd!important}
+html[data-theme="yui-after-school"] main.home-main,
+html[data-theme="yui-after-school"] .library-section,
+html[data-theme="yui-after-school"] .page-main{background:transparent!important;color:#f1e7dd!important}
+html[data-theme="yui-after-school"] .filter-chip{background:#281f1b!important;border-color:#594238!important;color:#d5c3b6!important}
+html[data-theme="yui-after-school"] .filter-chip[aria-pressed=true]{background:#75482f!important;border-color:#9a603e!important;color:#fff0e4!important}
+html[data-theme="yui-after-school"] .home-games-grid .game-info{background:#241c18!important;color:#f1e7dd!important}
+html[data-theme="yui-after-school"] .home-games-grid .game-info p{color:#baa99b!important}
+html[data-theme="yui-after-school"] .theme-menu,
+html[data-theme="yui-after-school"] .lang-menu{background:#211916!important;color:#f1e7dd!important;border-color:#49372d!important}
+html[data-theme="yui-after-school"] footer{background:#171311!important;border-color:#49372d!important;color:#958477!important}
