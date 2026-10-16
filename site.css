@@ -876,3 +876,23 @@ html[data-theme="yui-after-school"] .lelouch-team-profile .profile-text{margin-t
 html[data-theme="yui-after-school"] .lelouch-team-opening{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 html[data-theme="yui-after-school"] .lelouch-team-aside>.primary-button{align-self:flex-start;margin:0}
 @media(max-width:760px){html[data-theme="yui-after-school"] .lelouch-team-layout{grid-template-columns:1fr;width:100%}}
+
+
+/* Devive page: lead with the screenshot gallery instead of the decorative room */
+.devive-gallery-top{margin:0;padding:24px;border:0;border-bottom:1px solid #392b1d;border-radius:0;background:#17120e}
+.devive-gallery-top .devive-gallery-heading{margin-bottom:14px}
+.devive-gallery-stage{min-height:340px;aspect-ratio:16/7;justify-content:center;gap:18px;border-style:solid;border-color:#493722;border-radius:17px;background:radial-gradient(ellipse at 50% 42%,#292118 0,transparent 56%),repeating-linear-gradient(135deg,#1c1712 0 18px,#1a1511 18px 36px)}
+.devive-gallery-camera{width:52px;height:52px;flex:none;color:#c38337;opacity:.9}
+.devive-gallery-empty-copy{max-width:360px}
+.devive-gallery-label{display:block;margin-bottom:7px;color:#d2a260;font:750 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em}
+.devive-intro-copy>.devive-status{margin-top:15px}
+.devive-game-title{margin:10px 0 0;color:#fff4df;font-size:clamp(38px,5.5vw,64px);line-height:.98;letter-spacing:.04em;font-weight:900}
+.devive-intro-copy>.devive-tagline{margin:7px 0 0;color:#e4c79e;font-size:15px;letter-spacing:.02em}
+.devive-intro-copy>.devive-tagline+ p{margin-top:14px}
+:root[data-theme="yui-after-school"] .devive-gallery-top{border-color:#49372d;background:#241c18}
+:root[data-theme="yui-after-school"] .devive-gallery-stage{border-color:#49372d;background:radial-gradient(ellipse at 50% 42%,#382923 0,transparent 58%),repeating-linear-gradient(135deg,#211916 0 18px,#1d1714 18px 36px)}
+:root[data-theme="yui-after-school"] .devive-gallery-camera,
+:root[data-theme="yui-after-school"] .devive-gallery-label{color:#bd7c52}
+:root[data-theme="yui-after-school"] .devive-game-title{color:#f1e7dd}
+@media(max-width:760px){.devive-gallery-top{padding:18px}.devive-gallery-stage{min-height:250px;aspect-ratio:4/3}}
+@media(max-width:430px){.devive-gallery-stage{min-height:220px;aspect-ratio:1/1}}
