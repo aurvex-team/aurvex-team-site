@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Klee+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
 :root{
  color-scheme:light;
  --bg:#f1eee5;--panel:#fffdf7;--panel2:#f8edc4;--line:#e3d9c2;--text:#201d17;--muted:#706a5e;
@@ -655,167 +655,18 @@ html[data-theme="yui-after-school"] .yui-hero-photo{display:block!important;posi
 
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Klee+One&display=swap');
 
-/* Hand-illustrated K-On inspired Yui theme */
-html[data-theme="yui-after-school"]{
- color-scheme:dark;
- --bg:#1c171c;--panel:#2c2329;--panel2:#382a31;--line:#74545b;
- --text:#f6eadb;--muted:#c5afb0;--yellow:#c9825d;--yellow-hover:#e3ad76;
- --violet:#a88698;--violet-hover:#d7a575;
- background:#1c171c!important
-}
-html[data-theme="yui-after-school"] body{
- background-color:#1c171c!important;
- background-image:radial-gradient(circle at 12% 9%,#88584720 0 2px,transparent 3px),radial-gradient(circle at 80% 42%,#d5a17413 0 1.5px,transparent 2.5px),linear-gradient(145deg,#1c171c,#211a20 54%,#171419)!important;
- background-size:39px 43px,57px 61px,auto!important;
- color:#f6eadb!important;
- font-family:"Comic Neue","Klee One","Comic Sans MS",sans-serif!important
-}
-html[data-theme="yui-after-school"] :is(h1,h2,h3,.brand-word,.hero-eyebrow,.section-kicker,.page-label,.entry-meta,.game-code,.devive-scene-mark,.devive-status,.theme-menu-kicker){
- font-family:"Klee One","Comic Neue","Comic Sans MS",sans-serif!important;
- letter-spacing:.025em!important
-}
-html[data-theme="yui-after-school"] :is(button,input,a,.tag,.filter-chip,.control,.theme-option,.lang-option){
- font-family:"Comic Neue","Klee One","Comic Sans MS",sans-serif!important
-}
-html[data-theme="yui-after-school"] header{
- background:#20191fee!important;border-color:#644951!important;
- box-shadow:0 3px 0 #100e1233
-}
-html[data-theme="yui-after-school"] .brand-word{font-size:21px;letter-spacing:.08em!important;color:#f5e7d4}
-html[data-theme="yui-after-school"] .brand-accent{color:#d39469!important}
-html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button){
- min-height:42px;border:2px solid #74545b!important;
- border-radius:18px 15px 19px 14px / 15px 19px 14px 18px!important;
- background:#2b2229!important;color:#f5e7d4!important;
- box-shadow:2px 3px 0 #110e12!important;
- transition:transform .18s ease,background .18s ease,border-color .18s ease!important
-}
-html[data-theme="yui-after-school"] :is(.navlinks>a:hover,.navlinks>a[aria-current=page],.lang-toggle:hover,.lang-toggle[aria-expanded=true],.theme-menu-button:hover,.theme-menu-button[aria-expanded=true]){
- border-color:#d39469!important;background:#8e5a48!important;color:#fff2df!important;
- box-shadow:2px 4px 0 #110e12!important;transform:translateY(-2px) rotate(-.7deg)
-}
-html[data-theme="yui-after-school"] .search{
- border:2px solid #74545b!important;border-radius:17px 21px 16px 19px!important;
- background:#2a2228!important;box-shadow:2px 3px 0 #110e12!important
-}
-html[data-theme="yui-after-school"] .search:focus-within{border-color:#d39469!important;box-shadow:2px 3px 0 #110e12,0 0 0 3px #c9825d2b!important}
-html[data-theme="yui-after-school"] .search input{color:#f6eadb!important}
-html[data-theme="yui-after-school"] .search input::placeholder{color:#bda6aa!important}
-html[data-theme="yui-after-school"] .home-hero{
- border:2px solid #74545b!important;border-radius:27px 22px 29px 23px!important;
- background:linear-gradient(110deg,#392a30 0%,#30232a 52%,#211a22 52%,#1b171c 100%)!important;
- box-shadow:3px 5px 0 #110e12!important
-}
-html[data-theme="yui-after-school"] .hero-title{color:#fff0df!important;font-family:"Klee One","Comic Neue",sans-serif!important}
-html[data-theme="yui-after-school"] .hero-description{color:#d6c1b8!important}
-html[data-theme="yui-after-school"] .hero-eyebrow,.section-kicker,.feature-kicker{color:#dfa879!important}
-html[data-theme="yui-after-school"] :is(.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button){
- border:2px solid #9a654d!important;border-radius:17px 14px 19px 15px!important;
- box-shadow:2px 4px 0 #120f13!important;
- font-weight:700!important;transition:transform .18s ease,filter .18s ease!important
-}
-html[data-theme="yui-after-school"] .hero-primary,
-html[data-theme="yui-after-school"] :is(.feature-action,.primary-button,.donate-button){
- background:#a96b4f!important;color:#fff2df!important
-}
-html[data-theme="yui-after-school"] .hero-secondary{background:#382b32!important;color:#f3e6d8!important}
-html[data-theme="yui-after-school"] :is(.hero-primary:hover,.hero-secondary:hover,.feature-action:hover,.primary-button:hover,.donate-button:hover){
- filter:brightness(1.12);transform:translateY(-2px) rotate(-.6deg)!important
-}
-html[data-theme="yui-after-school"] .page-title{color:#f7e9db!important;font-family:"Klee One","Comic Neue",sans-serif!important}
-html[data-theme="yui-after-school"] .page-title:after{
- height:4px!important;border-radius:70% 35% 60% 45%!important;background:#ce8b63!important;
- transform:rotate(-1.2deg);box-shadow:10px 2px 0 -1px #e4b78255
-}
-html[data-theme="yui-after-school"] :is(.home-games-grid .game-card,.home-feature,.studio-note,.page-content .entry,.profile-text,.donate-box,.info-box,.devive-showcase,.devive-gallery,.control){
- border:2px solid #654a53!important;border-radius:20px 17px 22px 18px!important;
- background:linear-gradient(145deg,#30252c,#292127)!important;color:#f4e7db!important;
- box-shadow:2px 4px 0 #120f13,5px 7px 0 #b77c5b12!important
-}
-html[data-theme="yui-after-school"] :is(.home-games-grid .game-card:hover,.control:hover){
- border-color:#ca8965!important;transform:translateY(-3px) rotate(-.35deg);
- box-shadow:3px 6px 0 #120f13,0 0 0 3px #c9825d1d!important
-}
-html[data-theme="yui-after-school"] .home-games-grid .game-info{background:transparent!important;color:#f4e7db!important}
-html[data-theme="yui-after-school"] .home-games-grid .game-info p,
-html[data-theme="yui-after-school"] .entry p,
-html[data-theme="yui-after-school"] .profile-text,
-html[data-theme="yui-after-school"] .studio-note p{color:#c9b5b2!important}
-html[data-theme="yui-after-school"] .home-games-grid .art,
-html[data-theme="yui-after-school"] .devive-scene{
- border-bottom:2px dashed #8b6564!important;
- background:radial-gradient(ellipse at 72% 28%,#b77b5a33,transparent 36%),linear-gradient(135deg,#3b2a30,#28232d 68%,#201a21)!important
-}
-html[data-theme="yui-after-school"] .home-games-grid .art:before,
-html[data-theme="yui-after-school"] .devive-scene-backdrop{opacity:.62!important;filter:sepia(.24) saturate(.82)!important}
-html[data-theme="yui-after-school"] .home-games-grid .art:after{filter:sepia(.25) drop-shadow(0 8px 14px #100d12aa)!important}
-html[data-theme="yui-after-school"] :is(.status,.tag,.filter-chip,.game-count,.game-action,.back-link,.control kbd,.devive-status,.devive-scene-mark){
- border:1.5px solid #805e62!important;border-radius:12px 10px 13px 9px!important;
- background:#3a2a31!important;color:#f0d4bd!important;box-shadow:1px 2px 0 #130f13!important
-}
-html[data-theme="yui-after-school"] :is(.tag:hover,.filter-chip:hover,.game-card:hover .game-action,.back-link:hover){
- border-color:#d39469!important;background:#875541!important;color:#fff1de!important
-}
-html[data-theme="yui-after-school"] .filter-chip[aria-pressed=true]{background:#a96b4f!important;border-color:#d39469!important;color:#fff1de!important}
-html[data-theme="yui-after-school"] .devive-intro,
-html[data-theme="yui-after-school"] .devive-controls-panel,
-html[data-theme="yui-after-school"] .devive-release-note,
-html[data-theme="yui-after-school"] .devive-gallery-empty{
- border:2px solid #654a53!important;border-radius:19px 15px 22px 17px!important;
- background:#2b2229!important;color:#d4bfba!important;box-shadow:2px 4px 0 #120f13!important
-}
-html[data-theme="yui-after-school"] .devive-scene-title h1{font-family:"Klee One","Comic Neue",sans-serif!important;color:#fff0df!important}
-html[data-theme="yui-after-school"] .devive-light{background:radial-gradient(circle,#bd825b55 0,transparent 72%)!important}
-html[data-theme="yui-after-school"] .devive-window{border-color:#9a6a5b!important;box-shadow:0 0 0 10px #21191f,0 0 35px #c9825d2b!important}
-html[data-theme="yui-after-school"] :is(.theme-menu,.lang-menu){
- border:2px solid #76545c!important;border-radius:18px 15px 21px 16px!important;
- background:#292128!important;color:#f3e7da!important;box-shadow:4px 6px 0 #100d12!important
-}
-html[data-theme="yui-after-school"] :is(.theme-option,.theme-coming){
- border:1.5px solid #604a52!important;border-radius:14px 12px 16px 13px!important;background:#33272f!important;color:#f4e7db!important
-}
-html[data-theme="yui-after-school"] .theme-option:hover{border-color:#ca8965!important;background:#493039!important}
-html[data-theme="yui-after-school"] .theme-option[aria-pressed=true]{box-shadow:inset 0 0 0 1px #d39469,2px 3px 0 #120f13!important}
-html[data-theme="yui-after-school"] :is(.lang-option:hover,.lang-option[aria-selected=true]){background:#493039!important;color:#fff0df!important}
-html[data-theme="yui-after-school"] :is(.member,.page-content .entry,.profile-text,.donate-box,.info-box){border-color:#654a53!important}
-html[data-theme="yui-after-school"] .member .avatar{border:2px solid #a16c58!important;border-radius:18px 14px 19px 15px!important;background:#4b3337!important;color:#f5d6bd!important}
-html[data-theme="yui-after-school"] .member:hover .avatar{background:#a96b4f!important;color:#fff2df!important}
-html[data-theme="yui-after-school"] .profile-text a{color:#e2aa7b!important;text-decoration-style:wavy!important;text-decoration-color:#c9825d!important}
-html[data-theme="yui-after-school"] .profile-text a:hover{color:#fff0df!important;background:#a96b4f44!important}
-html[data-theme="yui-after-school"] .hero-art{background:radial-gradient(ellipse at 72% 38%,#81564366,transparent 39%),linear-gradient(135deg,#201b24,#392831 65%,#1a171d)!important}
-html[data-theme="yui-after-school"] .hero-art:before{background:repeating-linear-gradient(0deg,transparent 0 52px,#ffffff0a 53px),linear-gradient(90deg,transparent 68%,#e3ad7625 68.1%,transparent 68.5%)!important}
-html[data-theme="yui-after-school"] footer{background:#1a161b!important;border-color:#604751!important;color:#ad9698!important}
-html[data-theme="yui-after-school"] .theme-live-dot{background:#d39469!important;box-shadow:0 0 0 3px #d3946933!important}
-html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(1){background:#a96b4f!important}
-html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(2){background:#684752!important}
-html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(3){background:#e2aa7b!important}
-@media(max-width:640px){
- html[data-theme="yui-after-school"] .home-hero{background:linear-gradient(145deg,#392a30,#201a21)!important}
- html[data-theme="yui-after-school"] .home-hero .hero-copy{padding:28px 23px}
-}
 
-/* Stronger pencil-outline treatment for the hand-drawn theme */
-html[data-theme="yui-after-school"] body,
-html[data-theme="yui-after-school"] :is(h1,h2,h3,p,.brand-word,.entry-meta,.page-label,.hero-eyebrow,.section-kicker,.game-code){
- font-family:"Comic Neue","Comic Sans MS",sans-serif!important
+/* Yui theme: anime lettering and hand-drawn buttons only */
+html[data-theme="yui-after-school"] body :is(h1,h2,h3,p,a,button,input,span,small,strong,label){
+ font-family:"Comic Neue","Comic Sans MS","Trebuchet MS",sans-serif!important
 }
-html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.search,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option){
- border-style:dashed!important;border-width:2px!important
+html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option){
+ border-style:dashed!important;
+ border-width:1.5px!important;
+ border-radius:16px 14px 17px 13px!important;
+ box-shadow:1px 2px 0 #120f13!important;
+ transition:transform .16s ease,filter .16s ease!important
 }
-html[data-theme="yui-after-school"] :is(.home-hero,.home-games-grid .game-card,.home-feature,.studio-note,.page-content .entry,.profile-text,.donate-box,.info-box,.devive-showcase,.devive-gallery,.devive-intro,.devive-controls-panel,.devive-release-note,.control,.devive-gallery-empty){
- border-style:dashed!important;border-width:2px!important;
- background-image:repeating-linear-gradient(135deg,transparent 0 17px,#ffffff04 18px,#ffffff04 19px),linear-gradient(145deg,#30252c,#292127)!important
-}
-html[data-theme="yui-after-school"] .home-hero{
- background-image:repeating-linear-gradient(135deg,transparent 0 16px,#ffffff06 17px,#ffffff06 18px),linear-gradient(110deg,#392a30 0%,#30232a 52%,#211a22 52%,#1b171c 100%)!important
-}
-html[data-theme="yui-after-school"] .page-title:after{
- width:76px!important;border-bottom:3px dashed #ce8b63!important;background:none!important;
- box-shadow:none!important;height:0!important;transform:rotate(-2deg)
-}
-html[data-theme="yui-after-school"] .hero-title{
- text-shadow:1px 1px 0 #d6976f24,-1px 1px 0 #d6976f16!important
-}
-html[data-theme="yui-after-school"] :is(.navlinks>a:hover,.hero-primary:hover,.hero-secondary:hover,.feature-action:hover,.primary-button:hover,.donate-button:hover,.filter-chip:hover,.theme-option:hover){
- transform:translateY(-2px) rotate(-1deg)!important
+html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option):hover{
+ transform:translateY(-1px) rotate(-.5deg)!important
 }
