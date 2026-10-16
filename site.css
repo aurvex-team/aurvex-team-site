@@ -751,3 +751,35 @@ html[data-theme="lelouch-britannia"] .theme-coming{background:#211a2c!important;
 html[data-theme="lelouch-britannia"] .devive-page{background:radial-gradient(ellipse at 50% -15%,#34214f 0,transparent 46%),#0d0b14!important;color:#f0ebf6!important}
 html[data-theme="lelouch-britannia"] .devive-page header{background:#0d0b14ed!important;border-color:#392b4c!important}html[data-theme="lelouch-britannia"] .devive-page .brand{color:#f0ebf6!important}html[data-theme="lelouch-britannia"] .devive-page .brand-accent{color:#d6b96c!important}
 html[data-theme="lelouch-britannia"] .detail-meta .tag{background:#241c31!important;border-color:#644a76!important;color:#d7c7e6!important}
+
+/* Lelouch palette for Devive’s custom horror scene */
+html[data-theme="lelouch-britannia"] .devive-page .page-main{color:#f0ebf6}
+html[data-theme="lelouch-britannia"] .devive-showcase,html[data-theme="lelouch-britannia"] .devive-gallery,html[data-theme="lelouch-britannia"] .devive-controls-panel{background:#171321!important;border-color:#49375d!important;color:#f0ebf6!important}
+html[data-theme="lelouch-britannia"] .devive-scene{background:#0b0911!important}
+html[data-theme="lelouch-britannia"] .devive-scene-backdrop{background:radial-gradient(ellipse at 59% 45%,#4b2f69 0,transparent 34%),linear-gradient(180deg,#171321 0,#21172d 70%,#100d17 100%)!important}
+html[data-theme="lelouch-britannia"] .devive-scene-backdrop:before{background:repeating-linear-gradient(0deg,transparent 0 42px,#ffffff0a 43px),linear-gradient(90deg,transparent 0 13%,#bd365022 13.2% 13.6%,transparent 13.8% 86%,#0005 86.2% 86.6%,transparent 86.8%)!important}
+html[data-theme="lelouch-britannia"] .devive-scene-backdrop:after{content:"";position:absolute;right:23%;top:25%;width:120px;aspect-ratio:1;border:1px solid #c33a5255;border-radius:50%;box-shadow:0 0 0 10px #c33a5210,0 0 48px #c33a5228;pointer-events:none}
+html[data-theme="lelouch-britannia"] .devive-window{border-color:#61476c!important;background:linear-gradient(180deg,#121523 0,#201b30 55%,#24162a 100%)!important;box-shadow:0 0 0 12px #1b1525,0 0 55px #8e416436!important}
+html[data-theme="lelouch-britannia"] .devive-window:before,html[data-theme="lelouch-britannia"] .devive-window:after{background:#785978!important}
+html[data-theme="lelouch-britannia"] .devive-light{background:radial-gradient(circle,#d6b96c70 0,#a52a4330 34%,transparent 72%)!important}
+html[data-theme="lelouch-britannia"] .devive-floor{border-color:#5a4066!important;background:repeating-linear-gradient(90deg,#13101c 0 82px,#24192c 83px 85px)!important}
+html[data-theme="lelouch-britannia"] .devive-scene-overlay{background:linear-gradient(180deg,#09070eb8 0%,transparent 24%,transparent 41%,#09070e30 58%,#09070ee8 100%)!important}
+html[data-theme="lelouch-britannia"] .devive-scene-top{color:#d6b96c!important}
+html[data-theme="lelouch-britannia"] .devive-scene-mark,html[data-theme="lelouch-britannia"] .devive-status{border-color:#a33b5488!important;background:#171321c9!important;color:#e8d9f0!important}
+html[data-theme="lelouch-britannia"] .devive-status:before{background:#c33a52!important;box-shadow:0 0 13px #e34b63!important}
+html[data-theme="lelouch-britannia"] .devive-scene-title h1{color:#f4eff8!important;text-shadow:0 4px 25px #000!important}
+html[data-theme="lelouch-britannia"] .devive-scene-title p{color:#d0bfdc!important}
+html[data-theme="lelouch-britannia"] .devive-intro{border-color:#392b4c!important;background:linear-gradient(110deg,#211a2c,#171321)!important}
+html[data-theme="lelouch-britannia"] .devive-intro .page-label,html[data-theme="lelouch-britannia"] .devive-gallery-heading,html[data-theme="lelouch-britannia"] .devive-page .entry-meta{color:#d6b96c!important}
+html[data-theme="lelouch-britannia"] .devive-intro .page-label:before{background:#c33a52!important}
+html[data-theme="lelouch-britannia"] .devive-intro-copy>p,html[data-theme="lelouch-britannia"] .devive-gallery-empty p,html[data-theme="lelouch-britannia"] .devive-page .control span{color:#b9adc6!important}
+html[data-theme="lelouch-britannia"] .devive-page .tag{border-color:#644a76!important;background:#241c31!important;color:#d7c7e6!important}
+html[data-theme="lelouch-britannia"] .devive-page .tag:hover{border-color:#d3485e!important;background:#a52a43!important;color:#fff!important}
+html[data-theme="lelouch-britannia"] .devive-release-button{border-color:#61476c!important;background:#211a2c!important;color:#b9adc6!important}
+html[data-theme="lelouch-britannia"] .devive-controls-panel,html[data-theme="lelouch-britannia"] .devive-page .control{border-color:#392b4c!important;background:#171321!important}
+html[data-theme="lelouch-britannia"] .devive-page .control:hover{border-color:#9b3650!important;background:#211a2c!important}
+html[data-theme="lelouch-britannia"] .devive-page .control kbd{border-color:#49375d!important;background:#241c31!important;color:#e0c779!important}
+html[data-theme="lelouch-britannia"] .devive-page .devive-release-note{border-color:#49375d!important;background:linear-gradient(135deg,#211a2c,#171321)!important;color:#b9adc6!important}
+html[data-theme="lelouch-britannia"] .devive-gallery-empty{border-color:#634d75!important;background:linear-gradient(120deg,#211a2c,#171321)!important}
+html[data-theme="lelouch-britannia"] .devive-gallery-mark{border-color:#76547f!important;background:#2b2038!important;color:#d6b96c!important}
+html[data-theme="lelouch-britannia"] .devive-page footer{border-color:#392b4c!important;color:#a99bb8!important}
