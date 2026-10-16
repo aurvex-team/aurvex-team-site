@@ -919,3 +919,23 @@ html[data-theme="yui-after-school"] .home-main>.home-hero .hero-title{
   max-width:none;margin:0;color:#f1e7dd;font-size:clamp(27px,4vw,44px);
   line-height:1.2;letter-spacing:-.035em;text-shadow:none
 }
+
+/* Keep the Yui homepage artwork while leaving the hero copy removed */
+html[data-theme="yui-after-school"] .home-main>.home-hero{
+  display:block!important;min-height:0;height:auto;margin:0 0 28px;padding:0;
+  overflow:hidden;border:1px solid #49372d;border-radius:22px;
+  background:linear-gradient(120deg,#241c18,#1b1512);box-shadow:0 16px 40px #0005
+}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-copy{display:none!important}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-art{
+  display:block!important;width:100%;height:clamp(220px,32vw,340px);min-height:220px
+}
+html[data-theme="yui-after-school"] .home-main>.home-hero .hero-art svg{display:none!important}
+html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{
+  display:block!important;right:8%;width:min(42%,320px);height:88%;object-fit:cover
+}
+@media(max-width:660px){
+  html[data-theme="yui-after-school"] .home-main>.home-hero{margin-bottom:22px}
+  html[data-theme="yui-after-school"] .home-main>.home-hero .hero-art{height:220px;min-height:220px}
+  html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{right:7%;width:min(55%,250px);height:88%}
+}
