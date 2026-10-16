@@ -625,3 +625,13 @@ html[data-theme="yui-after-school"] .home-games-grid .game-info p{color:#baa99b!
 html[data-theme="yui-after-school"] .theme-menu,
 html[data-theme="yui-after-school"] .lang-menu{background:#211916!important;color:#f1e7dd!important;border-color:#49372d!important}
 html[data-theme="yui-after-school"] footer{background:#171311!important;border-color:#49372d!important;color:#958477!important}
+
+
+/* Final Yui palette: use chestnut accents consistently */
+html[data-theme="yui-after-school"] .page-title:after{background:#9a603e!important}
+html[data-theme="yui-after-school"] .theme-live-dot{background:#9a603e!important;box-shadow:0 0 0 3px #9a603e35!important}
+html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(1){background:#9a603e!important}
+html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(2){background:#70452f!important}
+html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(3){background:#c39678!important;border:0!important}
+html[data-theme="yui-after-school"] .yui-page-photo,
+html[data-theme="yui-after-school"] .yui-devive-photo{border-color:#9a603e!important}
