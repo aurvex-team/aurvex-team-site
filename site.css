@@ -940,26 +940,3 @@ html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{
   html[data-theme="yui-after-school"] .home-main>.home-hero .yui-hero-photo{right:7%;width:min(55%,250px);height:88%}
 }
 
-/* Centered game search at the top of the storefront */
-html[data-theme="yui-after-school"] .home-main>.store-search{
-  position:relative;display:flex;align-items:center;gap:13px;
-  width:min(100%,560px);height:54px;margin:0 auto 24px;padding:0 20px;
-  border:1.5px solid #654735;border-radius:18px 16px 19px 15px;
-  background:linear-gradient(135deg,#2b211c,#211a17);
-  box-shadow:0 7px 0 #130f0d,0 13px 28px #0003;
-  color:#d4a27f;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease
-}
-html[data-theme="yui-after-school"] .home-main>.store-search:focus-within{
-  border-color:#d69b78;box-shadow:0 7px 0 #130f0d,0 0 0 4px #d69b7825,0 16px 32px #0004;
-  transform:translateY(-1px)
-}
-html[data-theme="yui-after-school"] .store-search svg{flex:0 0 18px;width:18px;height:18px}
-html[data-theme="yui-after-school"] .store-search input{
-  width:100%;min-width:0;border:0;outline:0;background:transparent;
-  color:#f1e7dd;font:inherit;font-size:15px;font-weight:500;line-height:1.2;letter-spacing:.01em
-}
-html[data-theme="yui-after-school"] .store-search input::placeholder{color:#a88a78;opacity:1}
-html[data-theme="yui-after-school"] .store-search input::-webkit-search-cancel-button{cursor:pointer}
-@media(max-width:660px){
-  html[data-theme="yui-after-school"] .home-main>.store-search{height:50px;margin-bottom:18px;padding:0 16px}
-}
