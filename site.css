@@ -199,3 +199,5 @@ main.home-main{width:min(var(--max),calc(100% - 72px));padding:34px 0 72px}
 }
 
 /* Section pages keep every navigation item in one shared row. */
+
+.profile-text a{color:#806400;font-weight:800;text-decoration-color:#d8a900;text-decoration-thickness:1px;text-underline-offset:3px}.profile-text a:hover{color:#201d17;background:#f2bd0030;border-radius:4px}
