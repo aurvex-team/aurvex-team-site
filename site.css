@@ -653,20 +653,18 @@ html[data-theme="yui-after-school"] .yui-hero-photo{display:block!important;posi
 .page-content > .profile-text + .entry{margin-top:30px!important}
 
 
-@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Klee+One&display=swap');
-
-
-/* Yui theme: anime lettering and hand-drawn buttons only */
-html[data-theme="yui-after-school"] body :is(h1,h2,h3,p,a,button,input,span,small,strong,label){
+/* Yui theme: consistent hand-drawn controls and anime lettering across every page */
+html[data-theme="yui-after-school"] body,
+html[data-theme="yui-after-school"] body *{
  font-family:"Comic Neue","Comic Sans MS","Trebuchet MS",sans-serif!important
 }
-html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option){
+html[data-theme="yui-after-school"] :is(button,[role="button"],.navlinks>a,a[class*="button"],a[class*="action"],a[class*="link"]){
  border-style:dashed!important;
  border-width:1.5px!important;
  border-radius:16px 14px 17px 13px!important;
  box-shadow:1px 2px 0 #120f13!important;
  transition:transform .16s ease,filter .16s ease!important
 }
-html[data-theme="yui-after-school"] :is(.navlinks>a,.lang-toggle,.theme-menu-button,.hero-primary,.hero-secondary,.feature-action,.primary-button,.donate-button,.filter-chip,.game-action,.back-link,.theme-option,.lang-option):hover{
+html[data-theme="yui-after-school"] :is(button,[role="button"],.navlinks>a,a[class*="button"],a[class*="action"],a[class*="link"]):hover{
  transform:translateY(-1px) rotate(-.5deg)!important
 }
