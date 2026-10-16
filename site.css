@@ -414,3 +414,19 @@ main.home-main{width:min(var(--max),calc(100% - 72px));padding:34px 0 72px}
 :root[data-theme="yui-after-school"] .devive-page .lang-option{color:#f4e7dc}
 :root[data-theme="yui-after-school"] .devive-page .lang-option:hover,
 :root[data-theme="yui-after-school"] .devive-page .lang-option[aria-selected=true]{background:#3a2b3b}
+
+
+/* Clear spacing and page-wide anime styling */
+.theme-menu .theme-option + .theme-option{margin-top:11px}
+.theme-menu .theme-option:focus-visible,.theme-menu-button:focus-visible{outline:3px solid #efc44d;outline-offset:3px}
+:root[data-theme="yui-after-school"] .page-title{color:#352f40;text-shadow:1px 2px 0 #efc44d30}
+:root[data-theme="yui-after-school"] .page-title:after{content:"";display:block;width:72px;height:5px;margin-top:14px;border-radius:999px;background:linear-gradient(90deg,#efc44d 0 58%,#df9a91 58% 82%,#36415c 82%)}
+:root[data-theme="yui-after-school"] .page-content .entry{margin:0 0 12px;padding:20px 22px;border:1px solid #e4cdbd;border-left:4px solid #efc44d;border-radius:16px;background:linear-gradient(110deg,#fffaf4,#f9ebe4 78%,#f5e4da);box-shadow:0 8px 22px #55435710}
+:root[data-theme="yui-after-school"] .page-content .entry:last-child{border-bottom:1px solid #e4cdbd}
+:root[data-theme="yui-after-school"] .page-content .entry h2{color:#433646}
+:root[data-theme="yui-after-school"] .page-content .entry p{color:#756c78}
+:root[data-theme="yui-after-school"] .member{margin:0 0 10px;padding:16px 18px;border:1px solid #e4cdbd;border-radius:16px;background:linear-gradient(110deg,#fffaf4,#f7e9e2);transition:background .18s,border-color .18s,transform .18s}
+:root[data-theme="yui-after-school"] .member:hover{transform:translateY(-2px);border-color:#df9a91;background:linear-gradient(110deg,#fff8ed,#f5dedc)}
+:root[data-theme="yui-after-school"] .profile-text{margin-top:12px;padding:20px;border:1px solid #e4cdbd;border-radius:16px;background:linear-gradient(110deg,#fffaf4,#f8e9e1)}
+:root[data-theme="yui-after-school"] .donate-box,
+:root[data-theme="yui-after-school"] .info-box{box-shadow:0 12px 30px #55435712}
