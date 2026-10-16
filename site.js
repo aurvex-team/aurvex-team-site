@@ -1,3 +1,4 @@
+try{localStorage.removeItem("aurvex-theme-colors");document.documentElement.removeAttribute("style");document.querySelectorAll(".theme-toggle,.theme-dialog").forEach(el=>el.remove())}catch{}
 const siteText={
 en:{
 "brand.home":"AURVEX home","nav.main":"Main navigation","lang.languages":"Languages","nav.games":"GAMES","nav.news":"NEWS","nav.team":"TEAM","nav.donate":"DONATE","home.search":"Search games…","home.empty":"No games match your search.",
