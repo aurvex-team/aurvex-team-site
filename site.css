@@ -473,7 +473,7 @@ main.home-main{width:min(var(--max),calc(100% - 72px));padding:34px 0 72px}
 .yui-hero-photo{display:none}
 :root[data-theme="yui-after-school"] .yui-hero-photo{display:block;position:absolute;right:9%;top:50%;width:min(42%,255px);height:88%;transform:translateY(-50%);object-fit:cover;object-position:center 34%;border:1px solid #a66b45;border-radius:22px;box-shadow:0 18px 55px #090807a8}
 :root[data-theme="yui-after-school"] .hero-art-label{font-size:0;color:#e6c9b1}
-:root[data-theme="yui-after-school"] .hero-art-label:after{content:"YUI · AFTER SCHOOL";font-size:9px}
+:root[data-theme="yui-after-school"] .hero-art-label:after{content:"";font-size:9px}
 :root[data-theme="yui-after-school"] .hero-primary{border-color:#9a603e;background:#9a603e;color:#fff1e6;box-shadow:0 5px 0 #523323}
 :root[data-theme="yui-after-school"] .hero-primary:hover{background:#bd7c52;box-shadow:0 7px 0 #523323}
 :root[data-theme="yui-after-school"] .hero-secondary{border-color:#745245;background:#30231e;color:#f1e7dd}
@@ -635,3 +635,7 @@ html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(2){backgroun
 html[data-theme="yui-after-school"] .theme-swatch-anime i:nth-child(3){background:#c39678!important;border:0!important}
 html[data-theme="yui-after-school"] .yui-page-photo,
 html[data-theme="yui-after-school"] .yui-devive-photo{border-color:#9a603e!important}
+
+
+/* Keep character captions off the storefront and hide the home portrait */
+html[data-theme="yui-after-school"] .hero-art-label{display:none!important}
