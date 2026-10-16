@@ -920,3 +920,29 @@ html[data-theme="lelouch-britannia"] .devive-page .theme-option[aria-pressed="tr
   border-color:#d3485e!important;background:#33223e!important;color:#fff5f5!important;box-shadow:inset 0 0 0 2px #a52a43!important
 }
 html[data-theme="lelouch-britannia"] .devive-page .theme-reset-colors:hover{border-color:#d3485e!important;background:#a52a43!important;color:#fff5f5!important}
+
+
+/* Theme color controls work in both anime themes */
+html[data-theme="lelouch-britannia"] .theme-color-control[hidden],
+html[data-theme="lelouch-britannia"] [data-yui-reset-colors][hidden]{display:none!important}
+html[data-theme="lelouch-britannia"] .theme-color-control{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding:11px 12px;border:1px solid #49375d;border-radius:14px;background:#211a2c;color:#f0ebf6;cursor:pointer}
+html[data-theme="lelouch-britannia"] .theme-color-copy{display:flex;flex-direction:column;gap:4px}
+html[data-theme="lelouch-britannia"] .theme-color-copy strong{font-size:12px}
+html[data-theme="lelouch-britannia"] .theme-color-copy small{color:#b9adc6;font-size:10px;line-height:1.4}
+html[data-theme="lelouch-britannia"] .theme-color-input{width:38px;height:34px;flex:none;padding:2px;border:1px solid #76547f;border-radius:10px;background:#171321;cursor:pointer}
+html[data-theme="lelouch-britannia"] .theme-reset-colors{display:block;width:100%;margin-top:10px;padding:10px 12px;border:1px solid #76547f;border-radius:14px;background:#2b2038;color:#f0ebf6;font:inherit;font-size:12px;cursor:pointer;transition:background .18s ease,transform .18s ease}
+html[data-theme="lelouch-britannia"] .theme-reset-colors:hover{background:#a52a43;transform:translateY(-1px)}
+html[data-theme="yui-after-school"] .devive-page .theme-coming{border-color:#684a39!important;background:linear-gradient(120deg,#30231c,#241b17)!important;color:#f1e7dd!important}
+html[data-theme="yui-after-school"] .devive-page .theme-coming strong{color:#f1e7dd!important}
+html[data-theme="yui-after-school"] .devive-page .theme-coming small{color:#c9a486!important}
+html[data-theme="yui-after-school"] .devive-page .theme-coming-icon{background:#a66b4535!important;color:#d49a54!important}
+html[data-theme="yui-after-school"][data-yui-custom-background] body,
+html[data-theme="lelouch-britannia"][data-yui-custom-background] body{background:var(--yui-background-custom)!important;background-image:none!important}
+html[data-theme="yui-after-school"][data-yui-custom-background] .search,
+html[data-theme="lelouch-britannia"][data-yui-custom-background] .search{background:var(--yui-background-custom)!important;border-color:color-mix(in srgb,var(--yui-background-custom) 72%,#f1e7dd)!important}
+html[data-theme="yui-after-school"][data-yui-custom-text] body,
+html[data-theme="yui-after-school"][data-yui-custom-text] body *:not(svg):not(path),
+html[data-theme="lelouch-britannia"][data-yui-custom-text] body,
+html[data-theme="lelouch-britannia"][data-yui-custom-text] body *:not(svg):not(path){color:var(--yui-text-custom)!important}
+html[data-theme="yui-after-school"][data-yui-custom-text] .search::placeholder,
+html[data-theme="lelouch-britannia"][data-yui-custom-text] .search::placeholder{color:var(--yui-text-custom)!important;opacity:.72}
