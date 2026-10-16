@@ -956,7 +956,7 @@ html[data-theme="yui-after-school"] .home-main>.store-search:focus-within{
 html[data-theme="yui-after-school"] .store-search svg{flex:0 0 18px;width:18px;height:18px}
 html[data-theme="yui-after-school"] .store-search input{
   width:100%;min-width:0;border:0;outline:0;background:transparent;
-  color:#f1e7dd;font:500 15px/1.2 inherit;letter-spacing:.01em
+  color:#f1e7dd;font:inherit;font-size:15px;font-weight:500;line-height:1.2;letter-spacing:.01em
 }
 html[data-theme="yui-after-school"] .store-search input::placeholder{color:#a88a78;opacity:1}
 html[data-theme="yui-after-school"] .store-search input::-webkit-search-cancel-button{cursor:pointer}
