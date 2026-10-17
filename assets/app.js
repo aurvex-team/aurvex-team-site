@@ -41,6 +41,10 @@ const pathIcons={
  book:'<path d="M3 4h8a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H3Zm18 0h-7a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h7Z"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-6 5-6 13 0 18m0-18c6 5 6 13 0 18"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+ calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+ image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5-10 10"/>',
+ upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4"/>',
+ pencil:'<path d="m4 20 4-.8 11.7-11.7a2 2 0 0 0-3-3L5 16.3 4 20z"/>',
  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>',
  pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>'
 };
@@ -323,7 +327,7 @@ function savedPage(){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('saved')+'</div>'+
     heading('savedTitle','savedSub','savedKicker')+
     (state.wished?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
-    '<div class="saved-banner">'+icon('shield',20)+t('localOnly')+'</div>';
+    '<div class="saved-banner">'+icon('shield',20)+t(window.AURVEX_ID?.user?'idWishlistSync':'localOnly')+'</div>';
 }
 function teamPage(){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('team')+'</span></div>'+
@@ -359,10 +363,79 @@ function supportPage(){
         '<a class="btn btn-outline" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></article>'+
     '</div><div class="saved-banner">'+icon('shield',20)+'<span>'+t('supportNote')+'</span></div>';
 }
+function playerProfilePage(auth){
+  const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
+  const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
+  const banner=auth.bannerUrl?'<img class="player-cover-image" src="'+esc(auth.bannerUrl)+'" alt="'+esc(t('profileProfileArt'))+'" decoding="async">':
+    '<div class="player-cover-placeholder"><span class="player-cover-logo">A</span><span>'+t('profileNoArt')+'</span></div>';
+  let joined=t('profileSinceUnknown');
+  if(auth.user?.created_at){
+    const date=new Date(auth.user.created_at);
+    if(!Number.isNaN(date.valueOf())){
+      joined=date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{month:'long',year:'numeric'});
+    }
+  }
+  const saving=auth.busy?' disabled aria-disabled="true"':'';
+  const statusText=auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'';
+  const avatarRemove=auth.profile?.avatar_path?
+    '<button type="button" class="player-remove" data-id-action="remove-avatar"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
+  const bannerRemove=auth.profile?.banner_path?
+    '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
+    '<div class="player-profile">'+
+      '<header class="player-cover">'+banner+
+        '<div class="player-cover-shade"></div>'+
+        '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
+          '<span class="player-verified">'+icon('check',15)+' '+t('idEmailVerified')+'</span></div>'+
+        '<div class="player-banner-edit">'+
+          '<label class="player-banner-btn'+(auth.busy?' is-disabled':'')+'" for="id-banner-upload">'+icon('image',16)+' '+t('profileBannerUpload')+'</label>'+
+          bannerRemove+
+        '</div>'+
+      '</header>'+
+      '<div class="player-identity">'+
+        '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
+        '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
+          '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div>'+
+        '<span class="player-status">'+icon('check',15)+' '+t('profileVerified')+'</span>'+
+      '</div>'+
+      '<div class="player-content"><section class="player-main">'+
+        '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
+          '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
+        '<div class="player-edit-layout">'+
+          '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
+            '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
+              '<input id="id-nickname" name="nickname" type="text" inputmode="text" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="nickname" value="'+esc(auth.profile?.nickname||'')+'" placeholder="'+esc(t('idProfileNamePlaceholder'))+'">'+
+              '<p class="id-field-hint">3–24 · A–Z · 0–9 · _</p>'+
+              '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('idProfileSave')+'</button></form></div>'+
+          '<div class="player-edit-card"><h3>'+icon('image',20)+' '+t('profileProfileArt')+'</h3>'+
+            '<div class="player-media-choice">'+
+              '<div><strong>'+t('profileAvatarUpload')+'</strong><p>'+t('profileAvatarHint')+'</p></div>'+
+              '<div class="player-media-buttons"><label for="id-avatar-upload" class="btn btn-outline'+(auth.busy?' is-disabled':'')+'">'+icon('upload',15)+' '+t('profileAvatarUpload')+'</label>'+avatarRemove+'</div></div>'+
+            '<div class="player-media-choice">'+
+              '<div><strong>'+t('profileBannerUpload')+'</strong><p>'+t('profileBannerHint')+'</p></div>'+
+              '<div class="player-media-buttons"><label for="id-banner-upload" class="btn btn-outline'+(auth.busy?' is-disabled':'')+'">'+icon('upload',15)+' '+t('profileBannerUpload')+'</label></div></div>'+
+          '</div></div>'+
+        statusText+
+        '<div class="player-privacy">'+icon('shield',20)+'<span>'+t('profileArtworkPublic')+'</span></div>'+
+      '</section>'+
+      '<aside class="player-aside"><div class="player-aside-card">'+
+        '<div class="smallcaps">'+t('profileYourIdentity')+'</div>'+
+        '<span class="player-aside-shield">'+icon('shield',27)+'</span>'+
+        '<h3>'+t('aurvexId')+'</h3><p class="player-private-email">'+esc(auth.user?.email||'')+'</p>'+
+        '<span class="player-account-badge">'+icon('check',14)+' '+t('idEmailVerified')+'</span>'+
+        '<button type="button" class="btn btn-outline player-signout" data-id-action="signout"'+saving+'>'+icon('back',15)+' '+t('idSignOut')+'</button></div>'+
+      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
+        '<h3>'+icon('heart',20)+' '+t('profileWishlist')+'</h3>'+
+        '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div></aside></div>'+
+      '<input class="profile-file-input" id="id-avatar-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-label="'+esc(t('profileAvatarUpload'))+'"'+saving+'>'+
+      '<input class="profile-file-input" id="id-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="'+esc(t('profileBannerUpload'))+'"'+saving+'>'+
+    '</div>';
+}
 function idPage(route){
   const auth=window.AURVEX_ID||{};
   const configured=auth.configured===true;
   const signedIn=!!auth.user;
+  if(signedIn)return playerProfilePage(auth);
   const mode=route.params.get('mode')==='register'?'register':'signin';
   const disabledEmail=(!configured||!auth.emailEnabled)?' disabled aria-disabled="true"':'';
   const disabledGoogle=(!configured||!auth.googleEnabled)?' disabled aria-disabled="true"':'';
