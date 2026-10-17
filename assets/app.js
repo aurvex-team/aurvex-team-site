@@ -21,6 +21,8 @@ const pathIcons={
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
  ban:'<circle cx="12" cy="12" r="9"/><path d="M5.7 5.7 18.3 18.3"/>',
+ crown:'<path d="m2 7 5 4 5-7 5 7 5-4-2 12H4L2 7Z"/><path d="M4 22h16"/>',
+ code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4m-3-13-2 18"/>',
  gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9H8a3 3 0 1 1 3-3c.6 1.2 1 3 1 3Zm0 0h4a3 3 0 1 0-3-3c-.6 1.2-1 3-1 3Z"/>',
  heart:'<path d="M20.5 8.5c0 4.9-8.5 10.7-8.5 10.7S3.5 13.4 3.5 8.5a4.8 4.8 0 0 1 8.5-3.1 4.8 4.8 0 0 1 8.5 3.1Z"/>',
  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
@@ -432,6 +434,18 @@ function mfaGatePage(auth){
         '<button type="button" data-id-action="signout" class="btn btn-outline">'+t('mfaLogout')+'</button>'+
       '</section></div>';
 }
+function officialProfileBadges(titles){
+  const items=Array.isArray(titles)?titles:[];
+  const known=[
+    ['aurvex_ceo','crown','profileTitleCeo'],
+    ['site_launcher_developer','code','profileTitleDeveloper']
+  ];
+  const badges=known.filter(([code])=>items.includes(code));
+  if(!badges.length)return '';
+  return '<div class="official-profile-titles" aria-label="'+esc(t('profileOfficialTeam'))+'">'+
+    badges.map(([code,ico,label])=>'<span class="official-profile-title official-profile-title-'+code+'">'+
+      icon(ico,16)+' '+t(label)+'</span>').join('')+'</div>';
+}
 function playerProfilePage(auth){
   const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
   const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
@@ -469,6 +483,7 @@ function playerProfilePage(auth){
       '<div class="player-identity">'+
         '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
+          officialProfileBadges(auth.profileTitles)+
           '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
@@ -679,6 +694,7 @@ function publicPlayerPage(path){
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
+     officialProfileBadges(p.profileTitles)+
      '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div></div>'+
    '<div class="public-profile-body">'+
      (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?
