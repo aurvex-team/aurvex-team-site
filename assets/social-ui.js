@@ -2,10 +2,12 @@
 import {loadPlayerProfile,saveSocialProfile,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
  from './social-service.js?v=20261017-381';
+import {normalizePublicLinks} from './social-links.js?v=20261017-394';
 
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
  family:null,familyLibrary:[],familyReady:false,familyLoading:false,
- inviteUrl:'',busy:false,message:'',error:false,userId:''};
+ inviteUrl:'',busy:false,message:'',error:false,userId:'',
+ socialDraft:null,draftUserId:''};
 window.AURVEX_SOCIAL=m;
 let profileSeq=0,familySeq=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:social-state'));
@@ -50,45 +52,78 @@ window.addEventListener('hashchange',onRoute);
 window.addEventListener('aurvex:id-state',()=>{
  const current=owner();
  if(!current){
-   if(m.userId){m.userId='';m.family=null;m.familyLibrary=[];
-     m.familyReady=false;m.inviteUrl='';m.message='';fire();}
- }else if(m.userId&&m.userId!==current){
+   if(m.userId||m.draftUserId){m.userId='';m.family=null;m.familyLibrary=[];
+     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';fire();}
+ }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
+   m.socialDraft=null;m.draftUserId='';
    if(location.hash.startsWith('#/family'))void refreshFamily();
  }
+});
+// Keep edits through background notifications / Realtime-driven page re-renders.
+function readSocialDraft(form){
+ const data=new FormData(form);
+ return {
+   links:[1,2,3].map(i=>({
+     title:String(data.get('title'+i)||''),
+     url:String(data.get('url'+i)||'')
+   })),
+   wishlistPublic:data.has('wishlist_public')
+ };
+}
+document.addEventListener('input',event=>{
+ const form=event.target?.closest?.('#social-profile-form');
+ if(!form||!isSecure())return;
+ m.socialDraft=readSocialDraft(form);m.draftUserId=owner();
+});
+document.addEventListener('change',event=>{
+ const form=event.target?.closest?.('#social-profile-form');
+ if(!form||!isSecure())return;
+ m.socialDraft=readSocialDraft(form);m.draftUserId=owner();
 });
 document.addEventListener('submit',event=>{
  const form=event.target;
  if(!form||!['social-profile-form','family-create-form'].includes(form.id))return;
  event.preventDefault();if(!isSecure()||m.busy)return;
- m.busy=true;fire();
- void (async()=>{
-  try{
-   if(form.id==='social-profile-form'){
-     const data=new FormData(form),links=[];
-     for(let i=1;i<=3;i++){
-       const title=String(data.get('title'+i)||'').trim();
-       const url=String(data.get('url'+i)||'').trim();
-       if(!title&&!url)continue;
-       if(!title||!/^https:\/\//i.test(url)||title.length>40||url.length>220)
-         throw new Error('Invalid link');
-       links.push({title,url});
-     }
-     const updated=await saveSocialProfile(owner(),links,data.has('wishlist_public'));
-     if(window.AURVEX_ID?.user?.id===owner()){
+ // Read data before any notification could rerender and detach this form.
+ const originalUser=owner();
+ const data=new FormData(form);
+ if(form.id==='social-profile-form'){
+   m.socialDraft=readSocialDraft(form);m.draftUserId=originalUser;
+   m.busy=true;
+   const button=form.querySelector('[type="submit"]');
+   if(button)button.disabled=true;
+   void (async()=>{
+     try{
+       const links=normalizePublicLinks(m.socialDraft.links);
+       const updated=await saveSocialProfile(originalUser,links,m.socialDraft.wishlistPublic);
+       if(owner()!==originalUser)return;
+       m.socialDraft=null;m.draftUserId='';
        window.AURVEX_ID.profile=updated;
        window.dispatchEvent(new CustomEvent('aurvex:id-state'));
+       message('socialSaved');
+     }catch(error){
+       console.warn('AURVEX profile link saving failed:',error?.code||error?.message||'unknown');
+       const isValidation=String(error?.message||'').startsWith('LINK_');
+       message(isValidation?'socialInvalid':'socialSaveFailed',true);
+     }finally{
+       if(m.busy){m.busy=false;fire()}
      }
-     message('socialSaved');
-   }else{
-     const name=String(new FormData(form).get('family_name')||'').trim();
-     if(name.length<3||name.length>40)throw new Error('Invalid family name');
-     await createFamily(name);m.inviteUrl='';
-     await refreshFamily();message('familyCreated');
-   }
-  }catch(e){console.warn('AURVEX social form',e?.code||'error');
-   message(form.id==='social-profile-form'?'socialInvalid':'familyActionError',true)}
- })();
+   })();
+ }else{
+   m.busy=true;fire();
+   void (async()=>{
+     try{
+       const name=String(data.get('family_name')||'').trim();
+       if(name.length<3||name.length>40)throw new Error('Invalid family name');
+       await createFamily(name);m.inviteUrl='';
+       await refreshFamily();message('familyCreated');
+     }catch(error){
+       console.warn('AURVEX family creation failed:',error?.code||'error');
+       message('familyActionError',true);
+     }
+   })();
+ }
 });
 document.addEventListener('click',event=>{
  const btn=event.target.closest('[data-social-action]');
