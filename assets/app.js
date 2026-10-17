@@ -659,6 +659,58 @@ function publicPlayerPage(path){
        '<a href="#/game/devive">'+icon('gamepad',17)+' Devive</a>':'<span>'+icon('gamepad',17)+' '+esc(g)+'</span>').join('')+'</div>':
        '<div class="friends-empty">'+t('socialWishEmpty')+'</div>')+'</section></div></div>';
 }
+
+function familyPage(route){
+ const auth=window.AURVEX_ID||{},m=window.AURVEX_SOCIAL||{},invite=route.params.get('invite');
+ if(!auth.user||!auth.mfaVerified)return '<div class="breadcrumb">'+t('familyNav')+'</div>'+
+  '<div class="friends-lock"><div class="friends-lock-icon">'+icon('shield',35)+'</div>'+
+  '<h1>'+t('familyTitle')+'</h1><p>'+t('familyInvitePending')+'</p>'+
+  '<a class="btn btn-primary" href="#/id">'+t('friendsOpenProfile')+'</a></div>';
+ const note=m.message?'<p class="friends-alert'+(m.error?' friends-error':'')+'" role="status">'+t(m.message)+'</p>':'';
+ if(!m.familyReady)return '<div class="friends-lock"><h1>'+t('familyTitle')+'</h1><p>'+t('friendsLoading')+'</p></div>';
+ const f=m.family;
+ if(!f)return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('familyNav')+'</div>'+
+  '<header class="friends-hero"><div class="smallcaps">AURVEX</div><h1>'+t('familyTitle')+'</h1><p>'+t('familyNoFamily')+'</p></header>'+note+
+  (invite?'<section class="family-panel"><h2>'+t('familyJoin')+'</h2><p>'+t('familyInvitePending')+'</p>'+
+    '<button class="btn btn-accent" data-social-action="family-join" type="button"'+(m.busy?' disabled':'')+'>'+t('familyJoin')+'</button></section>':'')+
+  '<section class="family-panel"><h2>'+t('familyCreateTitle')+'</h2>'+
+   '<form id="family-create-form" class="id-form"><label for="family-name">'+t('familyName')+'</label>'+
+    '<input id="family-name" type="text" name="family_name" required minlength="3" maxlength="40">'+
+    '<button class="btn btn-primary" type="submit"'+(m.busy?' disabled':'')+'>'+t('familyCreate')+'</button></form>'+
+   '<p class="social-muted">'+t('familyInviteOnly')+'</p></section>';
+ const members=Array.isArray(f.members)?f.members:[],owned=Array.isArray(f.owned_shareable)?f.owned_shareable:[],
+  shared=Array.isArray(f.shares)?f.shares:[],mine=f.owner_id===auth.user.id;
+ const base='https://zalzsgfufvppvgvqfocf.supabase.co/storage/v1/object/public/aurvex-profile-media/';
+ return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('familyNav')+'</div>'+
+  '<header class="friends-hero"><div class="smallcaps">AURVEX FAMILY</div><h1>'+esc(f.name)+'</h1>'+
+    '<p>'+t('familyLead')+'</p><div class="friends-stats"><span>'+icon('users',17)+' '+members.length+'/6 '+t('familyMembers')+'</span></div></header>'+note+
+  '<div class="family-columns"><section class="family-panel"><h2>'+t('familyMembers')+'</h2>'+
+   '<div class="friends-list">'+members.map(u=>'<div class="friends-player">'+
+    '<div class="friends-avatar">'+(u.avatar_path?'<img src="'+esc(base+u.avatar_path.split('/').map(encodeURIComponent).join('/'))+'" alt="">':icon('user',25))+'</div>'+
+    '<div class="friends-player-info"><strong><a href="#/player/'+esc(u.id)+'">'+esc(u.nickname)+'</a></strong>'+
+      '<span>'+(u.is_owner?t('familyOwner'):'AURVEX ID')+'</span></div>'+
+    (mine&&!u.is_owner?'<button class="btn btn-outline" type="button" data-social-action="family-kick" data-member-id="'+esc(u.id)+'"'+(m.busy?' disabled':'')+'>'+t('familyKick')+'</button>':'')+
+    '</div>').join('')+'</div></section>'+
+  '<section class="family-panel"><h2>'+t('familyOwned')+'</h2>'+
+   (owned.length?'<div class="family-products">'+owned.map(g=>{
+    const on=shared.some(sh=>sh.product_id===g&&sh.owner_id===auth.user.id);
+    return '<div class="family-product"><strong>'+esc(g)+'</strong>'+
+      '<button class="btn btn-outline" type="button" data-social-action="family-share" data-game="'+esc(g)+'" data-enabled="'+String(on)+'"'+(m.busy?' disabled':'')+'>'+
+       t(on?'familyShareOff':'familyShareOn')+'</button></div>';
+   }).join('')+'</div>':'<p class="social-muted">'+t('familyNoGames')+'</p>')+
+   '<h2>'+t('familyShared')+'</h2>'+
+   (shared.length?'<div class="family-products">'+shared.map(sh=>'<div class="family-product">'+icon('gamepad',18)+' '+esc(sh.product_id)+'</div>').join('')+'</div>':
+      '<p class="social-muted">'+t('familyNoGames')+'</p>')+'</section>'+
+  '<section class="family-panel"><h2>'+t('familyInviteLink')+'</h2><p>'+t('familyInviteInfo')+'</p>'+
+   (mine?'<button class="btn btn-accent" data-social-action="family-invite" type="button"'+(m.busy?' disabled':'')+'>'+
+       icon('arrowUp',16)+' '+t('familyInviteButton')+'</button>':'')+
+   (m.inviteUrl?'<div class="family-invite"><input type="text" readonly value="'+esc(m.inviteUrl)+'" aria-label="'+t('familyInviteLink')+'">'+
+    '<button class="btn btn-outline" type="button" data-social-action="copy-invite">'+t('familyCopyInvite')+'</button></div>':'')+
+   '<p class="social-muted">'+t('familyPrivacy')+'</p>'+
+   (mine&&members.length>1?'<p class="social-muted">'+t('familyOwnerLeave')+'</p>':
+     '<button type="button" class="btn btn-outline" data-social-action="family-leave"'+(m.busy?' disabled':'')+'>'+
+      t('familyLeave')+'</button>')+'</section></div>';
+}
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
@@ -695,9 +747,10 @@ function render(keepScroll=false){
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
   else if(route.path==='/friends')page=friendsPage();
+  else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
