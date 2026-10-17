@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 840" role="img" aria-label="Devive concept: side-on cutaway of a shadowy two-story house interior">
+<defs>
+ <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#181824"/><stop offset="1" stop-color="#0a0c15"/></linearGradient>
+ <linearGradient id="wall" x2="1" y2="1"><stop stop-color="#51484d"/><stop offset=".6" stop-color="#2c2933"/><stop offset="1" stop-color="#171a23"/></linearGradient>
+ <linearGradient id="floor" x2="1" y2="0"><stop stop-color="#342a31"/><stop offset="1" stop-color="#1b1a22"/></linearGradient>
+ <radialGradient id="amber"><stop stop-color="#ebb58f" stop-opacity=".53"/><stop offset=".37" stop-color="#ba7e69" stop-opacity=".14"/><stop offset="1" stop-color="#cb8e65" stop-opacity="0"/></radialGradient>
+ <radialGradient id="blue"><stop stop-color="#8c99bb" stop-opacity=".26"/><stop offset="1" stop-color="#9191a2" stop-opacity="0"/></radialGradient>
+ <pattern id="grain" width="64" height="28" patternUnits="userSpaceOnUse"><path d="M0 26h64M32 0v27" stroke="#b09b8e" stroke-opacity=".08"/></pattern>
+ <filter id="dust"><feTurbulence type="fractalNoise" baseFrequency=".32" numOctaves="3" seed="8"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".07"/></feComponentTransfer></filter>
+</defs>
+<rect width="1440" height="840" fill="url(#bg)"/><circle cx="332" cy="302" r="370" fill="url(#blue)"/>
+<!-- cross section silhouette -->
+<path d="M138 226 716 72 1304 231v503H138Z" fill="#161820" stroke="#62606a" stroke-width="13"/>
+<path d="M182 254h1076v438H182Z" fill="url(#wall)"/>
+<path d="M182 254h1076v438H182Z" fill="url(#grain)"/>
+<path d="M182 458h1076v35H182Z" fill="url(#floor)" stroke="#6d5b5c" stroke-width="5"/>
+<path d="M182 680h1076v29H182Z" fill="url(#floor)" stroke="#615357" stroke-width="6"/>
+<path d="M716 254v203M726 493v187M1042 253v205M411 490v194" stroke="#181923" stroke-width="26"/>
+<!-- upper left dark room: attic silhouette through window -->
+<rect x="244" y="285" width="132" height="126" fill="#151e30" stroke="#6d646d" stroke-width="11"/>
+<path d="M311 285v126M244 348h132" stroke="#67616d" stroke-width="7"/>
+<circle cx="292" cy="332" r="39" fill="url(#blue)"/>
+<path d="M209 436h181M233 431v-53h16v53m108 0v-44h16v44" stroke="#171a23" stroke-width="12"/>
+<rect x="475" y="354" width="134" height="75" rx="3" fill="#292633" stroke="#6b5960" stroke-width="8"/>
+<rect x="496" y="334" width="94" height="29" rx="6" fill="#3d3240"/>
+<path d="M491 430v19m103-19v19" stroke="#6f5d5b" stroke-width="9"/>
+<!-- stairs between levels -->
+<path d="M813 674h55v-27h58v-28h58v-27h58v-26h53v-27h49" fill="none" stroke="#53444d" stroke-width="31"/>
+<path d="M813 674h55v-27h58v-28h58v-27h58v-26h53v-27h49" fill="none" stroke="#7e6e6d" stroke-width="5"/>
+<path d="M843 631 1134 518" stroke="#7c6671" stroke-width="6"/>
+<g stroke="#63505e" stroke-width="5"><path d="M859 641v-39m60 13v-38m58 13v-37m59 13v-37m57 14v-40"/></g>
+<!-- doors -->
+<path d="M600 524h93v156h-93Z" fill="#161822" stroke="#74636c" stroke-width="10"/><path d="M620 545h53v115h-53Z" fill="#24222b" stroke="#403741" stroke-width="5"/>
+<circle cx="668" cy="608" r="6" fill="#c89e83"/>
+<path d="M1153 311h71v147h-71Z" fill="#1a1922" stroke="#715d62" stroke-width="8"/>
+<circle cx="1210" cy="391" r="5" fill="#c9a17d"/>
+<!-- lower left desk and mirror -->
+<rect x="230" y="547" width="112" height="126" fill="#1a1c29" stroke="#685a65" stroke-width="10"/>
+<path d="M286 547v126m-56-67h112" stroke="#5d5565" stroke-width="5"/>
+<rect x="471" y="605" width="111" height="17" rx="2" fill="#4c3b41"/><path d="M487 622v54m75-54v54" stroke="#514047" stroke-width="12"/>
+<rect x="485" y="551" width="26" height="46" rx="4" fill="#77575b" stroke="#382c36" stroke-width="4"/>
+<rect x="541" y="555" width="14" height="46" rx="2" fill="#a38a77"/>
+<!-- warm room on upper-right -->
+<circle cx="1112" cy="360" r="239" fill="url(#amber)"/>
+<path d="M1144 260v61" stroke="#4e404c" stroke-width="7"/><path d="M1114 329q30-42 60 0l-13 29h-33z" fill="#c2a08b" opacity=".87"/>
+<circle cx="1145" cy="366" r="76" fill="url(#amber)"/>
+<path d="M1102 443h117" stroke="#1c1c26" stroke-width="13"/>
+<!-- lower-right protagonist -->
+<ellipse cx="763" cy="687" rx="39" ry="9" fill="#080b11"/><circle cx="761" cy="590" r="14" fill="#0c0d14"/>
+<path d="M749 606q12-10 26 0l2 53h-28Z" fill="#0c0d14"/>
+<path d="m755 657-11 32m24-32 12 32m-27-70-20 26m40-26 16 18" stroke="#0c0d14" stroke-width="10" stroke-linecap="round"/>
+<!-- wallpaper stains and spider cracks -->
+<g stroke="#a0979c" stroke-opacity=".14" fill="none"><path d="M250 265q75 34 50 92m30-67q31 23 16 60m562-95q-30 56 10 88m-516 170 30 37 20-9 24 42m-60 9 22-52"/></g>
+<path d="M116 709h1210v26H116Z" fill="#24232c"/><path d="M100 740h1240" stroke="#62545a" stroke-width="12"/>
+<rect width="1440" height="840" fill="#fff" filter="url(#dust)" opacity=".32"/>
+<rect width="1440" height="840" fill="url(#bg)" opacity=".1"/>
+</svg>
