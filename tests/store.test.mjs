@@ -317,7 +317,7 @@ test('AURVEX ID has a visible account entry, sign-in and registration screens',(
     assert.ok(login.html.includes(translations[lang].idXoni));
   }
 });
-test('No demo account can be created before a separate auth backend is configured',()=>{
+test('No demo account can be created before login providers are configured',()=>{
   const html=render('#/id').html;
   assert.ok(html.includes(translations.en.idSetupTitle));
   assert.ok(html.includes(translations.en.idSetupBody));
@@ -335,8 +335,8 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
   const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_core.sql',import.meta.url),'utf8');
   for(const feature of ['flowType:\'pkce\'','signInWithOAuth','signInWithOtp','verifyOtp','getUser','id_profiles','id_wishlist'])assert.ok(service.includes(feature),feature);
   for(const feature of ['auth.uid()','enable row level security','to authenticated','id_entitlements','revoke all'])assert.ok(migration.includes(feature),feature);
-  assert.ok(config.includes("supabaseUrl:''"));
-  assert.ok(config.includes("supabasePublishableKey:''"));
+  assert.ok(config.includes("supabaseUrl:'https://zalzsgfufvppvgvqfocf.supabase.co'"));
+  assert.ok(/supabasePublishableKey:'sb_publishable_[A-Za-z0-9_-]+'/.test(config));
   assert.ok(config.includes("googleEnabled:false"));
   assert.ok(config.includes("emailEnabled:false"));
   assert.ok(config.includes("xoniEnabled:false"));
@@ -345,4 +345,22 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
   assert.ok(!service.includes('service_role'));
   assert.ok(!ui.includes('password:'));
   assert.ok(index.includes('assets/id-ui.js?v='));
+});
+
+
+test('AURVEX ID remains isolated, publishable-only and ready for verified provider setup',()=>{
+  const config=readFileSync(new URL('../assets/id-config.js',import.meta.url),'utf8');
+  const ui=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_wishlist_permissions.sql',import.meta.url),'utf8');
+  assert.match(config,/googleEnabled:false/);
+  assert.match(config,/emailEnabled:false/);
+  assert.match(config,/xoniEnabled:false/);
+  assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled)'));
+  assert.ok(service.includes('ignoreDuplicates:true'));
+  assert.match(migration,/revoke update on public.id_wishlist from authenticated/);
+  for(const file of [config,ui,service]){
+    assert.ok(!file.includes('service_role:'),'No service role credential may enter the browser');
+    assert.ok(!file.includes('client_secret:'),'No OAuth client secret may enter the browser');
+  }
 });
