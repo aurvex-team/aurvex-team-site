@@ -5,7 +5,7 @@ import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-320';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,syncOwnWishlist,setOwnWishlist
-} from './id-service.js?v=20261017-320';
+} from './id-service.js?v=20261017-330';
 
 const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
