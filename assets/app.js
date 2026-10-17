@@ -111,7 +111,7 @@ function sidebar(path){
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
-   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/saved','saved','heart',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
+   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/saved','saved','heart',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/notifications','social37Nav','bell',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
