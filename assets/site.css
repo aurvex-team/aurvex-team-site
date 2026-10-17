@@ -1025,3 +1025,67 @@ input,select{color:var(--text)}
  .friends-stats{gap:6px}.friends-stats span{font-size:9px;padding:7px 9px}
  .mobile-bottom a{font-size:9px;min-width:0}
 }
+
+
+/* AURVEX 3.6 — public profile, social preferences and invite-only family */
+.player-social-settings{margin-top:24px;background:var(--surface-2);border:1px solid var(--line-strong);
+ border-radius:16px;padding:clamp(18px,2.5vw,27px)}
+.player-social-settings>.smallcaps{color:var(--accent)}
+.player-social-settings h2,.public-block h2,.family-panel h2{font-size:clamp(20px,2.2vw,27px);
+ margin:11px 0 12px;letter-spacing:-.6px}
+.player-social-settings>p,.family-panel>p{font-size:12px;line-height:1.8;color:var(--muted)}
+.player-social-actions{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+.player-social-actions .btn{display:inline-flex;align-items:center;gap:8px;font-size:11px;cursor:pointer}
+#social-profile-form{gap:14px}
+.social-link-fields{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(200px,1.6fr);
+ gap:12px;align-items:end}
+.social-link-fields label{font-size:11px;display:flex;flex-direction:column;gap:8px;font-weight:800;color:var(--text)}
+.social-link-fields input{background:var(--bg);color:var(--text);border:1px solid var(--line-strong);
+ border-radius:10px;min-width:0;padding:11px 13px;font-size:12px}
+.social-link-fields input:focus{outline:2px solid var(--accent);outline-offset:2px}
+.social-wish-toggle{display:flex;gap:14px;align-items:center;border:1px solid var(--line);
+ border-radius:12px;padding:15px;cursor:pointer;background:var(--surface)}
+.social-wish-toggle input{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0}
+.social-wish-toggle span{display:flex;flex-direction:column;gap:5px}
+.social-wish-toggle strong{font-size:12px}
+.social-wish-toggle small{font-size:10px;color:var(--muted)}
+#social-profile-form>.btn{justify-content:center;min-height:44px}
+.public-profile-body{display:grid;gap:21px;padding:clamp(21px,4vw,45px)}
+.public-block{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--surface-2)}
+.public-preview-note{display:flex;gap:9px;align-items:center;border:1px solid #9d84df75;
+ border-radius:12px;background:var(--accent-soft);padding:13px;color:var(--text);
+ line-height:1.7;font-size:12px;flex-wrap:wrap}
+.public-preview-note svg{color:var(--accent);flex-shrink:0}
+.public-preview-note a{color:var(--accent);font-weight:800;text-decoration:underline}
+.public-links{display:flex;flex-wrap:wrap;gap:10px}
+.public-links>a,.public-links>span{display:inline-flex;align-items:center;gap:10px;
+ text-decoration:none;font-size:12px;font-weight:800;color:var(--text);
+ padding:11px 15px;border:1px solid var(--line-strong);
+ border-radius:11px;background:var(--surface)}
+.public-links>a:hover{color:var(--accent);border-color:var(--accent)}
+.social-muted{font-size:12px;line-height:1.8;color:var(--muted)}
+.family-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.family-panel{background:var(--surface);border:1px solid var(--line-strong);
+ border-radius:17px;padding:clamp(19px,2.5vw,29px);min-width:0;margin-bottom:20px}
+.family-panel .friends-player{flex-wrap:wrap}
+.family-panel .friends-player>.btn{margin-left:auto;font-size:10px}
+.family-panel .friends-player-info a{color:inherit;text-decoration:none}
+.family-panel .friends-player-info a:hover{color:var(--accent)}
+.family-panel .id-form{gap:12px}
+.family-panel button{display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.family-panel>h2:not(:first-child){margin-top:26px}
+.family-products{display:flex;flex-direction:column;gap:10px}
+.family-product{border:1px solid var(--line);border-radius:11px;padding:12px;
+ background:var(--surface-2);display:flex;align-items:center;justify-content:space-between;gap:10px;
+ font-size:12px}
+.family-product .btn{font-size:10px}
+.family-invite{margin:15px 0;display:flex;flex-direction:column;gap:9px}
+.family-invite input{width:100%;color:var(--text);font-size:11px;padding:12px;border:1px solid var(--line-strong);
+ background:var(--bg);border-radius:10px}
+.family-invite button{align-self:flex-start}
+@media(max-width:1100px){.family-columns{grid-template-columns:1fr}}
+@media(max-width:650px){.social-link-fields{grid-template-columns:1fr}
+ .player-social-actions>*{flex:1;justify-content:center}
+ .public-profile-body{padding:18px}
+ .public-block{padding:18px}
+ .family-panel{margin-bottom:14px}}
