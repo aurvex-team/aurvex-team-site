@@ -5,10 +5,12 @@ import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-350';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
- subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia
+ subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,
+ getMfaState,beginMfaEnrollment,verifyMfaCode
 } from './id-service.js?v=20261017-350';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
+ mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
  emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
@@ -39,7 +41,7 @@ function broadcastWishlist(wished){
   window.dispatchEvent(new CustomEvent('aurvex:sync-wishlist',{detail:{wished}}));
 }
 async function readRemoteWishlist(userId){
-  if(!userId||model.user?.id!==userId||pendingWishlistWrites)return;
+  if(!userId||model.user?.id!==userId||!model.mfaVerified||pendingWishlistWrites)return;
   try{
     const wished=await getOwnWishlist(userId);
     if(model.user?.id!==userId||pendingWishlistWrites)return;
@@ -70,6 +72,7 @@ async function reload(){
     if(sessionError)throw sessionError;
     if(!sessionData?.session){
       model.user=null;updateProfile(null);model.pendingEmail='';
+      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
       clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();return;
     }
@@ -77,6 +80,17 @@ async function reload(){
     if(revision!==profileReloadToken)return;
     if(!user)throw new Error('No verified account');
     model.user=user;model.pendingEmail='';
+    const mfa=await getMfaState();
+    if(revision!==profileReloadToken||model.user?.id!==user.id)return;
+    model.mfaVerified=mfa.verified;
+    model.mfaHasFactors=mfa.hasFactors;
+    model.mfaFactors=mfa.verifiedFactors;
+    if(!mfa.verified){
+      // No profile or wishlist query is made before the second factor succeeds.
+      updateProfile(null);clearWishlistSubscription();
+      model.ready=true;model.statusKey='';notify();return;
+    }
+    // Verified aal2 session: private account data is now readable under RLS.
     // Server is authoritative: never re-upload an old local wishlist snapshot.
     const [profile,wished]=await Promise.all([
       ownProfile(user.id),getOwnWishlist(user.id)
@@ -89,6 +103,7 @@ async function reload(){
   }catch(error){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
+    model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
     clearWishlistSubscription();
     fail(error,'idSessionError');
   }
@@ -109,7 +124,7 @@ async function initialize(){
 }
 document.addEventListener('submit',async function(event){
   const form=event.target;
-  if(!form?.id||!['id-email-form','id-code-form','id-nickname-form'].includes(form.id))return;
+  if(!form?.id||!['id-email-form','id-code-form','id-nickname-form','id-mfa-form'].includes(form.id))return;
   event.preventDefault();
   if(!isIdConfigured()){status('idProviderUnavailable',true);return}
   if(model.busy)return;
@@ -137,7 +152,7 @@ document.addEventListener('submit',async function(event){
       await reload();
     }catch(error){fail(error,'idCodeInvalid')}
   }else if(form.id==='id-nickname-form'){
-    if(!model.user){status('idSessionError',true);return}
+    if(!model.user||!model.mfaVerified){status('mfaRequired',true);return}
     const nickname=String(new FormData(form).get('nickname')||'').trim();
     if(!/^[A-Za-z0-9_]{3,24}$/.test(nickname)){status('idProfileError',true);return}
     try{
@@ -145,13 +160,26 @@ document.addEventListener('submit',async function(event){
       if(error)throw error;
       updateProfile(data);status('idProfileSaved');
     }catch(error){fail(error,'idProfileError')}
+  }else if(form.id==='id-mfa-form'){
+    if(!model.user){status('idSessionError',true);return}
+    const code=String(new FormData(form).get('code')||'').trim();
+    if(!/^[0-9]{6}$/.test(code)){status('mfaInvalidCode',true);return}
+    const factorId=model.mfaEnrollment?.factorId||model.mfaFactors[0]?.id;
+    if(!factorId){status('mfaSetupError',true);return}
+    try{
+      await verifyMfaCode(factorId,code);
+      model.mfaEnrollment=null;
+      // The server issues an aal2 JWT; recheck with Supabase.
+      await reload();
+      status('mfaVerifiedSuccess');
+    }catch(error){fail(error,'mfaInvalidCode')}
   }
 });
 document.addEventListener('change',async function(event){
   const input=event.target;
   if(!['id-avatar-upload','id-banner-upload'].includes(input?.id))return;
   const file=input.files?.[0],userId=model.user?.id;
-  if(!file||!userId||model.busy)return;
+  if(!file||!userId||!model.mfaVerified||model.busy)return;
   const kind=input.id==='id-avatar-upload'?'avatar':'banner';
   const extAllowed=kind==='avatar'?['image/jpeg','image/png','image/webp']:['image/jpeg','image/png','image/webp','image/gif'];
   const maxBytes=kind==='avatar'?3*1024*1024:8*1024*1024;
@@ -187,14 +215,33 @@ document.addEventListener('click',async function(event){
       if(error)throw error;
       ++profileReloadToken;
       model.user=null;updateProfile(null);model.pendingEmail='';
+      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
       clearWishlistSubscription();status('idSignedOut');
     }catch(error){fail(error,'idOperationError')}
+  }else if(action==='mfa-start'||action==='mfa-backup'){
+    if(!model.user||model.busy)return;
+    if(action==='mfa-backup'&&(!model.mfaVerified||model.mfaFactors.length>=2)){
+      status('mfaSetupError',true);return;
+    }
+    if(action==='mfa-start'&&model.mfaHasFactors){status('mfaRequired',true);return}
+    model.busy=true;notify();
+    try{
+      model.mfaEnrollment=await beginMfaEnrollment(action==='mfa-backup'?'AURVEX Backup':'AURVEX Authenticator');
+      status('mfaScan');
+    }catch(error){fail(error,'mfaSetupError')}
+  }else if(action==='mfa-cancel-backup'){
+    if(!model.mfaVerified||!model.mfaEnrollment)return;
+    const factorId=model.mfaEnrollment.factorId;
+    model.mfaEnrollment=null;
+    const client=await idClient();
+    void client.auth.mfa.unenroll({factorId}).catch(()=>{});
+    status('');
   }else if(action==='change-email'){
     model.pendingEmail='';status('');
   }else if(action==='xoni'){
     status('idProviderUnavailable',true);
   }else if(action==='remove-avatar'||action==='remove-banner'){
-    if(!model.user||model.busy)return;
+    if(!model.user||!model.mfaVerified||model.busy)return;
     const kind=action==='remove-avatar'?'avatar':'banner',userId=model.user.id;
     const previous=kind==='avatar'?model.profile?.avatar_path:model.profile?.banner_path;
     if(!previous)return;
@@ -209,7 +256,7 @@ document.addEventListener('click',async function(event){
 });
 window.addEventListener('aurvex:wishlist-changed',function(event){
   const userId=model.user?.id;
-  if(!userId||!isIdConfigured())return;
+  if(!userId||!isIdConfigured()||!model.mfaVerified)return;
   const wished=event.detail?.wished===true;
   pendingWishlistWrites++;
   // Serialize rapid toggles so the LAST action wins on the server.
