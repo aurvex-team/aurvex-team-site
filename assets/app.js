@@ -426,7 +426,9 @@ function playerProfilePage(auth){
     }
   }
   const saving=auth.busy?' disabled aria-disabled="true"':'';
-  const statusText=auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'';
+  const statusText=(auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'')+
+    (window.AURVEX_SOCIAL?.message?'<div class="player-flash'+(window.AURVEX_SOCIAL.error?' player-flash-error':'')+
+      '" role="status">'+t(window.AURVEX_SOCIAL.message)+'</div>':'');
   const avatarRemove=auth.profile?.avatar_path?
     '<button type="button" class="player-remove" data-id-action="remove-avatar"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   const bannerRemove=auth.profile?.banner_path?
