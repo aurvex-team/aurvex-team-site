@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { translations, supportedLanguages } from '../assets/i18n.js';
+import { normalizePublicLinks } from '../assets/social-links.js';
 
 const appCode=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
 const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'');
@@ -910,4 +911,80 @@ test('live visitor presence counts distinct ephemeral tabs, not duplicate presen
   const workflow=readFileSync(new URL('../.github/workflows/pages.yml',import.meta.url),'utf8');
   assert.ok(workflow.includes('node --check assets/live-visitors.js'));
   assert.ok(index.includes('assets/live-visitors.js?v='));
+});
+
+
+test('Profile links accept pasted social URLs without manually naming the service',()=>{
+ const links=normalizePublicLinks([
+   {title:'',url:'github.com/flekiii'},
+   {title:'',url:'https://www.tiktok.com/@fleki.truepkg?share=1'},
+   {title:'Custom link',url:'https://example.org/?invite=yes#home'}
+ ]);
+ assert.deepEqual(links,[
+   {title:'GitHub',url:'https://github.com/flekiii'},
+   {title:'TikTok',url:'https://www.tiktok.com/@fleki.truepkg?share=1'},
+   {title:'Custom link',url:'https://example.org/?invite=yes#home'}
+ ]);
+ assert.deepEqual(normalizePublicLinks([
+   {title:'',url:'instagram.com/flekiiiii/'},
+   {title:'',url:'discord.gg/abc'},
+   {title:'',url:''}
+ ]),[
+   {title:'Instagram',url:'https://instagram.com/flekiiiii/'},
+   {title:'Discord',url:'https://discord.gg/abc'}
+ ]);
+});
+
+test('Profile links validate HTTPS and reject credential injection and script URLs',()=>{
+ for(const url of ['http://example.com','javascript:alert(1)','data:text/html,hello',
+   'https://user:secret@example.com/','file:///etc/passwd','ftp://example.com',
+   'https://localhost','not a link']){
+   assert.throws(()=>normalizePublicLinks([{title:'',url}]),url);
+ }
+ assert.throws(()=>normalizePublicLinks([{title:'some name',url:''}]));
+ assert.throws(()=>normalizePublicLinks([{title:'x'.repeat(41),url:'https://example.com/'}]));
+ assert.throws(()=>normalizePublicLinks([{title:'a',url:'https://example.com/'},{title:'a',url:'https://example.com/'}]));
+ assert.throws(()=>normalizePublicLinks(Array.from({length:4},()=>({title:'',url:''}))));
+});
+
+test('Profile links editor survives external redraws and works with URL-only input',()=>{
+ const userId='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={user:{id:userId,email:'player@sample.com'},mfaVerified:true,mfaHasFactors:true,
+   mfaFactors:[{id:'ok'}],profile:{nickname:'fleki',public_links:[],wishlist_public:false}};
+ const draft={draftUserId:userId,socialDraft:{links:[
+   {title:'',url:'github.com/flekiii'},
+   {title:'TikTok',url:'https://www.tiktok.com/@fleki'},
+   {title:'',url:''}
+ ],wishlistPublic:true}};
+ for(const lang of supportedLanguages){
+   const html=render('#/id',lang,false,null,auth,null,draft).html;
+   assert.ok(html.includes('id="social-profile-form"'));
+   assert.ok(html.includes('name="url1" type="text"'));
+   assert.ok(html.includes('value="github.com/flekiii"'));
+   assert.ok(html.includes('value="https://www.tiktok.com/@fleki"'));
+   assert.ok(html.includes('name="wishlist_public" checked'));
+   assert.ok(html.includes(translations[lang].socialLinkTip));
+ }
+ const staleDraft={...draft,draftUserId:'someone-else'};
+ const html=render('#/id','en',false,null,auth,null,staleDraft).html;
+ assert.ok(!html.includes('value="github.com/flekiii"'));
+ assert.ok(!html.includes('name="wishlist_public" checked'));
+});
+
+test('Profile link submit reads FormData before DOM redraw and preserves failed drafts',()=>{
+ const controller=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
+ const sql=readFileSync(new URL('../supabase/migrations/20261017_profile_links_fix.sql',import.meta.url),'utf8');
+ assert.ok(controller.includes('normalizePublicLinks(m.socialDraft.links)'));
+ assert.ok(controller.includes('m.socialDraft=readSocialDraft(form)'));
+ assert.ok(controller.includes("document.addEventListener('input'"));
+ assert.ok(controller.includes("document.addEventListener('change'"));
+ assert.ok(controller.includes('m.draftUserId=originalUser'));
+ assert.ok(controller.includes("message('socialSaved')"));
+ assert.ok(controller.includes('socialSaveFailed'));
+ const begin=controller.indexOf("const data=new FormData(form);",controller.indexOf("document.addEventListener('submit'"));
+ const notify=controller.indexOf("m.busy=true;fire();",controller.indexOf("document.addEventListener('submit'"));
+ assert.ok(begin>=0&&notify>begin,'Reads form fields before any potential redraw');
+ assert.ok(sql.includes('public.aurvex_valid_links'));
+ assert.ok(sql.includes("([/?#][^[:space:]]*)?"),'Allow root query/fragment HTTPS URLs');
+ assert.ok(sql.includes('jsonb_array_length(input)>3'));
 });
