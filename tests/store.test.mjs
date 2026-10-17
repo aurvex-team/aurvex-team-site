@@ -364,3 +364,15 @@ test('AURVEX ID remains isolated, publishable-only and ready for verified provid
     assert.ok(!file.includes('client_secret:'),'No OAuth client secret may enter the browser');
   }
 });
+
+
+test('OAuth return URL lands on AURVEX ID without a custom domain',()=>{
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const controller=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+  assert.ok(service.includes("new URL('id.html',document.baseURI)"));
+  assert.ok(controller.includes("window.location.pathname.endsWith('/id.html')"));
+  assert.ok(controller.includes("window.location.hash='#/id'"));
+  assert.ok(service.includes("flowType:'pkce'"));
+  assert.ok(service.includes("provider:'google'"));
+  assert.ok(index.includes('id-ui.js?v='));
+});
