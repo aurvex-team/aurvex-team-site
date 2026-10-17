@@ -10,6 +10,11 @@ import {
 const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
+// The GitHub Pages OAuth callback uses ?code=... on /id.html (not hash).
+// Show account/profile route while the Supabase client safely exchanges that code.
+if(window.location.pathname.endsWith('/id.html')&&!window.location.hash){
+  window.location.hash='#/id';
+}
 const t=(key)=>translations[document.documentElement.lang]?.[key]||translations.en[key]||key;
 const notify=()=>window.dispatchEvent(new CustomEvent('aurvex:id-state'));
 
