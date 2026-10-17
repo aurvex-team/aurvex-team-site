@@ -82,3 +82,16 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - ⏳ Onboarding for untrusted public accounts, anti-abuse/rate limits, and actual production rollout are future steps.
 
 **No Google Client Secret, SMTP password or admin key should ever be placed in this repo or shared in screenshots.**
+
+
+## Player profiles, avatars, animated banners and cross-device wishlist (v3.3)
+
+- ✅ `aurvex_profile_media_realtime` migration is applied to the standalone AURVEX ID project, not XONI Mail.
+- ✅ `id_profiles.avatar_path` and `banner_path` are constrained to objects in the profile owner's UUID folder.
+- ✅ Supabase Storage public bucket `aurvex-profile-media` allows JPG/PNG/WebP/GIF with an 8 MiB server limit. Avatar uploads limit to 3 MiB and disallow GIF; banners support animated GIF up to 8 MiB. `storage.objects` RLS only permits the signed-in owner to insert/delete own files.
+- ✅ Public media URLs are accessible by others: users should remove GPS/EXIF and avoid uploading sensitive photos. Before shipping public social profiles, add moderation/reporting and a content policy.
+- ✅ Nickname, avatar and banner updates preserve other profile columns. Every new file gets a new unique path to avoid cached images.
+- ✅ `id_wishlist` is enabled in Supabase Realtime with owner-only RLS. Signed-in clients ALWAYS read the authoritative server value; the bug where stale localStorage resurrected a deleted wish on another device is fixed.
+- ✅ Live updates arrive from Realtime, with tab-focus checks and 30-second visible-tab polling as backup. Local rapid toggles are serialized.
+- ⚠️ Old guest wishlist entries are NOT automatically imported on new sign-in, to avoid unexpectedly recreating remotely removed items. Users can add games while signed in.
+- ⚠️ Automated frontend tests cover the controls and expected security invariants. End-to-end file upload, cross-device sync and GIF rendering must be checked manually using a test account.
