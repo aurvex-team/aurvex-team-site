@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { translations, supportedLanguages } from '../assets/i18n.js';
 
 const appCode=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
-const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js['"];\s*/,'');
+const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'');
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
@@ -187,4 +187,11 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
   assert.ok(html.includes('value="2025" selected'));
   assert.ok(html.includes('&lt;hello&gt;'));
   assert.ok(!html.includes('value="<hello>"'));
+});
+
+
+test('production entrypoint always loads versioned JavaScript and stylesheet',()=>{
+  assert.match(index,/assets\\/app\\.js\\?v=[0-9-]+/);
+  assert.match(index,/assets\\/site\\.css\\?v=[0-9-]+/);
+  assert.match(appCode,/\\.\\/i18n\\.js\\?v=[0-9-]+/);
 });
