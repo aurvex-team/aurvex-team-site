@@ -23,11 +23,14 @@ async function refresh(){
   if(!who){if(model.userId)reset();return}
   if(model.busy)return;
   const run=++serial;
-  model.userId=who;model.ready=false;fire();
+  model.userId=who;
+  if(!model.ready)fire();
   try{
     const data=await listFriends();
     if(run!==serial||userId()!==who)return;
-    model.relations=data;model.ready=true;model.statusError=false;fire();
+    const changed=!model.ready||JSON.stringify(data)!==JSON.stringify(model.relations);
+    model.relations=data;model.ready=true;model.statusError=false;
+    if(changed)fire();
   }catch(error){
     if(run!==serial)return;
     console.warn('AURVEX Friends refresh:',error?.code||'failed');
