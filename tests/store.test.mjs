@@ -8,7 +8,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -22,7 +22,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -742,4 +742,118 @@ test('Social controller does not place secrets in the profile and uses RPC-only 
  assert.ok(js.includes('window.AURVEX_ID?.mfaVerified'));
  assert.ok(js.includes("location.replace('#/family')"));
  assert.ok(idx.includes('social-ui.js?v='));
+});
+
+
+test('Notifications bell and sidebar entry are localized and visible across layouts',()=>{
+ const social37={ready:true,showOnline:false,onlineIds:[],blocked:[],notifications:[
+   {id:'55555555-5555-4555-8555-555555555555',kind:'friend_request',read:false,actor_id:'44444444-4444-4444-8444-444444444444'}
+ ]};
+ for(const lang of supportedLanguages){
+  const html=render('#/',lang,false,null,null,null,null,social37).html;
+  assert.ok(html.includes('href="#/notifications"'),lang);
+  assert.ok(html.includes(translations[lang].social37Nav));
+  assert.ok(html.includes('social-bell'));
+  assert.ok(html.includes('class="wish-dot"'));
+ }
+});
+
+test('Only 2FA users can see inbox and online preference',()=>{
+ const guest=render('#/notifications','uk').html;
+ const googleOnly=render('#/notifications','en',false,null,
+  {user:{id:'44444444-4444-4444-8444-444444444444'},mfaVerified:false}).html;
+ assert.ok(guest.includes(translations.uk.social37Login));
+ assert.ok(googleOnly.includes(translations.en.social37Login));
+ assert.ok(!guest.includes('data-social37-action="visibility"'));
+ assert.ok(!googleOnly.includes('data-social37-action="read"'));
+});
+
+test('Notifications include actionable friend requests and link-only family invitations',()=>{
+ const a='44444444-4444-4444-8444-444444444444',b='55555555-5555-4555-8555-555555555555';
+ const auth={user:{id:'33333333-3333-4333-8333-333333333333'},mfaVerified:true};
+ const v={
+  ready:true,showOnline:false,onlineIds:[],blocked:[],
+  notifications:[
+   {id:'66666666-6666-4666-8666-666666666666',actor_id:a,nickname:'tester',kind:'friend_request',read:false},
+   {id:'77777777-7777-4777-8777-777777777777',actor_id:b,nickname:'family_owner',kind:'family_invite',read:false}
+  ]
+ };
+ for(const lang of supportedLanguages){
+  const html=render('#/notifications',lang,false,null,auth,null,null,v).html;
+  assert.ok(html.includes(translations[lang].social37FriendRequest));
+  assert.ok(html.includes(translations[lang].social37FamilyInvite));
+  assert.ok(html.includes('data-social37-action="open-invite"'));
+  assert.ok(html.includes('data-social37-action="read"'));
+  assert.ok(html.includes('href="#/friends"'));
+  assert.ok(html.includes('data-social37-action="visibility"'));
+  assert.ok(!html.includes('data-social37-action="family-join"'));
+ }
+});
+
+test('Friends-only online indicator and family invite/blocked player actions render correctly',()=>{
+ const friendId='55555555-5555-4555-8555-555555555555';
+ const auth={user:{id:'44444444-4444-4444-8444-444444444444'},mfaVerified:true};
+ const friends={ready:true,relations:[{nickname:'friend',peer_id:friendId,relation:'friend'}],query:''};
+ const online={onlineIds:[friendId],canInvite:true,blocked:[],notifications:[]};
+ const html=render('#/friends','en',false,null,auth,friends,null,online).html;
+ assert.ok(html.includes(translations.en.social37Online));
+ assert.ok(html.includes('data-social37-action="invite-friend"'));
+ assert.ok(html.includes('data-social37-action="block"'));
+ assert.ok(html.includes('href="#/player/'+friendId+'"'));
+ const privateHtml=render('#/friends','en',false,null,auth,friends,null,
+  {...online,onlineIds:[],canInvite:false}).html;
+ assert.ok(privateHtml.includes(translations.en.social37Offline));
+ assert.ok(!privateHtml.includes('data-social37-action="invite-friend"'));
+});
+
+test('Blocked users are kept in private unblock-only list and cannot use public profile to bypass blocking',()=>{
+ const me='44444444-4444-4444-8444-444444444444';
+ const blocked='55555555-5555-4555-8555-555555555555';
+ const model={ready:true,showOnline:false,onlineIds:[],notifications:[],blocked:[{id:blocked,nickname:'blocked_person'}]};
+ const auth={user:{id:me},mfaVerified:true};
+ const inbox=render('#/notifications','en',false,null,auth,null,null,model).html;
+ assert.ok(inbox.includes('data-social37-action="unblock"'));
+ assert.ok(inbox.includes('blocked_person'));
+ assert.ok(inbox.includes(translations.en.social37BlockedNote));
+ const publicProfile=render('#/player/'+blocked,'en',false,null,auth,null,
+   {profileTarget:blocked,profile:{nickname:'blocked_person',public_links:[],wishlist_visible:false}},
+   model).html;
+ assert.ok(publicProfile.includes('data-social37-action="unblock"'));
+ assert.ok(!publicProfile.includes('data-social37-action="block"'));
+});
+
+test('Social SQL enforces opt-in private presence, blocks, recipient-only in-app notifications and hashed family links',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20261017_aurvex_social_v37.sql',import.meta.url),'utf8');
+ const guard=readFileSync(new URL('../supabase/migrations/20261017_aurvex_social_v37_invite_guard.sql',import.meta.url),'utf8');
+ for(const term of [
+ 'id_social_blocks','id_social_presence','id_social_notifications',
+ 'show_online boolean not null default false','aurvex_social_snapshot',
+ 'aurvex_social_heartbeat','aurvex_social_block','aurvex_social_invite_friend',
+ 'aurvex_social_open_invite','aurvex_social_friend_notify',
+ "where f.status='pending'","kind='friend_request'",
+ 'revoke all on public.id_social_blocks','grant execute on function',
+ "aurvex_friends_require_mfa"
+ ])assert.ok(sql.includes(term),term);
+ assert.ok(sql.includes('pg_advisory_xact_lock'));
+ assert.ok(sql.includes('recipient=who'));
+ assert.ok(sql.includes('extensions.digest'));
+ assert.ok(sql.includes('recipient_id'));
+ assert.ok(guard.includes("i.recipient_id is null or i.recipient_id=who"));
+ assert.ok(guard.includes("f.status='accepted'"));
+ assert.ok(guard.includes('id_social_blocks'));
+ assert.ok(!sql.includes('insert into public.id_social_notifications(recipient,actor,kind,family_id,invite_token)'));
+});
+
+test('Social 3.7 controller is authentication-gated and uses server RPCs, not public table writes',()=>{
+ const service=readFileSync(new URL('../assets/social37-service.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../assets/social37-ui.js',import.meta.url),'utf8');
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ for(const name of ['aurvex_social_snapshot','aurvex_social_block','aurvex_social_set_visibility',
+  'aurvex_social_heartbeat','aurvex_social_open_invite','aurvex_social_invite_friend'])
+  assert.ok(service.includes(name),name);
+ assert.ok(ui.includes('window.AURVEX_ID?.mfaVerified'));
+ assert.ok(ui.includes("document.visibilityState==='hidden'"));
+ assert.ok(ui.includes("data-social37-action"));
+ assert.ok(ui.includes("location.hash='#/family?invite='"));
+ assert.ok(html.includes('social37-ui.js?v='));
 });
