@@ -108,6 +108,7 @@ async function reload(){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
     model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+    model.profileTitles=[];
     clearWishlistSubscription();
     fail(error,'idSessionError');
   }
@@ -220,6 +221,7 @@ document.addEventListener('click',async function(event){
       ++profileReloadToken;
       model.user=null;updateProfile(null);model.pendingEmail='';
       model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+      model.profileTitles=[];
       clearWishlistSubscription();status('idSignedOut');
     }catch(error){fail(error,'idOperationError')}
   }else if(action==='mfa-start'||action==='mfa-backup'){
