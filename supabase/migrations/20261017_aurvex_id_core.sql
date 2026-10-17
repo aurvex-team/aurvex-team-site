@@ -37,6 +37,7 @@ create index if not exists id_wishlist_user_idx on public.id_wishlist(user_id);
 alter table public.id_wishlist enable row level security;
 revoke all on public.id_wishlist from public, anon;
 grant select, insert, delete on public.id_wishlist to authenticated;
+revoke update on public.id_wishlist from authenticated;
 drop policy if exists "wishlist_read_own" on public.id_wishlist;
 drop policy if exists "wishlist_insert_own" on public.id_wishlist;
 drop policy if exists "wishlist_delete_own" on public.id_wishlist;
