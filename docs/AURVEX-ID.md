@@ -109,3 +109,16 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - IMPORTANT LIMITATION: If the victim has NEVER enrolled MFA and someone already controls their Google credentials, that person may enroll a first authenticator before the legitimate user. MFA reduces exposure AFTER safe enrollment; users should also protect their Google accounts and enroll AURVEX MFA promptly.
 - Already uploaded profile images remain publicly viewable by URL because the media bucket is public. MFA secures new uploads/deletions, not reads of previously published images.
 - Manual acceptance test: configure first TOTP, verify AAL2 profile and upload, log out, log back into Google and confirm an authenticator challenge is required, try a new browser (must require code), add independent backup TOTP from profile, verify RLS rejects AAL1 direct access.
+
+
+## Friends system v1 (AURVEX 3.5)
+
+- AURVEX ID friends feature is available to Google-authenticated users who completed AURVEX 2FA, in all 4 languages and on desktop/mobile.
+- Features: search up to 15 matching players by the first 3–24 nickname characters, send request, accept, decline, cancel outgoing, view accepted friends and remove. Shows public avatar and nickname only; never emails.
+- `id_friendships` and `id_friend_attempts` are private RLS-enabled tables with *no grants or policies for authenticated/anon users*. Only 4 vetted SECURITY DEFINER RPCs are executable by the authenticated role; each validates `aal2` through an unexposed private helper.
+- Unique unordered pairs prevent duplicate/reversed invitations. Sender cannot accept own request. Declining rejects further invitations from that pair; cancelling requires 24 hours before sending to same player again. Limit 10 sent invites per 24h and 30 pending invites at a time (server-enforced).
+- Visibility: nickname prefix search requires a publicly chosen nickname (no email/user ID lookups). Profile banner not returned; only public avatar path returned.
+- Polling on focus and at visible-tab intervals updates friend lists across devices. True Realtime notifications and chat are not included in v1.
+- Database migration: `supabase/migrations/20261017_aurvex_friends_v1.sql` applied to `aurvex-id` after the prior MFA migration.
+- Google OAuth is still in Testing. To test with a second real Google account, add that account to Google Auth Platform test users, then sign in, enroll AURVEX MFA, and choose a distinct public nickname on both accounts.
+- Verify manually with 2 accounts: search nickname, send request, accept it from second user, ensure both see each other on next focus/refresh, cancel/remove/decline. Automated checks cover scripts, UI and DB policy invariants.
