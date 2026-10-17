@@ -105,7 +105,7 @@ function sidebar(path){
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
-    '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
+    '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong>'+
     '<a href="#/about">'+t('bannerButton')+' '+icon('arrow',12)+'</a></div>'+
     '<div class="side-version">AURVEX STORE • PREVIEW 2.1</div></aside>';
 }
@@ -141,7 +141,7 @@ function features(){
   return '<div class="feature-columns">'+names.map(function(x){return '<article class="feature-column"><div class="feature-icon">'+icon(x[0],23)+'</div><h3>'+t(x[1])+'</h3><p>'+t(x[2])+'</p></article>'}).join('')+'</div>';
 }
 function ctaBand(){
-  return '<div class="cta-band"><div><div class="smallcaps">'+t('bannerKicker')+'</div><h2>'+t('bannerTitle')+'</h2><p>'+t('bannerDesc')+'</p></div>'+
+  return '<div class="cta-band"><div><div class="smallcaps">'+t('bannerKicker')+'</div><h2>'+t('bannerTitle')+'</h2></div>'+
     '<a class="btn btn-primary" href="#/about">'+t('bannerButton')+' '+icon('arrow',16)+'</a></div>';
 }
 function home(){
