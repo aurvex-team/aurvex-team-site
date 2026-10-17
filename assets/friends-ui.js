@@ -102,6 +102,13 @@ window.addEventListener('aurvex:id-state',()=>{
   if(!who){if(model.userId)reset();return}
   if(who!==model.userId){model.userId=who;void refresh()}
 });
+window.addEventListener('aurvex:social-block-changed',()=>{
+  if(!authorized())return;
+  void (async()=>{
+    await refresh();
+    if(model.query)await search(model.query);
+  })();
+});
 window.addEventListener('hashchange',()=>{
   if(location.hash.startsWith('#/friends')&&authorized()&&!model.busy)void refresh();
 });
