@@ -722,9 +722,16 @@ test('Server public profiles, family invitations and purchased-only licensing ar
   'aurvex_family_share','aurvex_family_access','aurvex_family_overview',
   "e.source='purchase'","interval '7 days'","count(*) from public.id_family_members",
   'pg_advisory']){if(s==='pg_advisory')continue;assert.ok(family.includes(s),s)}
- assert.ok(family.includes("not in")===false||family.includes("not in")); // no particular client trust assumptions
  assert.ok(family.includes("revoke all on public.id_families"));
  assert.ok(family.includes("hash"),'invite token must be hashed');
+ const eligible=readFileSync(new URL('../supabase/migrations/20261017_family_product_allowlist.sql',import.meta.url),'utf8');
+ assert.ok(eligible.includes('id_family_eligible_products'));
+ assert.ok(eligible.includes("enabled boolean not null default false"));
+ assert.ok(eligible.includes('revoke all on public.id_family_eligible_products'));
+ assert.ok(eligible.includes("e.source='purchase'"));
+ assert.ok(eligible.includes('aurvex_family_access'));
+ assert.ok(eligible.includes('aurvex_family_share'));
+ assert.ok(eligible.includes('aurvex_family_overview'));
 });
 test('Social controller does not place secrets in the profile and uses RPC-only family membership',()=>{
  const src=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
