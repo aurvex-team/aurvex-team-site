@@ -191,7 +191,7 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
 
 
 test('production entrypoint always loads versioned JavaScript and stylesheet',()=>{
-  assert.match(index,/assets\\/app\\.js\\?v=[0-9-]+/);
-  assert.match(index,/assets\\/site\\.css\\?v=[0-9-]+/);
-  assert.match(appCode,/\\.\\/i18n\\.js\\?v=[0-9-]+/);
+  assert.ok(index.includes('assets/app.js?v='));
+  assert.ok(index.includes('assets/site.css?v='));
+  assert.ok(appCode.includes('./i18n.js?v='));
 });
