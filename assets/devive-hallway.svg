@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 840" role="img" aria-label="Devive concept: an eerie old hallway lit by a single ceiling lamp">
+<defs>
+ <linearGradient id="wall" x2=".8" y2="1"><stop stop-color="#292736"/><stop offset="1" stop-color="#10151e"/></linearGradient>
+ <linearGradient id="ceiling" x2="0" y2="1"><stop stop-color="#191b27"/><stop offset="1" stop-color="#35313c"/></linearGradient>
+ <linearGradient id="floor" x1=".5" y1="0" x2=".5" y2="1"><stop stop-color="#372d34"/><stop offset="1" stop-color="#0b0f16"/></linearGradient>
+ <radialGradient id="lamp"><stop stop-color="#efc295" stop-opacity=".52"/><stop offset=".37" stop-color="#c59d7a" stop-opacity=".16"/><stop offset="1" stop-color="#c2a889" stop-opacity="0"/></radialGradient>
+ <radialGradient id="mist"><stop stop-color="#b9bfd9" stop-opacity=".26"/><stop offset="1" stop-color="#abb4c6" stop-opacity="0"/></radialGradient>
+ <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency=".36" numOctaves="3" seed="11"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+</defs>
+<rect width="1440" height="840" fill="#0d1119"/>
+<!-- corridor perspective -->
+<path d="M0 0h1440L962 254H485Z" fill="url(#ceiling)"/>
+<path d="M0 0 485 254v341L0 840Z" fill="#292531"/>
+<path d="M1440 0 962 254v341l478 245Z" fill="url(#wall)"/>
+<path d="M485 254h477v341H485Z" fill="#33303b"/>
+<path d="M0 840 485 595h477l478 245Z" fill="url(#floor)"/>
+<path d="M485 254h477v341H485Z" fill="url(#mist)" opacity=".4"/>
+<!-- floorboards -->
+<g fill="none" stroke="#988487" stroke-opacity=".14" stroke-width="3">
+ <path d="M0 792h1440M135 727h1168M275 676h885M375 632h690M485 595 0 840m565-245-279 245m410-245-112 245m258-245 112 245m8-245 478 245"/>
+</g>
+<!-- wall panels -->
+<g stroke="#655a66" stroke-width="9" fill="none" opacity=".7">
+ <path d="M45 121 421 295v232L45 713Z"/><path d="M100 199 373 316v180L100 610Z"/>
+ <path d="m1323 128-317 153v253l317 160Z"/><path d="m1274 199-223 109v194l223 114Z"/>
+</g>
+<!-- left door -->
+<path d="M236 257 424 331v261L236 689Z" fill="#1a1c27" stroke="#6d5965" stroke-width="12"/>
+<path d="M270 307 396 353v213L270 632Z" fill="#27232d" stroke="#5d4b56" stroke-width="5"/>
+<ellipse cx="378" cy="496" rx="5" ry="8" fill="#d6b18b"/>
+<!-- right window -->
+<path d="m1080 324 221-97v355l-221-82Z" fill="#172032" stroke="#6e6072" stroke-width="11"/>
+<path d="m1190 279v267m-110-94 221-37" fill="none" stroke="#776c79" stroke-width="8"/>
+<circle cx="1230" cy="357" r="230" fill="url(#mist)" opacity=".75"/>
+<!-- red-tinted door at end -->
+<path d="M592 300h257v295H592Z" fill="#1a141d" stroke="#635460" stroke-width="14"/>
+<path d="M616 320h209v275H616Z" fill="#39242e" stroke="#553f4a" stroke-width="7"/>
+<path d="M649 353h144v197H649Z" fill="#2d202d" stroke="#5c434d" stroke-width="4"/>
+<circle cx="797" cy="471" r="7" fill="#c4a58b"/>
+<rect x="596" y="589" width="251" height="8" fill="#171720"/>
+<!-- ceiling lamp and cone -->
+<path d="M719 0v174" stroke="#564954" stroke-width="11"/>
+<path d="M681 170q38-49 76 0l-15 39h-46Z" fill="#d6b395" stroke="#9a847c" stroke-width="5"/>
+<circle cx="719" cy="257" r="331" fill="url(#lamp)"/>
+<path d="M698 210 425 593h589L739 210Z" fill="#dbc19b" opacity=".045"/>
+<circle cx="720" cy="214" r="21" fill="#f1cd99" opacity=".38"/>
+<!-- protagonist silhouette -->
+<ellipse cx="515" cy="670" rx="42" ry="9" fill="#080a11" opacity=".7"/>
+<circle cx="515" cy="566" r="18" fill="#090d14"/>
+<path d="M497 584q17-13 36 0l8 54-44 3Z" fill="#080b12"/>
+<path d="m506 636-17 43m36-43 22 43m-45-72-22 30m51-30 23 28" stroke="#080b12" stroke-width="12" stroke-linecap="round"/>
+<!-- ambience -->
+<circle cx="1110" cy="598" r="380" fill="url(#mist)" opacity=".21"/>
+<rect width="1440" height="840" fill="#fff" filter="url(#noise)" opacity=".28"/>
+<rect width="1440" height="840" fill="#0d0f19" opacity=".11"/>
+</svg>
