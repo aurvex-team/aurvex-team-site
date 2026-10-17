@@ -988,3 +988,70 @@ test('Profile link submit reads FormData before DOM redraw and preserves failed 
  assert.ok(sql.includes("([/?#][^[:space:]]*)?"),'Allow root query/fragment HTTPS URLs');
  assert.ok(sql.includes('jsonb_array_length(input)>3'));
 });
+
+
+test('Official AURVEX CEO and site/launcher developer badges render only when granted from server',()=>{
+ const uuid='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const auth={
+   user:{id:uuid,email:'not-public@example.com',created_at:'2026-10-17T10:00:00Z'},
+   profile:{nickname:'fleki',public_links:[],wishlist_public:false},
+   profileTitles:['aurvex_ceo','site_launcher_developer'],
+   mfaVerified:true,mfaFactors:[{id:'ok'}]
+ };
+ for(const lang of supportedLanguages){
+   const html=render('#/id',lang,false,null,auth).html;
+   assert.ok(html.includes('official-profile-title-aurvex_ceo'));
+   assert.ok(html.includes('official-profile-title-site_launcher_developer'));
+   assert.ok(html.includes(translations[lang].profileTitleCeo));
+   assert.ok(html.includes(translations[lang].profileTitleDeveloper));
+   const visitor=render('#/player/'+uuid,lang,false,null,null,null,{
+     profileTarget:uuid,profile:{
+       player_id:uuid,nickname:'fleki',
+       profileTitles:['aurvex_ceo','site_launcher_developer'],
+       public_links:[],wishlist_visible:false,joined_at:'2026-10-17T10:00:00Z'
+     }
+   }).html;
+   assert.ok(visitor.includes('official-profile-title-aurvex_ceo'));
+   assert.ok(visitor.includes('official-profile-title-site_launcher_developer'));
+   assert.ok(!visitor.includes('not-public@example.com'));
+ }
+});
+
+test('Other player profiles cannot fake AURVEX official team badge via nickname',()=>{
+ const other='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={
+   user:{id:other},
+   profile:{nickname:'AURVEX CEO',public_links:[]},
+   profileTitles:[],
+   mfaVerified:true
+ };
+ const html=render('#/id','en',false,null,auth).html;
+ assert.ok(!html.includes('official-profile-titles'));
+ assert.ok(!html.includes('official-profile-title-aurvex_ceo'));
+ const visitor=render('#/player/'+other,'en',false,null,null,null,{
+   profileTarget:other,profile:{player_id:other,nickname:'AURVEX CEO',
+     profileTitles:[],public_links:[],wishlist_visible:false}
+ }).html;
+ assert.ok(!visitor.includes('official-profile-title-aurvex_ceo'));
+});
+
+test('Official team title metadata is publicly readable but has no user write privileges',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20261017_aurvex_profile_official_titles.sql',import.meta.url),'utf8');
+ const idService=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+ const idUi=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+ const socialService=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ for(const clause of [
+  'create table if not exists public.id_profile_titles',
+  'alter table public.id_profile_titles enable row level security',
+  'revoke all on public.id_profile_titles from public,anon,authenticated',
+  'grant select(user_id,title_code) on public.id_profile_titles to anon,authenticated',
+  "('aurvex_ceo','site_launcher_developer')",
+  "p.nickname='fleki'",
+  'on conflict (user_id,title_code) do nothing'
+ ])assert.ok(sql.includes(clause),clause);
+ assert.ok(!sql.includes('grant insert'));
+ assert.ok(!sql.includes('grant update'));
+ assert.ok(idService.includes("from('id_profile_titles')"));
+ assert.ok(idUi.includes('getProfileTitles(user.id)'));
+ assert.ok(socialService.includes('getProfileTitles(id)'));
+});
