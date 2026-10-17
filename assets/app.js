@@ -581,7 +581,7 @@ function friendPlayerRow(player){
     '" data-player-id="'+uuid+'"'+(window.AURVEX_FRIENDS?.busy?' disabled':'')+'>'+
     icon(action==='accept'?'check':action==='send'?'users':'close',15)+' '+t(label)+'</button>').join('');
   return '<article class="friends-player"><div class="friends-avatar">'+avatar+'</div>'+
-    '<div class="friends-player-info"><strong>'+esc(player.nickname||t('friendsUnknown'))+'</strong>'+
+    '<div class="friends-player-info"><strong><a class="friend-profile-link" href="#/player/'+uuid+'">'+esc(player.nickname||t('friendsUnknown'))+'</a></strong>'+
     '<span>'+t(relationKeys[relation]||'friendsUnavailable')+'</span></div>'+
     '<div class="friends-player-actions">'+(buttons||'<small>'+t('friendsUnavailable')+'</small>')+
      (relation==='friend'?'<button class="btn btn-outline" disabled title="'+t('giftExplain')+'">'+icon('gift',15)+' '+t('giftSoon')+'</button>':'')+
