@@ -281,6 +281,7 @@ input,select{color:var(--text)}
   .topbar{gap:9px;padding:0 13px}.top-brand{gap:7px;font-size:16px}
   .top-search{display:none}
   .top-actions{margin-left:auto;gap:6px}
+  .top-actions>a.icon-btn{display:none} /* Wishlist remains available in the mobile bottom navigation */
   .icon-btn{min-width:35px;height:35px}.language-control{height:35px}.language-control select{min-width:54px}
   .content{padding:23px 15px 85px}
   .welcome-bar{align-items:flex-start}.welcome-bar h1{font-size:26px}
