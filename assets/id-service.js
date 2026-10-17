@@ -41,6 +41,17 @@ export async function currentVerifiedUser(){
   if(error)throw error;
   return data.user;
 }
+// Official team title codes are read-only public metadata. The browser can
+// never assign titles: RLS and table grants permit SELECT only.
+export async function getProfileTitles(userId){
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId||''))return [];
+  const client=await idClient();
+  const {data,error}=await client.from('id_profile_titles')
+    .select('title_code').eq('user_id',userId);
+  if(error)throw error;
+  return (data||[]).map(entry=>entry.title_code)
+    .filter(code=>code==='aurvex_ceo'||code==='site_launcher_developer');
+}
 export async function ownProfile(userId){
   const client=await idClient();
   const {data,error}=await client.from('id_profiles')
