@@ -184,7 +184,8 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
   const html=render('#/browse?kind=game&genre=horror&min=0&max=300&year=2025&q=%3Chello%3E').html;
   assert.ok(html.includes('id="filter-min-price"'));
   assert.ok(html.includes('value="300"'));
-  assert.ok(html.includes('value="2025" selected'));
+  assert.match(html,/class="filter-option chosen" aria-pressed="true" data-filter-choice="year" data-value="2025"/);
+  assert.ok(html.includes('data-genre-option="horror" checked'));
   assert.ok(html.includes('&lt;hello&gt;'));
   assert.ok(!html.includes('value="<hello>"'));
 });
@@ -194,4 +195,55 @@ test('production entrypoint always loads versioned JavaScript and stylesheet',()
   assert.ok(index.includes('assets/app.js?v='));
   assert.ok(index.includes('assets/site.css?v='));
   assert.ok(appCode.includes('./i18n.js?v='));
+});
+
+
+test('custom filters use stylized menus, not operating-system select dropdowns',()=>{
+  const html=render('#/browse').html;
+  for(const id of ['filter-kind','filter-genre','filter-year','sort-select']){
+    assert.ok(html.includes('class="filter-dropdown')||html.includes('class="filter-dropdown '));
+    assert.ok(html.includes('id="'+id+'"'));
+    assert.ok(!html.includes('<select id="'+id+'"'));
+  }
+  assert.ok(html.includes('class="filter-menu'));
+  assert.ok(html.includes('data-genre-option="psychological"'));
+  assert.ok(html.includes('data-genre-option="horror"'));
+  assert.ok(html.includes(translations.en.selectMultipleGenres));
+  assert.ok(html.includes(translations.en.searchGenres));
+});
+test('Devive has Psychological Horror classification on card and detail page',()=>{
+  const browse=render('#/browse?genre=psychological').html;
+  assert.ok(browse.includes('Devive'));
+  assert.ok(browse.includes(translations.en.genrePsychological));
+  const details=render('#/game/devive','uk').html;
+  assert.ok(details.includes(translations.uk.genrePsychological));
+  assert.ok(render('#/browse?genre=psychological','pl').html.includes('Devive'));
+  assert.ok(render('#/browse?genre=psychological','de').html.includes('Devive'));
+});
+test('multiple selected genres combine with price, year and product type',()=>{
+  const {state,catalogMatches,routeInfo}=catalogRuntime();
+  const route=routeInfo();
+  state.genre='horror,psychological';
+  assert.equal(catalogMatches(route).length,1);
+  state.genre='psychological,shooter';
+  assert.equal(catalogMatches(route).length,1,'Either selected matching genre should be enough');
+  state.genre='racing,shooter';
+  assert.equal(catalogMatches(route).length,0);
+  state.genre='horror,psychological,indie';
+  state.maxPrice='0';
+  state.kind='game';
+  assert.equal(catalogMatches(route).length,1,'Selected genres combine with product type and price');
+  state.minPrice='2';
+  assert.equal(catalogMatches(route).length,0,'Price must still filter');
+  state.minPrice='0';
+  state.releaseYear='2026';
+  assert.equal(catalogMatches(route).length,0,'Unannounced year must not match');
+});
+test('multiple genre selections can be restored from a shareable catalog URL',()=>{
+  const html=render('#/browse?genre=horror%2Cpsychological&max=0').html;
+  assert.ok(html.includes('data-genre-option="horror" checked'));
+  assert.ok(html.includes('data-genre-option="psychological" checked'));
+  assert.ok(html.includes('class="selection-bubble">2</span>'));
+  assert.ok(html.includes(translations.en.activeFilters));
+  assert.ok(html.includes('data-remove-filter="genre" data-value="psychological"'));
 });
