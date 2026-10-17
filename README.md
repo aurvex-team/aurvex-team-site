@@ -1,18 +1,26 @@
-# AURVEX Team
+# AURVEX Store
 
-Website for the AURVEX game development team.
+Світлий адаптивний вебкаталог ігор і програм команди AURVEX.
 
-## Website
+## Що реалізовано
 
-The site is a static page in `index.html`. It includes a searchable game catalog, team profile, news, donation callout, and Ukrainian/English language toggle.
+- Адаптивна головна сторінка зі світло-фіолетовим дизайном.
+- Каталог із пошуком і робочими фільтрами «Усе / Ігри / Програми / Безкоштовні / Платні».
+- Devive — безкоштовний 2D хорор з боковим видом у старому двоповерховому будинку.
+- Вікно докладної інформації про Devive.
+- Ілюстрації у форматі SVG, без залежності від зовнішніх картинок чи бібліотек.
+- Позначення Devive як гри **у розробці**. Дата виходу наразі не оголошена.
 
-## Publish with GitHub Pages
+**Важливо:** це перша версія каталогу, а не діючий магазин. Оплата, облікові записи та завантаження ігор не підключені. Кнопка завантаження не вдає, що гра вже доступна.
 
-The workflow in `.github/workflows/pages.yml` deploys the site when changes are pushed to `main`. In the repository settings, select **Settings → Pages → Build and deployment → GitHub Actions** if Pages is not already configured.
+## Публікація
 
-## Content to update
+Основна сторінка розташована в \`index.html\`. Файл \`.github/workflows/pages.yml\` публікує сайт на GitHub Pages після комітів у \`main\`.
 
-- Add team members and their profile links in `index.html`.
-- Replace game placeholders with release links after the games are published.
-- Add the team's donation link when one is available.
-- Update the news section when there are announcements.
+Якщо сторінка не з'являється, перевірте GitHub → Settings → Pages → Build and deployment → **GitHub Actions**.
+
+## Подальші кроки
+
+- Додати справжні знімки Devive та посилання на реліз, коли гра буде готова.
+- Додати ігри й програми до каталогу.
+- Перед запуском продажів налаштувати безпечну платіжну інтеграцію та бекенд.
