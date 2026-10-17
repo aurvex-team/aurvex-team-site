@@ -209,7 +209,7 @@ function savedPage(){
 }
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
-               ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned','']];
+               ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('about')+'</div>'+
     '<div class="about-hero"><div><div class="smallcaps">'+t('aboutKicker')+'</div><h1>'+t('aboutTitle')+'</h1><p>'+t('aboutSub')+'</p>'+
     '<a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',16)+'</a></div>'+
