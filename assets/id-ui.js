@@ -1,74 +1,115 @@
-// AURVEX ID browser controller. No secret is stored in this repository.
-// Auth buttons remain disabled until a separate AURVEX auth project is ready.
-import { translations } from './i18n.js?v=20261017-340';
-import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-340';
+// AURVEX ID client, version 3.3: Google identity, profile art, server-owned wishlist.
+// OAuth secrets never appear in the browser. Supabase RLS owns authorization.
+import { translations } from './i18n.js?v=20261017-350';
+import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-350';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
- currentVerifiedUser,ownProfile,saveOwnNickname,syncOwnWishlist,setOwnWishlist
-} from './id-service.js?v=20261017-340';
+ currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
+ subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia
+} from './id-service.js?v=20261017-350';
 
-const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
- configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
+const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
+ configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
+ emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
-// The GitHub Pages OAuth callback uses ?code=... on /id.html (not hash).
-// Show account/profile route while the Supabase client safely exchanges that code.
-if(window.location.pathname.endsWith('/id.html')&&!window.location.hash){
-  window.location.hash='#/id';
-}
-const t=(key)=>translations[document.documentElement.lang]?.[key]||translations.en[key]||key;
+if(window.location.pathname.endsWith('/id.html')&&!window.location.hash)window.location.hash='#/id';
+
+const t=key=>translations[document.documentElement.lang]?.[key]||translations.en[key]||key;
 const notify=()=>window.dispatchEvent(new CustomEvent('aurvex:id-state'));
+let stopWishlistSubscription=null;
+let activeUserId='';
+let pendingWishlistWrites=0;
+let wishlistQueue=Promise.resolve();
+let profileReloadToken=0;
 
 function status(key,error=false){
   model.statusKey=key;model.statusError=error;model.busy=false;notify();
 }
-function fail(error,fallback){
-  // Don't echo server error messages to the user: email/account enumeration
-  // and sensitive provider details should never enter the public UI.
-  console.warn('AURVEX ID operation:',error?.code||error?.name||'failed');
-  status(fallback,true);
+function fail(error,key){
+  // Do not leak Auth provider responses or private account details in the UI.
+  console.warn('AURVEX ID operation failed:',error?.code||error?.name||'unknown');
+  status(key,true);
+}
+function updateProfile(profile){
+  model.profile=profile||null;
+  model.avatarUrl=profileMediaUrl(profile?.avatar_path);
+  model.bannerUrl=profileMediaUrl(profile?.banner_path);
+}
+function broadcastWishlist(wished){
+  window.dispatchEvent(new CustomEvent('aurvex:sync-wishlist',{detail:{wished}}));
+}
+async function readRemoteWishlist(userId){
+  if(!userId||model.user?.id!==userId||pendingWishlistWrites)return;
+  try{
+    const wished=await getOwnWishlist(userId);
+    if(model.user?.id!==userId||pendingWishlistWrites)return;
+    broadcastWishlist(wished);
+  }catch(error){
+    console.warn('AURVEX wishlist refresh failed:',error?.code||'failed');
+  }
+}
+async function activateWishlist(userId){
+  if(activeUserId===userId)return;
+  if(stopWishlistSubscription){
+    const stop=stopWishlistSubscription;stopWishlistSubscription=null;void stop();
+  }
+  activeUserId=userId;
+  stopWishlistSubscription=subscribeOwnWishlist(userId,()=>void readRemoteWishlist(userId));
+}
+function clearWishlistSubscription(){
+  activeUserId='';
+  if(stopWishlistSubscription){
+    const stop=stopWishlistSubscription;stopWishlistSubscription=null;void stop();
+  }
 }
 async function reload(){
+  const revision=++profileReloadToken;
   try{
     const client=await idClient();
     const {data:sessionData,error:sessionError}=await client.auth.getSession();
     if(sessionError)throw sessionError;
     if(!sessionData?.session){
-      model.user=null;model.profile=null;model.pendingEmail='';
+      model.user=null;updateProfile(null);model.pendingEmail='';
+      clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();return;
     }
     const user=await currentVerifiedUser();
-    model.user=user;
-    model.profile=null;
-    model.pendingEmail='';
-    if(user){
-      const [profile,wished]=await Promise.all([
-        ownProfile(user.id),
-        syncOwnWishlist(user.id,localStorage.getItem('aurvex.wishlist.devive')==='1')
-      ]);
-      model.profile=profile;
-      window.dispatchEvent(new CustomEvent('aurvex:sync-wishlist',{detail:{wished}}));
-    }
+    if(revision!==profileReloadToken)return;
+    if(!user)throw new Error('No verified account');
+    model.user=user;model.pendingEmail='';
+    // Server is authoritative: never re-upload an old local wishlist snapshot.
+    const [profile,wished]=await Promise.all([
+      ownProfile(user.id),getOwnWishlist(user.id)
+    ]);
+    if(revision!==profileReloadToken||model.user?.id!==user.id)return;
+    updateProfile(profile);
+    if(!pendingWishlistWrites)broadcastWishlist(wished);
+    await activateWishlist(user.id);
     model.ready=true;model.statusKey='';notify();
   }catch(error){
-    model.ready=true;model.user=null;model.profile=null;
+    if(revision!==profileReloadToken)return;
+    model.ready=true;model.user=null;updateProfile(null);
+    clearWishlistSubscription();
     fail(error,'idSessionError');
   }
 }
 async function initialize(){
-  if(!isIdConfigured()||(!ID_CONFIG.emailEnabled&&!ID_CONFIG.googleEnabled)){model.ready=true;notify();return}
+  if(!isIdConfigured()||(!ID_CONFIG.emailEnabled&&!ID_CONFIG.googleEnabled)){
+    model.ready=true;notify();return;
+  }
   try{
     const client=await idClient();
-    client.auth.onAuthStateChange((event)=>{
+    client.auth.onAuthStateChange(event=>{
       if(event==='SIGNED_IN'||event==='SIGNED_OUT'||event==='USER_UPDATED'){
-        // Avoid additional Supabase queries inside the auth event callback.
-        queueMicrotask(()=>{reload()});
+        queueMicrotask(()=>{void reload()});
       }
     });
     await reload();
   }catch(error){fail(error,'idOperationError')}
 }
 document.addEventListener('submit',async function(event){
-  const form=event.target;if(!form?.id||!['id-email-form','id-code-form','id-nickname-form'].includes(form.id))return;
+  const form=event.target;
+  if(!form?.id||!['id-email-form','id-code-form','id-nickname-form'].includes(form.id))return;
   event.preventDefault();
   if(!isIdConfigured()){status('idProviderUnavailable',true);return}
   if(model.busy)return;
@@ -102,9 +143,30 @@ document.addEventListener('submit',async function(event){
     try{
       const {data,error}=await saveOwnNickname(model.user.id,nickname);
       if(error)throw error;
-      model.profile=data;status('idProfileSaved');
+      updateProfile(data);status('idProfileSaved');
     }catch(error){fail(error,'idProfileError')}
   }
+});
+document.addEventListener('change',async function(event){
+  const input=event.target;
+  if(!['id-avatar-upload','id-banner-upload'].includes(input?.id))return;
+  const file=input.files?.[0],userId=model.user?.id;
+  if(!file||!userId||model.busy)return;
+  const kind=input.id==='id-avatar-upload'?'avatar':'banner';
+  const extAllowed=kind==='avatar'?['image/jpeg','image/png','image/webp']:['image/jpeg','image/png','image/webp','image/gif'];
+  const maxBytes=kind==='avatar'?3*1024*1024:8*1024*1024;
+  if(!extAllowed.includes(file.type)||file.size<1||file.size>maxBytes){
+    status(kind==='avatar'?'idAvatarInvalid':'idBannerInvalid',true);
+    return;
+  }
+  model.busy=true;model.statusKey='idUploading';model.statusError=false;notify();
+  const previous=kind==='avatar'?model.profile?.avatar_path:model.profile?.banner_path;
+  try{
+    const profile=await uploadProfileMedia(userId,kind,file,previous);
+    if(model.user?.id!==userId)return;
+    updateProfile(profile);
+    status(kind==='avatar'?'idAvatarSaved':'idBannerSaved');
+  }catch(error){fail(error,'idUploadFailed')}
 });
 document.addEventListener('click',async function(event){
   const button=event.target.closest('[data-id-action]');
@@ -117,26 +179,57 @@ document.addEventListener('click',async function(event){
     try{const {error}=await beginGoogleLogin();if(error)throw error}
     catch(error){fail(error,'idOperationError')}
   }else if(action==='signout'){
-    if(!isIdConfigured())return;
-    if(model.busy)return;
+    if(!isIdConfigured()||model.busy)return;
     model.busy=true;
     try{
       const client=await idClient();
       const {error}=await client.auth.signOut({scope:'local'});
       if(error)throw error;
-      model.user=null;model.profile=null;model.pendingEmail='';
-      status('idSignedOut');
+      ++profileReloadToken;
+      model.user=null;updateProfile(null);model.pendingEmail='';
+      clearWishlistSubscription();status('idSignedOut');
     }catch(error){fail(error,'idOperationError')}
   }else if(action==='change-email'){
     model.pendingEmail='';status('');
   }else if(action==='xoni'){
-    // Explicitly unavailable: never accept an XONI password or token here.
     status('idProviderUnavailable',true);
+  }else if(action==='remove-avatar'||action==='remove-banner'){
+    if(!model.user||model.busy)return;
+    const kind=action==='remove-avatar'?'avatar':'banner',userId=model.user.id;
+    const previous=kind==='avatar'?model.profile?.avatar_path:model.profile?.banner_path;
+    if(!previous)return;
+    model.busy=true;model.statusKey='idUploading';notify();
+    try{
+      const profile=await removeProfileMedia(userId,kind,previous);
+      if(model.user?.id!==userId)return;
+      updateProfile(profile);
+      status('idMediaRemoved');
+    }catch(error){fail(error,'idUploadFailed')}
   }
 });
-window.addEventListener('aurvex:wishlist-changed',async function(event){
-  if(!model.user||!isIdConfigured())return;
-  try{await setOwnWishlist(model.user.id,event.detail?.wished===true)}
-  catch(error){console.warn('AURVEX ID wishlist sync unsuccessful:',error?.code||'failed')}
+window.addEventListener('aurvex:wishlist-changed',function(event){
+  const userId=model.user?.id;
+  if(!userId||!isIdConfigured())return;
+  const wished=event.detail?.wished===true;
+  pendingWishlistWrites++;
+  // Serialize rapid toggles so the LAST action wins on the server.
+  wishlistQueue=wishlistQueue.catch(()=>{}).then(async()=>{
+    await setOwnWishlist(userId,wished);
+  }).catch(error=>{
+    console.warn('AURVEX wishlist write failed:',error?.code||'failed');
+    status('idWishlistError',true);
+  }).finally(()=>{
+    pendingWishlistWrites--;
+    if(pendingWishlistWrites===0)void readRemoteWishlist(userId);
+  });
 });
-initialize();
+window.addEventListener('focus',()=>{if(activeUserId)void readRemoteWishlist(activeUserId)});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&activeUserId)void readRemoteWishlist(activeUserId);
+});
+// Realtime delivers most changes instantly; polling is a fail-safe if a browser,
+// proxy or mobile network drops the websocket. Avoid background traffic in hidden tabs.
+setInterval(()=>{
+  if(document.visibilityState==='visible'&&activeUserId)void readRemoteWishlist(activeUserId);
+},30000);
+void initialize();
