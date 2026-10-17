@@ -46,7 +46,8 @@ const pathIcons={
  upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4"/>',
  pencil:'<path d="m4 20 4-.8 11.7-11.7a2 2 0 0 0-3-3L5 16.3 4 20z"/>',
  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>',
- pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>'
+ pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m18 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/>'
 };
 function icon(name,size=19){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(pathIcons[name]||pathIcons.sparkle)+'</svg>'}
 function t(key){return translations[state.language]?.[key]||translations.en[key]||key}
@@ -59,7 +60,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -92,7 +93,9 @@ function sidebar(path){
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
       navLink('/rewards','free','gift',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+'</div>'+
+    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+
+      navLink('/friends','friendsNav','users',path,
+        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
@@ -101,7 +104,7 @@ function sidebar(path){
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
-   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/saved','saved','heart',path)+mobileLink('/about','about','info',path)+'</nav>';
+   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/saved','saved','heart',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
@@ -574,8 +577,9 @@ function render(keepScroll=false){
   else if(route.path==='/team')page=teamPage();
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
+  else if(route.path==='/friends')page=friendsPage();
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -759,6 +763,7 @@ document.addEventListener('submit',function(event){
   }
 });
 window.addEventListener('aurvex:id-state',function(){render(true)});
+window.addEventListener('aurvex:friends-state',function(){render(true)});
 window.addEventListener('aurvex:sync-wishlist',function(event){
   if(!event.detail||typeof event.detail.wished!=='boolean')return;
   state.wished=event.detail.wished;store(STORAGE.wish,state.wished?'1':'0');render(true);
