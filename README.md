@@ -1,26 +1,51 @@
 # AURVEX Store
 
-Світлий адаптивний вебкаталог ігор і програм команди AURVEX.
+**AURVEX Store** — an original, responsive games-and-software discovery storefront for the AURVEX team, built for GitHub Pages.
 
-## Що реалізовано
+🌐 Website: **https://aurvex-team.github.io/aurvex-team-site/**
 
-- Адаптивна головна сторінка зі світло-фіолетовим дизайном.
-- Каталог із пошуком і робочими фільтрами «Усе / Ігри / Програми / Безкоштовні / Платні».
-- Devive — безкоштовний 2D хорор з боковим видом у старому двоповерховому будинку.
-- Вікно докладної інформації про Devive.
-- Ілюстрації у форматі SVG, без залежності від зовнішніх картинок чи бібліотек.
-- Позначення Devive як гри **у розробці**. Дата виходу наразі не оголошена.
+## Features (v2)
 
-**Важливо:** це перша версія каталогу, а не діючий магазин. Оплата, облікові записи та завантаження ігор не підключені. Кнопка завантаження не вдає, що гра вже доступна.
+- Premium desktop storefront inspired by game discovery platforms, with its own AURVEX branding and original artwork.
+- **English by default**, with complete Ukrainian, Polish, and German localization.
+- Dark theme by default, optional light theme.
+- Responsive desktop sidebar and mobile navigation.
+- Hash-based single-page routes: Home, Browse, Games, Software, Free, Wishlist, Devive, About & roadmap.
+- Search, category navigation, genre filtering, sorting control (ready for multiple releases), and helpful empty states.
+- **Wishlist saved in the current browser using localStorage**; works without an account.
+- Dedicated **Devive** product page: concept art, description, planned controls, status, and game features.
+- Original vector artwork in assets/devive-scene.svg. Images are **concept art**, not gameplay screenshots.
+- Project roadmap clarifies what works today vs. what is planned.
 
-## Публікація
+## Current catalog
 
-Основна сторінка розташована в \`index.html\`. Файл \`.github/workflows/pages.yml\` публікує сайт на GitHub Pages після комітів у \`main\`.
+| Product | Category | Planned price | Status |
+| --- | --- | --- | --- |
+| **Devive** | 2D side-view horror game set in an old two-storey house | Free | In development; no downloadable build yet |
 
-Якщо сторінка не з'являється, перевірте GitHub → Settings → Pages → Build and deployment → **GitHub Actions**.
+**Important:** This is a storefront preview, **not a functional checkout or distribution service**. No payment processing, user accounts or executable game downloads exist yet. Don't represent Devive as released before its release build is available.
 
-## Подальші кроки
+## Files
 
-- Додати справжні знімки Devive та посилання на реліз, коли гра буде готова.
-- Додати ігри й програми до каталогу.
-- Перед запуском продажів налаштувати безпечну платіжну інтеграцію та бекенд.
+- index.html — lightweight entry point, default language en
+- assets/site.css — all themes, typography, desktop/mobile layouts
+- assets/app.js — navigation, filtering, wishlists, rendering and interactions
+- assets/i18n.js — EN / UK / PL / DE translations
+- assets/devive-scene.svg — original horror concept illustration
+- assets/favicon.svg — AURVEX brand mark
+- .github/workflows/pages.yml — automatic GitHub Pages deployment
+
+## Deploy
+
+Push to main. The GitHub Actions workflow publishes the site automatically.
+
+In Settings → Pages → Build and deployment, make sure **GitHub Actions** is selected. The site is served from the repository's own base path.
+
+## Next releases
+
+1. Add tested build files and verified platforms for Devive after the game is ready.
+2. Add new **actual** games and applications to the data-driven catalog. Do not publish invented products.
+3. For future sales, implement authentication, a secure backend, payment provider integration, purchase records and file entitlement checks.
+4. Add real product screenshots and publisher tools when available.
+
+AURVEX Store is not affiliated with Valve or Epic Games.
