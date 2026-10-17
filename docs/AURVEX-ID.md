@@ -95,3 +95,17 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - ✅ Live updates arrive from Realtime, with tab-focus checks and 30-second visible-tab polling as backup. Local rapid toggles are serialized.
 - ⚠️ Old guest wishlist entries are NOT automatically imported on new sign-in, to avoid unexpectedly recreating remotely removed items. Users can add games while signed in.
 - ⚠️ Automated frontend tests cover the controls and expected security invariants. End-to-end file upload, cross-device sync and GIF rendering must be checked manually using a test account.
+
+
+## Mandatory two-factor authentication and Verified badge (v3.4)
+
+- Supabase Auth TOTP MFA is required for access to the full AURVEX profile, cloud wishlist and entitlement data. This is NOT Google 2-Step Verification: it is a separate, AURVEX-specific authenticator code.
+- After Google login with AAL1: if there is no verified TOTP factor, the user must enroll by scanning a QR and verifying a six-digit code; if there is an existing factor, the user must enter a fresh code to step up to AAL2.
+- The Profile link replaces AURVEX ID in the sidebar in all four languages (EN, UA, PL, DE). The Verified/2FA badge appears only after a validated AAL2 session AND an enrolled verified TOTP factor.
+- The frontend reads current AAL and verified factors via Supabase Auth. No TOTP secret is ever saved to localStorage, GitHub or the profile DB.
+- Migration `supabase/migrations/20261017_aurvex_mfa_required.sql` was applied to `aurvex-id` AFTER the v3.4 account interface was deployed. Five RESTRICTIVE RLS policies require `auth.jwt()->>'aal' = 'aal2'` for profile and wishlist data, entitlements, and account media writes.
+- The protected data remains inaccessible to AAL1 API requests even if somebody bypasses JavaScript UI with a Google-only token. Google-only sign-in still obtains a limited AAL1 Supabase Auth session; do not describe it as fully unauthenticated.
+- Supabase Auth does not provide recovery codes. A verified user can enroll a second independent backup TOTP factor from the account's security card (keep it on another device). Losing all factors may permanently lock the user out. Do not unenroll all verified factors through an unsafe API.
+- IMPORTANT LIMITATION: If the victim has NEVER enrolled MFA and someone already controls their Google credentials, that person may enroll a first authenticator before the legitimate user. MFA reduces exposure AFTER safe enrollment; users should also protect their Google accounts and enroll AURVEX MFA promptly.
+- Already uploaded profile images remain publicly viewable by URL because the media bucket is public. MFA secures new uploads/deletions, not reads of previously published images.
+- Manual acceptance test: configure first TOTP, verify AAL2 profile and upload, log out, log back into Google and confirm an authenticator challenge is required, try a new browser (must require code), add independent backup TOTP from profile, verify RLS rejects AAL1 direct access.
