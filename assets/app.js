@@ -216,7 +216,7 @@ function catalog(route){
   if(!/^\d{4}$/.test(state.releaseYear))state.releaseYear='';
   const yearNow=new Date().getFullYear();
   const yearList=[['',t('anyYear')]];
-  for(let y=yearNow;y>=1990;y--)yearList.push([String(y),String(y)]);
+  for(let y=yearNow+1;y>=1970;y--)yearList.push([String(y),String(y)]);
   const genreList=[['all',t('allGenres')]].concat(gameGenres.map(function(entry){return [entry[0],t(entry[1])]}));
   const typeList=[['all',t('allProducts')],['game',t('games')],['app',t('apps')]];
   const isGame=route.path==='/games',isApp=route.path==='/apps';
@@ -320,6 +320,20 @@ function render(keepScroll=false){
   document.body.classList.remove('menu-open');
   if(keepScroll)window.scrollTo(0,pos);
 }
+function syncCatalogUrl(){
+  const route=routeInfo();
+  if(!['/browse','/games','/apps'].includes(route.path))return;
+  if(typeof history==='undefined'||typeof history.replaceState!=='function')return;
+  const params=new URLSearchParams();
+  if(state.query.trim())params.set('q',state.query.trim());
+  if(state.kind!=='all')params.set('kind',state.kind);
+  if(state.genre!=='all')params.set('genre',state.genre);
+  if(state.minPrice!=='')params.set('min',state.minPrice);
+  if(state.maxPrice!=='')params.set('max',state.maxPrice);
+  if(state.releaseYear!=='')params.set('year',state.releaseYear);
+  const next='#'+route.path+(params.toString()?'?'+params.toString():'');
+  if(next!==location.hash)history.replaceState(null,'',location.pathname+location.search+next);
+}
 function refreshCatalog(){
   const route=routeInfo();route.path=safeRoute(route.path);
   const results=document.getElementById('catalog-results');
@@ -328,6 +342,7 @@ function refreshCatalog(){
   const matches=catalogMatches(route).length;
   results.innerHTML=resultHTML(route);
   count.textContent=matches+' '+t(matches===1?'oneResult':'results');
+  syncCatalogUrl();
 }
 function toast(message){
   const node=document.getElementById('toast');
