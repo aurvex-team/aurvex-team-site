@@ -3,8 +3,8 @@
 // NEVER commit service_role, secret API keys, Google OAuth client secrets,
 // XONI integration keys or any private credentials to this repository.
 export const ID_CONFIG=Object.freeze({
-  supabaseUrl:'',
-  supabasePublishableKey:'',
+  supabaseUrl:'https://zalzsgfufvppvgvqfocf.supabase.co',
+  supabasePublishableKey:'sb_publishable_TbkBRf0gcJwdQpXNE7SSwg_WLe8FrXr',
   googleEnabled:false,
   emailEnabled:false,
   xoniEnabled:false
