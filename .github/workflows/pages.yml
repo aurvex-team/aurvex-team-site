@@ -28,7 +28,12 @@ jobs:
         with:
           node-version: '22'
       - name: Test storefront
-        run: npm test
+        run: |
+          node --check assets/app.js
+          node --check assets/id-ui.js
+          node --check assets/id-service.js
+          node --check assets/id-config.js
+          npm test
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Prepare static website
