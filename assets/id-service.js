@@ -1,7 +1,7 @@
 // Auth adapter: all credentials are managed by Supabase Auth, never this website.
 // Static site clients only use the public publishable key and auth.uid() RLS.
 // PINNED SDK VERSION: change deliberately and retest before upgrading.
-import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-350';
+import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-360';
 const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.1/+esm';
 let clientPromise;
 export async function idClient(){
