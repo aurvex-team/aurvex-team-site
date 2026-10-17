@@ -10,8 +10,9 @@
 - **English by default**, with complete Ukrainian, Polish, and German localization.
 - Dark theme by default, optional light theme.
 - Responsive desktop sidebar and mobile navigation.
-- Hash-based single-page routes: Home, Browse, Games, Software, Free, Wishlist, Devive, About & roadmap.
-- Search, category navigation, genre filtering, sorting control (ready for multiple releases), and helpful empty states.
+- Hash-based single-page routes: Home, Browse, Games (legacy), Software (legacy), Free Rewards, Wishlist, Devive, About & roadmap.
+- Browse Store with centered search, 26 localized game genres, product-type filter, minimum/maximum price in UAH (₴), release year, clear filters, and helpful empty states. Filter selections are shareable through the address bar.
+- The sidebar links only to Home, Browse Store, Free Rewards, Wishlist and About; the Free Rewards section is a placeholder until real rewards are announced.
 - **Wishlist saved in the current browser using localStorage**; works without an account.
 - Dedicated **Devive** product page: concept art, description, planned controls, status, and game features.
 - Original vector artwork in assets/devive-scene.svg. Images are **concept art**, not gameplay screenshots.
