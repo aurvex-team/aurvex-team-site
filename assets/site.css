@@ -621,3 +621,13 @@ input,select{color:var(--text)}
   .team-project-content{padding:27px 23px}
   .support-decoration{right:-65px;top:3%;opacity:.07}
 }
+
+
+/* Team — join / collaborate CTA */
+.team-hero-actions{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.team-join-btn{box-shadow:0 12px 30px #9d8bfd33}
+.team-join-hint{margin:11px 0 0!important;color:#b7b0d1!important;font-size:11px!important}
+@media(max-width:560px){
+  .team-hero-actions{align-items:stretch;flex-direction:column}
+  .team-hero-actions .btn{width:100%;white-space:normal;text-align:center}
+}
