@@ -6,11 +6,12 @@ import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,
- getMfaState,beginMfaEnrollment,verifyMfaCode
+ getMfaState,beginMfaEnrollment,verifyMfaCode,getProfileTitles
 } from './id-service.js?v=20261017-380';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,
+ profileTitles:[],
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
  emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
@@ -73,6 +74,7 @@ async function reload(){
     if(!sessionData?.session){
       model.user=null;updateProfile(null);model.pendingEmail='';
       model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+      model.profileTitles=[];
       clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();return;
     }
@@ -86,17 +88,19 @@ async function reload(){
     model.mfaHasFactors=mfa.hasFactors;
     model.mfaFactors=mfa.verifiedFactors;
     if(!mfa.verified){
+      model.profileTitles=[];
       // No profile or wishlist query is made before the second factor succeeds.
       updateProfile(null);clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();return;
     }
     // Verified aal2 session: private account data is now readable under RLS.
     // Server is authoritative: never re-upload an old local wishlist snapshot.
-    const [profile,wished]=await Promise.all([
-      ownProfile(user.id),getOwnWishlist(user.id)
+    const [profile,wished,titles]=await Promise.all([
+      ownProfile(user.id),getOwnWishlist(user.id),getProfileTitles(user.id)
     ]);
     if(revision!==profileReloadToken||model.user?.id!==user.id)return;
     updateProfile(profile);
+    model.profileTitles=titles;
     if(!pendingWishlistWrites)broadcastWishlist(wished);
     await activateWishlist(user.id);
     model.ready=true;model.statusKey='';notify();
