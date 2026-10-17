@@ -191,6 +191,43 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
 });
 
 
+
+test('MORE section links to Team and Support the Team without removing About',()=>{
+  const html=render('#/').html;
+  const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
+  assert.ok(sidebar.includes('href="#/team"'));
+  assert.ok(sidebar.includes('href="#/support"'));
+  assert.ok(sidebar.includes('href="#/about"'));
+  const more=sidebar.split('<div class="side-label">'+translations.en.more+'</div>')[1]?.split('</div>')[0]||'';
+  assert.ok(more.includes('href="#/team"'));
+  assert.ok(more.includes('href="#/support"'));
+  assert.ok(html.includes('href="#/team"'));
+  assert.ok(html.includes('href="#/support"'));
+});
+test('Team and Support have real pages with content localized in all four languages',()=>{
+  for(const lang of supportedLanguages){
+    const team=render('#/team',lang);
+    assert.equal(team.lang,lang);
+    assert.ok(team.html.includes(translations[lang].teamTitle));
+    assert.ok(team.html.includes(translations[lang].teamMembersNote));
+    assert.ok(team.html.includes(translations[lang].teamTrackCode));
+    assert.ok(team.html.includes('href="#/game/devive"'));
+    const support=render('#/support',lang);
+    assert.equal(support.lang,lang);
+    assert.ok(support.html.includes(translations[lang].supportTitle));
+    assert.ok(support.html.includes(translations[lang].supportFundingStatus));
+    assert.ok(support.html.includes('data-action="share-site"'));
+    assert.ok(support.html.includes(translations[lang].supportNote));
+  }
+});
+test('Support page does not invent payment details or operational checkout',()=>{
+  const html=render('#/support').html;
+  assert.ok(!html.includes('send.monobank.ua'));
+  assert.ok(!html.includes('checkout.stripe.com'));
+  assert.ok(!html.includes('<form action="https://'));
+  assert.ok(html.includes(translations.en.supportFundingDesc));
+});
+
 test('production entrypoint always loads versioned JavaScript and stylesheet',()=>{
   assert.ok(index.includes('assets/app.js?v='));
   assert.ok(index.includes('assets/site.css?v='));
