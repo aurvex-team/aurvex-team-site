@@ -92,7 +92,7 @@ function sidebar(path){
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
       navLink('/rewards','free','gift',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','aurvexId','user',path)+'</div>'+
+    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
@@ -367,6 +367,48 @@ function supportPage(){
         '<a class="btn btn-outline" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></article>'+
     '</div><div class="saved-banner">'+icon('shield',20)+'<span>'+t('supportNote')+'</span></div>';
 }
+function mfaGatePage(auth){
+  const enrollment=auth.mfaEnrollment||null;
+  const isBackup=!!(enrollment&&auth.mfaVerified);
+  const enrollNeeded=!auth.mfaHasFactors&&!enrollment;
+  const title=isBackup?t('mfaBackupTitle'):
+    enrollment?t('mfaSetupTitle'):(enrollNeeded?t('mfaSetupTitle'):t('mfaChallengeTitle'));
+  const description=auth.mfaHasFactors&&!enrollment?t('mfaChallengeIntro'):t('mfaSetupIntro');
+  const setupSecret=enrollment?.secret||'';
+  // Only trust the QR data-URI scheme expected from Supabase Auth.
+  const qr=(typeof enrollment?.qr==='string'&&enrollment.qr.startsWith('data:image/svg+xml'))
+    ?enrollment.qr:'';
+  const qrBlock=enrollment?
+    '<div class="mfa-qr-wrap">'+(qr?'<img src="'+esc(qr)+'" alt="TOTP QR" class="mfa-qr">':'')+
+      '<div class="mfa-scan-note">'+t('mfaScan')+'</div></div>'+
+    '<div class="mfa-secret"><div>'+t('mfaManual')+'</div>'+
+      '<code>'+esc(setupSecret)+'</code></div>'+
+    '<p class="mfa-warning">'+icon('shield',16)+' '+t('mfaSecretWarn')+'</p>':'';
+  const statusText=auth.statusKey?'<p role="status" class="id-alert'+(auth.statusError?' id-alert-error':'')+'">'+t(auth.statusKey)+'</p>':'';
+  const verifyForm=(enrollment||auth.mfaHasFactors)?
+    '<form id="id-mfa-form" class="id-form mfa-code-form">'+
+      '<label for="id-mfa-code">'+t('mfaCodeLabel')+'</label>'+
+      '<input id="id-mfa-code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" required placeholder="'+t('mfaCodePlaceholder')+'">'+
+      '<button type="submit" class="btn btn-primary"'+(auth.busy?' disabled':'')+'>'+icon('shield',17)+' '+t('mfaVerify')+'</button></form>':
+    '<button class="btn btn-primary mfa-begin-btn" type="button" data-id-action="mfa-start"'+(auth.busy?' disabled':'')+'>'+icon('shield',18)+' '+t('mfaStart')+'</button>';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('profileNav')+'</span></div>'+
+    '<div class="mfa-layout">'+
+      '<section class="mfa-cover"><div class="id-brand-pill">'+icon('shield',17)+' AURVEX ID</div>'+
+        '<div class="mfa-lock-symbol">'+icon('shield',75)+'</div>'+
+        '<h1>'+title+'</h1><p>'+description+'</p>'+
+        '<div class="mfa-level-row"><span>'+icon('check',17)+' Google OAuth</span>'+
+          '<span>'+icon('shield',17)+' '+t('mfaPendingBadge')+'</span></div>'+
+        '<p class="mfa-help">'+t('mfaHelp')+'</p>'+
+      '</section>'+
+      '<section class="mfa-panel">'+
+        '<span class="smallcaps">'+t('mfaSecurity')+'</span>'+
+        '<h2>'+(!enrollment&&auth.mfaHasFactors?t('mfaChallengeTitle'):t('mfaStart'))+'</h2>'+
+        qrBlock+verifyForm+statusText+
+        '<p class="mfa-care-note">'+icon('info',16)+' '+t('mfaNoBackup')+'</p>'+
+        (isBackup?'<button type="button" data-id-action="mfa-cancel-backup" class="btn btn-outline">'+t('mfaCancelBackup')+'</button>':'')+
+        '<button type="button" data-id-action="signout" class="btn btn-outline">'+t('mfaLogout')+'</button>'+
+      '</section></div>';
+}
 function playerProfilePage(auth){
   const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
   const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
@@ -390,7 +432,7 @@ function playerProfilePage(auth){
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
-          '<span class="player-verified">'+icon('check',15)+' '+t('idEmailVerified')+'</span></div>'+
+          '<span class="player-verified">'+icon('shield',15)+' '+t('mfaVerifiedLabel')+'</span></div>'+
         '<div class="player-banner-edit">'+
           '<label class="player-banner-btn'+(auth.busy?' is-disabled':'')+'" for="id-banner-upload">'+icon('image',16)+' '+t('profileBannerUpload')+'</label>'+
           bannerRemove+
@@ -400,7 +442,7 @@ function playerProfilePage(auth){
         '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div>'+
-        '<span class="player-status">'+icon('check',15)+' '+t('profileVerified')+'</span>'+
+        '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
       '<div class="player-content"><section class="player-main">'+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
@@ -426,11 +468,16 @@ function playerProfilePage(auth){
         '<div class="smallcaps">'+t('profileYourIdentity')+'</div>'+
         '<span class="player-aside-shield">'+icon('shield',27)+'</span>'+
         '<h3>'+t('aurvexId')+'</h3><p class="player-private-email">'+esc(auth.user?.email||'')+'</p>'+
-        '<span class="player-account-badge">'+icon('check',14)+' '+t('idEmailVerified')+'</span>'+
+        '<span class="player-account-badge">'+icon('shield',14)+' '+t('mfaVerifiedLabel')+'</span>'+
         '<button type="button" class="btn btn-outline player-signout" data-id-action="signout"'+saving+'>'+icon('back',15)+' '+t('idSignOut')+'</button></div>'+
       '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
         '<h3>'+icon('heart',20)+' '+t('profileWishlist')+'</h3>'+
-        '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div></aside></div>'+
+        '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div>'+
+      '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
+        '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
+        '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
+        (auth.mfaFactors?.length<2?'<button class="btn btn-outline" type="button" data-id-action="mfa-backup">'+icon('shield',16)+' '+t('mfaAddBackup')+'</button>':'')+
+        '<p class="mfa-backup-hint">'+t('mfaBackupDesc')+'</p></div></aside></div>'+
       '<input class="profile-file-input" id="id-avatar-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-label="'+esc(t('profileAvatarUpload'))+'"'+saving+'>'+
       '<input class="profile-file-input" id="id-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="'+esc(t('profileBannerUpload'))+'"'+saving+'>'+
     '</div>';
@@ -439,7 +486,10 @@ function idPage(route){
   const auth=window.AURVEX_ID||{};
   const configured=auth.configured===true;
   const signedIn=!!auth.user;
-  if(signedIn)return playerProfilePage(auth);
+  if(signedIn){
+    if(!auth.mfaVerified||auth.mfaEnrollment)return mfaGatePage(auth);
+    return playerProfilePage(auth);
+  }
   const mode=route.params.get('mode')==='register'?'register':'signin';
   const disabledEmail=(!configured||!auth.emailEnabled)?' disabled aria-disabled="true"':'';
   const disabledGoogle=(!configured||!auth.googleEnabled)?' disabled aria-disabled="true"':'';
