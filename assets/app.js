@@ -96,7 +96,7 @@ function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-s
 function gameCard(){
   return '<article class="game-card"><a href="#/game/devive" class="game-cover"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"><span class="cover-label">'+t('twoD')+'</span><span class="cover-logo">DEVIVE</span></a>'+
     '<div class="game-card-body"><div class="game-name"><h3><a href="#/game/devive">Devive</a></h3>'+tag('freeAtLaunch','tag-green')+'</div><p>'+t('deviveShort')+'</p>'+
-    '<div class="card-meta">'+tag('gameType')+tag('horror')+tag('inDevelopment','tag-amber')+'</div>'+
+    '<div class="card-meta">'+tag('gameType')+tag('horror')+tag('genrePsychological')+tag('inDevelopment','tag-amber')+'</div>'+
     '<div class="card-actions"><a class="btn btn-outline" href="#/game/devive">'+t('viewDetails')+' '+icon('arrow',14)+'</a>'+wishlistButton()+'</div></div></article>';
 }
 function upcomingCard(){
@@ -163,13 +163,16 @@ const gameGenres=[
 const announcedProducts=[{
  id:'devive',kind:'game',title:'Devive',price:0,
  // Devive has no announced release year, so it does not match a specific year filter.
- releaseYear:null,genres:['horror','indie'],
- searchTerms:['devive','2d','horror','house','side view','indie']
+ releaseYear:null,genres:['horror','psychological','indie'],
+ searchTerms:['devive','2d','horror','psychological horror','house','side view','indie']
 }];
+function selectedGenres(){
+  return state.genre==='all'||!state.genre?[]:state.genre.split(',').filter(function(x){return gameGenres.some(function(entry){return entry[0]===x})});
+}
 function catalogMatches(route){
   const params=route.params;
   const kind=state.kind;
-  const genre=state.genre;
+  const genres=selectedGenres();
   const q=state.query.trim().toLocaleLowerCase(state.language);
   const min=state.minPrice===''?null:Number(state.minPrice);
   const max=state.maxPrice===''?null:Number(state.maxPrice);
@@ -178,7 +181,7 @@ function catalogMatches(route){
     if(route.path==='/apps'&&product.kind!=='app')return false;
     if(route.path==='/games'&&product.kind!=='game')return false;
     if(kind!=='all'&&product.kind!==kind)return false;
-    if(genre!=='all'&&!product.genres.includes(genre))return false;
+    if(genres.length&&!genres.some(function(genre){return product.genres.includes(genre)}))return false;
     if(min!==null&&(!Number.isFinite(min)||min<0||product.price<min))return false;
     if(max!==null&&(!Number.isFinite(max)||max<0||product.price>max))return false;
     if(min!==null&&max!==null&&min>max)return false;
@@ -205,8 +208,8 @@ function catalog(route){
   const initialKind=route.path==='/apps'?'app':route.path==='/games'?'game':'all';
   state.kind=route.params.get('kind')||initialKind;
   if(!['all','game','app'].includes(state.kind))state.kind='all';
-  const queryGenre=(route.params.get('genre')||'all').toLowerCase();
-  state.genre=gameGenres.some(function(entry){return entry[0]===queryGenre})?queryGenre:'all';
+  const queryGenres=(route.params.get('genre')||'').toLowerCase().split(',');
+  state.genre=[...new Set(queryGenres.filter(function(g){return gameGenres.some(function(entry){return entry[0]===g})}))].join(',')||'all';
   state.query=route.params.get('q')||'';
   state.minPrice=route.params.get('min')||'';
   state.maxPrice=route.params.get('max')||'';
@@ -260,7 +263,7 @@ function gamePage(){
     '<div class="detail-title"><div><div class="smallcaps">'+t('heroTag')+'</div><h1>Devive</h1><p>'+t('deviveShort')+'</p></div><div class="detail-side">'+tag('inDevelopment','tag-amber')+'<button class="btn btn-outline" type="button" data-action="share">'+icon('arrowUp',15)+' '+t('share')+'</button></div></div>'+
     '<div class="detail-hero"><img src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'"><span class="detail-caption">'+t('conceptArtwork')+'</span></div>'+
     '<div class="detail-grid"><div>'+
-      '<section class="detail-section"><h2>'+t('deviveDescTitle')+'</h2><p>'+t('deviveLong')+'</p></section>'+
+      '<section class="detail-section"><div class="card-meta detail-genres">'+tag('horror')+tag('genrePsychological')+tag('indie')+'</div><h2>'+t('deviveDescTitle')+'</h2><p>'+t('deviveLong')+'</p></section>'+
       '<section class="detail-section"><h2>'+t('deviveFeatures')+'</h2><div class="detail-features">'+
       ['featureOne','featureTwo','featureThree','featureFour'].map(function(k){return '<div class="detail-feature">'+icon('check',19)+'<span>'+t(k)+'</span></div>'}).join('')+
       '</div><p class="notice">'+t('deviveNotice')+'</p></section>'+
@@ -269,7 +272,7 @@ function gamePage(){
       '</div></section>'+
       '<section class="detail-section"><h2>'+t('controlsTitle')+'</h2><div class="control-grid">'+controlItems.map(function(x){return '<div class="control-row"><kbd class="key">'+x[0]+'</kbd><span>'+t(x[1])+'</span></div>'}).join('')+'</div></section>'+
     '</div><aside class="purchase-panel"><div class="purchase-banner"><img src="'+sceneUrl+'" alt=""></div><h3>Devive</h3>'+
-    '<p>'+t('deviveFlavor')+' '+t('deviveShort')+'</p><div class="card-meta">'+tag('freeAtLaunch','tag-green')+tag('inDevelopment','tag-amber')+'</div>'+
+    '<p>'+t('deviveFlavor')+' '+t('deviveShort')+'</p><div class="card-meta">'+tag('freeAtLaunch','tag-green')+tag('genrePsychological')+tag('inDevelopment','tag-amber')+'</div>'+
     '<div class="purchase-actions"><button class="btn btn-accent" type="button" disabled>'+icon('cloud',17)+' '+t('downloadDisabled')+'</button>'+
     '<button class="btn btn-outline" type="button" data-action="wishlist">'+icon('heart',17)+' '+t(state.wished?'removeWish':'addWish')+'</button></div>'+
     '<p class="notice">'+t('devStatusNotice')+'</p><dl class="specs">'+specItems.map(function(x){return '<div><dt>'+t(x[0])+'</dt><dd>'+(x[1]==='AURVEX Team'?'AURVEX Team':t(x[1]))+'</dd></div>'}).join('')+'</dl></aside></div>'+ctaBand();
