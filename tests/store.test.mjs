@@ -1055,3 +1055,39 @@ test('Official team title metadata is publicly readable but has no user write pr
  assert.ok(idUi.includes('getProfileTitles(user.id)'));
  assert.ok(socialService.includes('getProfileTitles(id)'));
 });
+
+
+test('AURVEX founder shows site-launch membership instead of October 2026 in both views',()=>{
+ const founder='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const date='2026-10-17T10:00:00Z';
+ const auth={user:{id:founder,created_at:date},profile:{nickname:'fleki'},
+   profileTitles:['aurvex_ceo','site_launcher_developer'],mfaVerified:true};
+ const publicData={profileTarget:founder,profile:{
+   player_id:founder,nickname:'fleki',joined_at:date,
+   profileTitles:['aurvex_ceo','site_launcher_developer'],
+   public_links:[],wishlist_visible:false
+ }};
+ for(const lang of supportedLanguages){
+   const mine=render('#/id',lang,false,null,auth).html;
+   const visitor=render('#/player/'+founder,lang,false,null,null,null,publicData).html;
+   for(const html of [mine,visitor]){
+     assert.ok(html.includes(translations[lang].profileFounderSince),lang);
+     assert.ok(!html.includes('October 2026'),lang);
+     assert.ok(!html.includes('Жовтень 2026'),lang);
+   }
+ }
+});
+
+test('Other players keep real membership dates even when using founder-like nicknames',()=>{
+ const id='8badce8c-c12b-4d04-b12c-344553928fe1',date='2026-10-17T10:00:00Z';
+ const own={user:{id,created_at:date},profile:{nickname:'fleki'},profileTitles:[],mfaVerified:true};
+ const html=render('#/id','en',false,null,own).html;
+ assert.ok(html.includes('Member since October 2026'));
+ assert.ok(!html.includes(translations.en.profileFounderSince));
+ const publicHtml=render('#/player/'+id,'en',false,null,null,null,{
+   profileTarget:id,profile:{player_id:id,nickname:'fleki',joined_at:date,
+     profileTitles:[],public_links:[],wishlist_visible:false}
+ }).html;
+ assert.ok(publicHtml.includes('Member since October 2026'));
+ assert.ok(!publicHtml.includes(translations.en.profileFounderSince));
+});
