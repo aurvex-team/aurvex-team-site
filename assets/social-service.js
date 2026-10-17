@@ -1,5 +1,5 @@
 // Public-facing AURVEX profiles and family membership are isolated from Google/Auth secrets.
-import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261017-380';
+import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261017-395';
 export async function loadPlayerProfile(id){
  const client=await idClient();
  const [{data,error},titles]=await Promise.all([
