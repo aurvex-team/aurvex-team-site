@@ -98,3 +98,93 @@ test('concept gallery uses three distinct artwork files',()=>{
   assert.ok(render('#/game/devive').html.includes('devive-interior.svg'));
   assert.ok(render('#/game/devive').html.includes('devive-hallway.svg'));
 });
+
+
+test('sidebar has the requested clean navigation and dedicated rewards screen',()=>{
+  const sidebar=render('#/browse').html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
+  assert.ok(sidebar.includes('href="#/browse"'));
+  assert.ok(sidebar.includes('href="#/rewards"'));
+  assert.ok(!sidebar.includes('href="#/games"'));
+  assert.ok(!sidebar.includes('href="#/apps"'));
+  assert.ok(!sidebar.includes('CATEGORIES'));
+  assert.ok(!sidebar.includes('AURVEX / 001'));
+  assert.ok(sidebar.includes('class="smallcaps">AURVEX'));
+  for(const lang of supportedLanguages){
+    const rewards=render('#/rewards',lang).html;
+    assert.ok(rewards.includes(translations[lang].freeRewards));
+    assert.ok(rewards.includes(translations[lang].rewardsEmptyText));
+    assert.ok(!rewards.includes('Claim now'));
+  }
+  assert.ok(render('#/').html.includes('href="#/rewards"'));
+});
+
+test('Browse Store has centered search, genre list, real price and year controls, and no pill tabs',()=>{
+  const html=render('#/browse').html;
+  assert.ok(html.includes('catalog-search-row'));
+  for(const id of ['catalog-search','filter-kind','filter-genre','filter-min-price','filter-max-price','filter-year']){
+    assert.ok(html.includes('id="'+id+'"'),'Missing '+id);
+  }
+  assert.ok(!html.includes('class="filter-pills"'));
+  assert.ok(html.includes('data-action="clear-filters"'));
+  for(const key of ['genreAction','genreRpg','genreShooter','genreHorror','genreSurvival','genreStrategy','genrePuzzle','genrePlatformer','genreMultiplayer']){
+    const expected=key==='genreHorror'?translations.en.horror:translations.en[key];
+    assert.ok(html.includes(expected),'Missing category '+key);
+  }
+  assert.ok(html.includes(translations.en.anyYear));
+});
+
+function catalogRuntime(){
+  const holder={innerHTML:''};
+  const fallback={textContent:'',classList:{add(){},remove(){},toggle(){},contains(){return false}},addEventListener(){}};
+  const document={
+    documentElement:{lang:'',dataset:{}},title:'',
+    body:{classList:{add(){},remove(){},toggle(){},contains(){return false}}},
+    getElementById(id){return id==='app'?holder:fallback;},addEventListener(){}
+  };
+  const window={scrollY:0,addEventListener(){},scrollTo(){}};
+  const location={hash:'#/browse'};
+  const localStorage={getItem(){return null},setItem(){}};
+  return new Function('translations','supportedLanguages','document','window','location','localStorage',source+
+    '\nreturn {state,catalogMatches,routeInfo,gameGenres};')(
+      translations,supportedLanguages,document,window,location,localStorage
+    );
+}
+
+test('advanced filters actually change catalog matches',()=>{
+  const {state,catalogMatches,routeInfo,gameGenres}=catalogRuntime();
+  const route=routeInfo();
+  assert.ok(gameGenres.length>=25);
+  assert.equal(catalogMatches(route).length,1);
+  state.genre='shooter';
+  assert.equal(catalogMatches(route).length,0);
+  state.genre='horror';
+  assert.equal(catalogMatches(route).length,1);
+  state.kind='app';
+  assert.equal(catalogMatches(route).length,0);
+  state.kind='game';
+  assert.equal(catalogMatches(route).length,1);
+  state.minPrice='1';
+  assert.equal(catalogMatches(route).length,0);
+  state.minPrice='0';
+  state.maxPrice='0';
+  assert.equal(catalogMatches(route).length,1);
+  state.releaseYear='2026';
+  assert.equal(catalogMatches(route).length,0,'Devive release year is not announced');
+  state.releaseYear='';
+  state.query='no-such-game';
+  assert.equal(catalogMatches(route).length,0);
+  state.query='devive';
+  assert.equal(catalogMatches(route).length,1);
+  state.minPrice='100';
+  state.maxPrice='50';
+  assert.equal(catalogMatches(route).length,0,'Invalid price range must not show results');
+});
+
+test('filter parameters prefill the Browse Store controls and escape search input',()=>{
+  const html=render('#/browse?kind=game&genre=horror&min=0&max=300&year=2025&q=%3Chello%3E').html;
+  assert.ok(html.includes('id="filter-min-price"'));
+  assert.ok(html.includes('value="300"'));
+  assert.ok(html.includes('value="2025" selected'));
+  assert.ok(html.includes('&lt;hello&gt;'));
+  assert.ok(!html.includes('value="<hello>"'));
+});
