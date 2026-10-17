@@ -1133,3 +1133,7 @@ input,select{color:var(--text)}
  .social-notification-actions .btn{flex:1;min-width:max-content}
  .social-notifications-main .friends-panel{padding:15px}
 }
+
+/* Six compact, readable tabs after Notifications was added to mobile nav. */
+@media(max-width:650px){.mobile-bottom a{min-width:0;padding:0 2px;font-size:9px}
+ .mobile-bottom a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
