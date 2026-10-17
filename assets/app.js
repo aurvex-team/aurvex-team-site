@@ -476,6 +476,9 @@ function playerProfilePage(auth){
       '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
         '<h3>'+icon('heart',20)+' '+t('profileWishlist')+'</h3>'+
         '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div>'+
+      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('friendsNav')+'</div>'+
+        '<h3>'+icon('users',20)+' '+t('friendsMyFriends')+'</h3>'+
+        '<p>'+t('friendsLead')+'</p><a class="btn btn-outline" href="#/friends">'+t('friendsNav')+' '+icon('arrow',16)+'</a></div>'+
       '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
         '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
         '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
