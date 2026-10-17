@@ -7,7 +7,8 @@ import {
  currentVerifiedUser,ownProfile,saveOwnNickname,syncOwnWishlist,setOwnWishlist
 } from './id-service.js';
 
-const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false};
+const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
+ configured:isIdConfigured(),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
 const t=(key)=>translations[document.documentElement.lang]?.[key]||translations.en[key]||key;
 const notify=()=>window.dispatchEvent(new CustomEvent('aurvex:id-state'));
@@ -23,6 +24,13 @@ function fail(error,fallback){
 }
 async function reload(){
   try{
+    const client=await idClient();
+    const {data:sessionData,error:sessionError}=await client.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!sessionData?.session){
+      model.user=null;model.profile=null;model.pendingEmail='';
+      model.ready=true;model.statusKey='';notify();return;
+    }
     const user=await currentVerifiedUser();
     model.user=user;
     model.profile=null;
