@@ -201,6 +201,8 @@ test('MORE section links to Team and Support the Team without removing About',()
   const more=sidebar.split('<div class="side-label">'+translations.en.more+'</div>')[1]?.split('</div>')[0]||'';
   assert.ok(more.includes('href="#/team"'));
   assert.ok(more.includes('href="#/support"'));
+  assert.ok(more.indexOf('href="#/team"')<more.indexOf('href="#/support"'));
+  assert.ok(more.indexOf('href="#/support"')<more.indexOf('href="#/about"'));
   assert.ok(html.includes('href="#/team"'));
   assert.ok(html.includes('href="#/support"'));
 });
