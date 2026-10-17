@@ -42,6 +42,7 @@ jobs:
           cp index.html _site/
           cp index.html _site/store.html
           cp index.html _site/id.html
+          cp index.html _site/profile.html
           cp -r assets _site/
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
