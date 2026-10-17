@@ -83,7 +83,7 @@ function sidebar(path){
       navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
-      navLink('/about','about','info',path)+navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+'</div>'+
+      navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
     '<a href="#/about">'+t('bannerButton')+' '+icon('arrow',12)+'</a></div>'+
     '<div class="side-version">AURVEX STORE • PREVIEW 2.1</div></aside>';
