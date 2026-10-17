@@ -53,7 +53,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -82,7 +82,8 @@ function sidebar(path){
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
       navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+navLink('/about','about','info',path)+'</div>'+
+    '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
+      navLink('/about','about','info',path)+navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
     '<a href="#/about">'+t('bannerButton')+' '+icon('arrow',12)+'</a></div>'+
     '<div class="side-version">AURVEX STORE • PREVIEW 2.1</div></aside>';
@@ -321,6 +322,49 @@ function savedPage(){
     (state.wished?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
     '<div class="saved-banner">'+icon('shield',20)+t('localOnly')+'</div>';
 }
+function teamPage(){
+  const tracks=[
+    ['laptop','teamTrackCode','teamTrackCodeDesc','01'],
+    ['sparkle','teamTrack2D','teamTrack2DDesc','02'],
+    ['layers','teamTrackAnim','teamTrackAnimDesc','03']
+  ];
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('team')+'</span></div>'+
+    '<section class="team-hero"><div class="team-hero-copy"><div class="smallcaps">'+t('teamEyebrow')+'</div>'+
+      '<h1>'+t('teamTitle')+'</h1><p>'+t('teamIntro')+'</p>'+
+      '<a class="btn btn-accent" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div>'+
+      '<div class="team-art" aria-hidden="true"><div class="team-orbit team-orbit-first"></div><div class="team-orbit team-orbit-second"></div>'+
+        '<div class="team-symbol">A</div><div class="team-symbol-badge badge-one">'+icon('gamepad',25)+'</div>'+
+        '<div class="team-symbol-badge badge-two">'+icon('sparkle',25)+'</div><div class="team-symbol-badge badge-three">'+icon('laptop',25)+'</div></div></section>'+
+    '<section class="section">'+sectionHead('teamTeamWork','teamFocusTitle','teamFocusCopy',null,null)+
+      '<div class="team-tracks">'+tracks.map(function(x){
+        return '<article class="team-track"><span class="team-track-number">'+x[3]+' / AURVEX</span>'+
+          '<span class="team-track-icon">'+icon(x[0],26)+'</span><h3>'+t(x[1])+'</h3>'+
+          '<p>'+t(x[2])+'</p></article>';
+      }).join('')+'</div>'+
+      '<div class="team-profiles-note">'+icon('info',19)+'<p>'+t('teamMembersNote')+'</p></div></section>'+
+    '<section class="team-project"><div class="team-project-image"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"></div>'+
+      '<div class="team-project-content"><span class="smallcaps">'+t('heroTag')+'</span><h2>'+t('teamWorkTitle')+'</h2>'+
+      '<p>'+t('teamWorkCopy')+'</p><a href="#/game/devive" class="btn btn-outline">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div></section>';
+}
+function supportPage(){
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('supportTeam')+'</span></div>'+
+    '<section class="support-hero"><div class="support-hero-glow"></div><div class="support-hero-content">'+
+      '<div class="smallcaps">'+t('supportEyebrow')+'</div><h1>'+t('supportTitle')+'</h1>'+
+      '<p>'+t('supportIntro')+'</p><button class="btn btn-primary" type="button" data-action="share-site">'+
+      icon('arrowUp',17)+' '+t('supportShareButton')+'</button></div>'+
+      '<span class="support-decoration" aria-hidden="true">'+icon('heart',210)+'</span></section>'+
+    '<div class="support-options">'+
+      '<article class="support-option"><span class="support-icon">'+icon('arrowUp',24)+'</span>'+
+        '<h2>'+t('supportShareTitle')+'</h2><p>'+t('supportShareDesc')+'</p>'+
+        '<button class="btn btn-outline" type="button" data-action="share-site">'+t('supportShareButton')+' '+icon('arrow',15)+'</button></article>'+
+      '<article class="support-option"><span class="support-icon">'+icon('heart',24)+'</span>'+
+        '<h2>'+t('supportFundingTitle')+'</h2><p>'+t('supportFundingDesc')+'</p>'+
+        '<span class="tag tag-amber">'+icon('clock',14)+' '+t('supportFundingStatus')+'</span></article>'+
+      '<article class="support-option"><span class="support-icon">'+icon('gamepad',24)+'</span>'+
+        '<h2>'+t('supportExploreTitle')+'</h2><p>'+t('supportExploreDesc')+'</p>'+
+        '<a class="btn btn-outline" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></article>'+
+    '</div><div class="saved-banner">'+icon('shield',20)+'<span>'+t('supportNote')+'</span></div>';
+}
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
@@ -339,7 +383,7 @@ function footer(){
   return '<footer class="footer"><div class="footer-inner"><div><h3>AURVEX<span style="color:var(--accent)">.</span></h3>'+
     '<p>'+t('footerTag')+'</p></div><div class="footer-links"><a href="#/browse">'+t('footerExplore')+'</a>'+
     '<a href="#/games">'+t('games')+'</a><a href="#/apps">'+t('apps')+'</a>'+
-    '<a href="#/about">'+t('about')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
+    '<a href="#/about">'+t('about')+'</a><a href="#/team">'+t('team')+'</a><a href="#/support">'+t('supportTeam')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
     '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span></div></footer>';
 }
 function render(keepScroll=false){
@@ -353,8 +397,10 @@ function render(keepScroll=false){
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
   else if(route.path==='/saved')page=savedPage();
   else if(route.path==='/about')page=aboutPage();
+  else if(route.path==='/team')page=teamPage();
+  else if(route.path==='/support')page=supportPage();
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -458,6 +504,15 @@ document.addEventListener('click',function(event){
   const action=button.dataset.action;
   if(action==='menu'){setMenu(!document.body.classList.contains('menu-open'));return}
   if(action==='close-menu'){setMenu(false);return}
+  if(action==='share-site'){
+    const url=new URL('#/',document.baseURI).href;
+    if(navigator.share){
+      navigator.share({title:'AURVEX Store',url}).catch(function(){});
+    }else if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){toast(t('supportCopySuccess'))}).catch(function(){window.prompt(t('supportCopyPrompt'),url)});
+    }else window.prompt(t('supportCopyPrompt'),url);
+    return;
+  }
   if(action==='share'){
     const url=new URL('#/game/devive',document.baseURI).href;
     if(navigator.share){navigator.share({title:'Devive — AURVEX',url}).catch(function(){});}
