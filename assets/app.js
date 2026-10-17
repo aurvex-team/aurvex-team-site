@@ -323,11 +323,6 @@ function savedPage(){
     '<div class="saved-banner">'+icon('shield',20)+t('localOnly')+'</div>';
 }
 function teamPage(){
-  const tracks=[
-    ['laptop','teamTrackCode','teamTrackCodeDesc','01'],
-    ['sparkle','teamTrack2D','teamTrack2DDesc','02'],
-    ['layers','teamTrackAnim','teamTrackAnimDesc','03']
-  ];
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('team')+'</span></div>'+
     '<section class="team-hero"><div class="team-hero-copy"><div class="smallcaps">'+t('teamEyebrow')+'</div>'+
       '<h1>'+t('teamTitle')+'</h1><p>'+t('teamIntro')+'</p>'+
@@ -338,13 +333,6 @@ function teamPage(){
       '<div class="team-art" aria-hidden="true"><div class="team-orbit team-orbit-first"></div><div class="team-orbit team-orbit-second"></div>'+
         '<div class="team-symbol">A</div><div class="team-symbol-badge badge-one">'+icon('gamepad',25)+'</div>'+
         '<div class="team-symbol-badge badge-two">'+icon('sparkle',25)+'</div><div class="team-symbol-badge badge-three">'+icon('laptop',25)+'</div></div></section>'+
-    '<section class="section">'+sectionHead('teamTeamWork','teamFocusTitle','teamFocusCopy',null,null)+
-      '<div class="team-tracks">'+tracks.map(function(x){
-        return '<article class="team-track"><span class="team-track-number">'+x[3]+' / AURVEX</span>'+
-          '<span class="team-track-icon">'+icon(x[0],26)+'</span><h3>'+t(x[1])+'</h3>'+
-          '<p>'+t(x[2])+'</p></article>';
-      }).join('')+'</div>'+
-      '<div class="team-profiles-note">'+icon('info',19)+'<p>'+t('teamMembersNote')+'</p></div></section>'+
     '<section class="team-project"><div class="team-project-image"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"></div>'+
       '<div class="team-project-content"><span class="smallcaps">'+t('heroTag')+'</span><h2>'+t('teamWorkTitle')+'</h2>'+
       '<p>'+t('teamWorkCopy')+'</p><a href="#/game/devive" class="btn btn-outline">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div></section>';
