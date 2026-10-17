@@ -612,6 +612,35 @@ function friendsPage(){
       '<p class="friends-privacy">'+icon('shield',16)+' '+t('friendsPrivacy')+'</p>'+matches+'</aside></div>';
 }
 
+
+function publicPlayerPage(path){
+ const v=window.AURVEX_SOCIAL||{},id=path.slice(8);
+ const p=v.profileTarget===id?v.profile:null,auth=window.AURVEX_ID||{};
+ if(!p)return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
+   '<div class="friends-lock"><h1>'+t('socialPlayerProfile')+'</h1><p>'+t(v.profileLoading?'friendsLoading':'socialPlayerMissing')+'</p></div>';
+ const art=p.bannerUrl?'<img class="player-cover-image" src="'+esc(p.bannerUrl)+'" alt="">':'<div class="player-cover-placeholder"><span class="player-cover-logo">A</span></div>';
+ const avatar=p.avatarUrl?'<img src="'+esc(p.avatarUrl)+'" alt="">':icon('user',48);
+ const links=Array.isArray(p.public_links)?p.public_links:[],games=Array.isArray(p.wishlist_products)?p.wishlist_products:[];
+ const date=new Date(p.joined_at);
+ const joined=Number.isFinite(date.getTime())?date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{year:'numeric',month:'long'}):'';
+ return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
+  '<div class="player-profile public-profile">'+
+   '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
+   '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
+    '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
+     '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div></div>'+
+   '<div class="public-profile-body">'+
+    (auth.user?.id===id?'<div class="public-preview-note">'+icon('info',16)+' '+t('socialPreviewHint')+
+     ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
+    '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
+     (links.length?'<div class="public-links">'+links.map(l=>'<a href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer nofollow">'+
+       icon('arrowUp',15)+' '+esc(l.title)+'</a>').join('')+'</div>':'<p class="social-muted">'+t('socialNoLinks')+'</p>')+'</section>'+
+    '<section class="public-block"><h2>'+t('profileWishlist')+'</h2>'+
+     (!p.wishlist_visible?'<div class="friends-empty">'+icon('shield',20)+' '+t('socialWishHidden')+'</div>':
+      games.length?'<div class="public-links">'+games.map(g=>g==='devive'?
+       '<a href="#/game/devive">'+icon('gamepad',17)+' Devive</a>':'<span>'+icon('gamepad',17)+' '+esc(g)+'</span>').join('')+'</div>':
+       '<div class="friends-empty">'+t('socialWishEmpty')+'</div>')+'</section></div></div>';
+}
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
@@ -648,8 +677,9 @@ function render(keepScroll=false){
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
   else if(route.path==='/friends')page=friendsPage();
+  else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -834,6 +864,7 @@ document.addEventListener('submit',function(event){
 });
 window.addEventListener('aurvex:id-state',function(){render(true)});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
+window.addEventListener('aurvex:social-state',function(){render(true)});
 window.addEventListener('aurvex:sync-wishlist',function(event){
   if(!event.detail||typeof event.detail.wished!=='boolean')return;
   state.wished=event.detail.wished;store(STORAGE.wish,state.wished?'1':'0');render(true);
