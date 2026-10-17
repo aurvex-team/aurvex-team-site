@@ -1168,3 +1168,11 @@ input,select{color:var(--text)}
  .top-brand>span:last-child{display:none}
  .live-visitors{padding:0 8px}
 }
+
+
+/* Profile link editor: paste-friendly fields, helper copy and mobile layout. */
+.social-link-tip{font-size:11px;line-height:1.7;color:var(--muted);margin:0 0 4px;
+  border-left:2px solid var(--accent);padding:8px 12px;background:var(--surface);
+  border-radius:0 9px 9px 0}
+.social-link-fields input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.social-link-fields label{min-width:0;overflow-wrap:anywhere}
