@@ -79,6 +79,15 @@ function header(path){
     '<img class="top-account-avatar" src="'+esc(id.avatarUrl)+'" alt="">':icon('user',17);
   const profileLabel=id?.user?(id.profile?.nickname||t('idAccount')):t('idSignIn');
   const langOptions=supportedLanguages.map(function(code){return '<option value="'+code+'"'+(state.language===code?' selected':'')+'>'+code.toUpperCase()+'</option>'}).join('');
+  const live=window.AURVEX_VISITORS||{status:'connecting',count:null};
+  const liveCount=Number.isSafeInteger(live.count)&&live.count>=0?String(live.count):'—';
+  const liveState=['live','connecting','unavailable'].includes(live.status)?live.status:'connecting';
+  const liveHint=liveState==='unavailable'?t('visitorsUnavailable'):liveState==='connecting'?t('visitorsLoading'):t('visitorsLiveHint');
+  const liveBadge='<span class="live-visitors" data-live-visitors data-live-state="'+liveState+
+    '" title="'+esc(liveHint)+'" aria-label="'+esc(t('visitorsOnline')+': '+liveCount+'. '+liveHint)+'" aria-busy="'+String(liveState==='connecting')+'">'+
+    '<span class="live-visitors-dot" aria-hidden="true"></span>'+
+    '<span data-live-visitors-count class="live-visitors-count">'+liveCount+'</span>'+
+    '<span class="live-visitors-label">'+t('visitorsOnline')+'</span></span>';
   return '<header class="topbar">'+
     '<button class="icon-btn menu-trigger" type="button" data-action="menu" aria-label="'+t('menu')+'" aria-expanded="false">'+icon('menu',20)+'</button>'+
     '<a class="top-brand" href="#/" aria-label="AURVEX Store">'+
@@ -87,7 +96,7 @@ function header(path){
     '<a href="#/browse" class="'+(isActive(path,'/browse')?'active':'')+'">'+t('browse')+'</a>'+
     '<a href="#/about" class="'+(path==='/about'?'active':'')+'">'+t('about')+'</a></nav>'+
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
-    '<div class="top-actions"><label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
+    '<div class="top-actions">'+liveBadge+'<label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
     '<a class="icon-btn social-bell'+(path==='/notifications'?' active':'')+'" href="#/notifications" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'">'+
