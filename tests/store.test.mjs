@@ -211,8 +211,10 @@ test('Team and Support have real pages with content localized in all four langua
     const team=render('#/team',lang);
     assert.equal(team.lang,lang);
     assert.ok(team.html.includes(translations[lang].teamTitle));
-    assert.ok(team.html.includes(translations[lang].teamMembersNote));
-    assert.ok(team.html.includes(translations[lang].teamTrackCode));
+    assert.ok(!team.html.includes(translations[lang].teamMembersNote));
+    assert.ok(!team.html.includes(translations[lang].teamTrackCode));
+    assert.ok(!team.html.includes('team-tracks'));
+    assert.ok(!team.html.includes('team-profiles-note'));
     assert.ok(team.html.includes('href="#/game/devive"'));
     const support=render('#/support',lang);
     assert.equal(support.lang,lang);
