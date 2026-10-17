@@ -25,7 +25,7 @@
 | --- | --- | --- | --- |
 | **Devive** | 2D side-view horror game set in an old two-storey house | Free | In development; no downloadable build yet |
 
-**Important:** This is a storefront preview, **not a functional checkout or distribution service**. No payment processing, live user registration or executable game downloads exist yet. AURVEX ID has a real authentication-ready frontend, but all sign-in providers remain disabled until its separate Supabase Auth project is configured and tested. Don't represent Devive as released before its release build is available.
+**Important:** This is a storefront preview, **not a functional checkout or distribution service**. No payment processing, live website registration or executable game downloads exist yet. AURVEX ID now has a separate, healthy Supabase project with RLS-protected profile/wishlist tables. Website Google and email sign-in remain disabled pending secure provider settings and end-to-end tests. XONI Mail remains a separate product. Don't represent Devive as released before its release build is available.
 
 ## Files
 
