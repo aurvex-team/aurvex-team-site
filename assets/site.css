@@ -1137,3 +1137,34 @@ input,select{color:var(--text)}
 /* Six compact, readable tabs after Notifications was added to mobile nav. */
 @media(max-width:650px){.mobile-bottom a{min-width:0;padding:0 2px;font-size:9px}
  .mobile-bottom a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+
+
+/* AURVEX live presence indicator — anonymous connected visible tabs, not user IDs. */
+.live-visitors{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:36px;padding:0 11px;flex-shrink:0;
+  color:var(--text);background:var(--surface-2);
+  border:1px solid var(--line-strong);border-radius:100px;
+  white-space:nowrap;font-size:11px;font-weight:850;
+  font-variant-numeric:tabular-nums;cursor:help;
+}
+.live-visitors-dot{height:7px;width:7px;flex-shrink:0;border-radius:50%;
+ background:#40d6a0;box-shadow:0 0 0 3px #40d6a01a}
+.live-visitors-count{min-width:1ch;text-align:center}
+.live-visitors-label{color:var(--muted);font-weight:680}
+.live-visitors[data-live-state="connecting"] .live-visitors-dot,
+.live-visitors[data-live-state="unavailable"] .live-visitors-dot{
+ background:var(--subtle);box-shadow:none
+}
+.live-visitors[data-live-state="connecting"] .live-visitors-count,
+.live-visitors[data-live-state="unavailable"] .live-visitors-count{color:var(--muted)}
+@media(max-width:1300px){.live-visitors{gap:5px;padding:0 9px}}
+@media(max-width:1150px){.live-visitors-label{display:none}}
+@media(max-width:560px){
+ .live-visitors{min-height:33px;padding:0 7px;gap:5px;font-size:10px}
+ .live-visitors-dot{width:6px;height:6px}
+}
+@media(max-width:385px){
+ .top-brand>span:last-child{display:none}
+ .live-visitors{padding:0 8px}
+}
