@@ -542,6 +542,73 @@ function idPage(route){
         card+message+'<p class="id-bottom-note">'+icon('shield',14)+' '+t('idLinkSoon')+'</p></section>'+
     '</div>';
 }
+
+function friendPlayerRow(player){
+  const relation=player.relation||'none';
+  const uuid=esc(player.player_id||player.peer_id||'');
+  const avatar=player.avatarUrl?
+    '<img src="'+esc(player.avatarUrl)+'" alt="" loading="lazy">':icon('user',24);
+  const relationKeys={none:'friendsRelationNew',friend:'friendsRelationFriend',incoming:'friendsRelationIncoming',outgoing:'friendsRelationOutgoing',cooldown:'friendsRelationCooldown',unavailable:'friendsUnavailable'};
+  const choices={
+    none:[['send','friendsAdd','btn-accent']],
+    friend:[['remove','friendsRemove','btn-outline']],
+    incoming:[['accept','friendsAccept','btn-accent'],['decline','friendsDecline','btn-outline']],
+    outgoing:[['cancel','friendsCancel','btn-outline']]
+  };
+  const buttons=(choices[relation]||[]).map(([action,label,cls])=>
+    '<button class="btn '+cls+'" type="button" data-friend-action="'+action+
+    '" data-player-id="'+uuid+'"'+(window.AURVEX_FRIENDS?.busy?' disabled':'')+'>'+
+    icon(action==='accept'?'check':action==='send'?'users':'close',15)+' '+t(label)+'</button>').join('');
+  return '<article class="friends-player"><div class="friends-avatar">'+avatar+'</div>'+
+    '<div class="friends-player-info"><strong>'+esc(player.nickname||t('friendsUnknown'))+'</strong>'+
+    '<span>'+t(relationKeys[relation]||'friendsUnavailable')+'</span></div>'+
+    '<div class="friends-player-actions">'+(buttons||'<small>'+t('friendsUnavailable')+'</small>')+'</div></article>';
+}
+function friendsPage(){
+  const auth=window.AURVEX_ID||{}, data=window.AURVEX_FRIENDS||{};
+  if(!auth.user||!auth.mfaVerified){
+    return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('friendsNav')+'</div>'+
+      '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',40)+'</div>'+
+      '<div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('friendsLockedTitle')+'</h1><p>'+
+      t(auth.user?'friends2faNeeded':'friendsSignInNeeded')+'</p>'+
+      '<a class="btn btn-accent" href="#/id">'+t('friendsOpenProfile')+' '+icon('arrow',16)+'</a></section>';
+  }
+  const all=data.relations||[];
+  const members=all.filter(x=>x.relation==='friend');
+  const incoming=all.filter(x=>x.relation==='incoming');
+  const outgoing=all.filter(x=>x.relation==='outgoing');
+  function group(items,empty){
+    if(!data.ready)return '<div class="friends-empty">'+t('friendsLoading')+'</div>';
+    return items.length?'<div class="friends-list">'+items.map(friendPlayerRow).join('')+'</div>':
+      '<div class="friends-empty">'+icon('users',24)+'<p>'+t(empty)+'</p></div>';
+  }
+  const notice=data.statusKey?'<p role="status" class="friends-alert'+(data.statusError?' friends-error':'')+'">'+t(data.statusKey)+'</p>':'';
+  const matches=data.query?(data.searching?'<p class="friends-empty">'+t('friendsSearching')+'</p>':
+    data.results?.length?'<div class="friends-list friends-results">'+data.results.map(friendPlayerRow).join('')+'</div>':
+      '<div class="friends-empty">'+t('friendsNoResults')+'</div>'):'';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('friendsNav')+'</span></div>'+
+    '<header class="friends-hero"><div class="smallcaps">'+t('friendsEyebrow')+'</div><h1>'+t('friendsTitle')+'</h1>'+
+    '<p>'+t('friendsLead')+'</p><div class="friends-stats">'+
+      '<span>'+icon('users',16)+' '+members.length+' '+t('friendsNav')+'</span>'+
+      '<span>'+icon('mail',16)+' '+incoming.length+' '+t('friendsIncoming')+'</span>'+
+      '<span>'+icon('arrowUp',16)+' '+outgoing.length+' '+t('friendsOutgoing')+'</span>'+
+    '</div></header>'+notice+
+    '<div class="friends-columns"><div class="friends-main">'+
+      '<section class="friends-panel"><div class="smallcaps">'+t('friendsMyFriends')+'</div><h2>'+t('friendsMyFriends')+'</h2>'+
+        group(members,'friendsNoFriends')+'</section>'+
+      '<section class="friends-panel"><div class="smallcaps">'+t('friendsRequests')+'</div><h2>'+t('friendsIncoming')+'</h2>'+
+        group(incoming,'friendsNoIncoming')+'</section>'+
+      '<section class="friends-panel"><div class="smallcaps">'+t('friendsRequests')+'</div><h2>'+t('friendsOutgoing')+'</h2>'+
+        group(outgoing,'friendsNoOutgoing')+'</section></div>'+
+      '<aside class="friends-panel friends-search-panel"><div class="smallcaps">'+t('friendsDiscover')+'</div>'+
+      '<h2>'+t('friendsFindTitle')+'</h2><p>'+t('friendsFindLead')+'</p>'+
+      '<form id="friends-search-form" role="search"><label for="friends-search-input">'+t('friendsSearchLabel')+'</label>'+
+        '<div class="friends-input">'+icon('search',19)+'<input id="friends-search-input" type="search" name="nickname" required autocomplete="off" maxlength="24" placeholder="'+esc(t('friendsSearchPlaceholder'))+'" value="'+esc(data.query||'')+'"></div>'+
+        '<button type="submit" class="btn btn-accent"'+(data.busy||data.searching?' disabled':'')+'>'+
+        icon('search',16)+' '+t('friendsSearchButton')+'</button></form>'+
+      '<p class="friends-privacy">'+icon('shield',16)+' '+t('friendsPrivacy')+'</p>'+matches+'</aside></div>';
+}
+
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
