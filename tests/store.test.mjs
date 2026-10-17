@@ -299,3 +299,50 @@ test('multiple genre selections can be restored from a shareable catalog URL',()
   assert.ok(html.includes(translations.en.activeFilters));
   assert.ok(html.includes('data-remove-filter="genre" data-value="psychological"'));
 });
+
+
+test('AURVEX ID has a visible account entry, sign-in and registration screens',()=>{
+  for(const lang of supportedLanguages){
+    const home=render('#/',lang);
+    assert.ok(home.html.includes('href="#/id"'));
+    assert.ok(home.html.includes(translations[lang].aurvexId));
+    const login=render('#/id',lang);
+    const signup=render('#/id?mode=register',lang);
+    assert.ok(login.html.includes(translations[lang].idHeading));
+    assert.ok(login.html.includes(translations[lang].idSignIn));
+    assert.ok(signup.html.includes(translations[lang].idRegister));
+    assert.ok(signup.html.includes('data-mode="register"'));
+    assert.ok(login.html.includes('id="id-email-form"'));
+    assert.ok(login.html.includes('data-id-action="google"'));
+    assert.ok(login.html.includes(translations[lang].idXoni));
+  }
+});
+test('No demo account can be created before a separate auth backend is configured',()=>{
+  const html=render('#/id').html;
+  assert.ok(html.includes(translations.en.idSetupTitle));
+  assert.ok(html.includes(translations.en.idSetupBody));
+  assert.match(html,/data-id-action="google" disabled aria-disabled="true"/);
+  assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
+  assert.match(html,/id="id-email-form"[^>]*data-mode="signin"/);
+  assert.ok(html.includes('id-xoni'));
+  assert.match(html,/id-xoni[^"]*" type="button" disabled/);
+  assert.ok(!html.includes('href="https://discord.gg'));
+});
+test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user data',()=>{
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const config=readFileSync(new URL('../assets/id-config.js',import.meta.url),'utf8');
+  const ui=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+  const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_core.sql',import.meta.url),'utf8');
+  for(const feature of ['flowType:\'pkce\'','signInWithOAuth','signInWithOtp','verifyOtp','getUser','id_profiles','id_wishlist'])assert.ok(service.includes(feature),feature);
+  for(const feature of ['auth.uid()','enable row level security','to authenticated','id_entitlements','revoke all'])assert.ok(migration.includes(feature),feature);
+  assert.ok(config.includes("supabaseUrl:''"));
+  assert.ok(config.includes("supabasePublishableKey:''"));
+  assert.ok(config.includes("googleEnabled:false"));
+  assert.ok(config.includes("emailEnabled:false"));
+  assert.ok(config.includes("xoniEnabled:false"));
+  assert.ok(ui.includes("window.AURVEX_ID=model"));
+  assert.ok(ui.includes("data-id-action"));
+  assert.ok(!service.includes('service_role'));
+  assert.ok(!ui.includes('password:'));
+  assert.ok(index.includes('assets/id-ui.js?v='));
+});
