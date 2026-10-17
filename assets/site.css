@@ -885,3 +885,11 @@ input,select{color:var(--text)}
 @media(prefers-reduced-motion:reduce){
  .player-banner-btn,.player-avatar-edit,.player-remove{transition:none}
 }
+
+/* Player identity in global top bar */
+.account-header-btn .top-account-avatar{
+  width:25px;height:25px;flex-shrink:0;object-fit:cover;border-radius:8px;
+  border:1px solid var(--accent);box-shadow:0 2px 7px #0002;
+}
+.account-header-btn span{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){.account-header-btn .top-account-avatar{width:26px;height:26px}}
