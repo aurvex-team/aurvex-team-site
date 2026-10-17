@@ -1,5 +1,5 @@
 // AURVEX Friends v1 browser controller. No credentials, emails or secret keys.
-import {listFriends,findPlayers,sendFriendRequest,respondFriendRequest} from './friends-service.js?v=20261017-370';
+import {listFriends,findPlayers,sendFriendRequest,respondFriendRequest} from './friends-service.js?v=20261017-380';
 
 const model={ready:false,busy:false,searching:false,query:'',results:[],relations:[],
  statusKey:'',statusError:false,userId:''};
