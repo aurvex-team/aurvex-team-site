@@ -1,6 +1,6 @@
 # AURVEX ID — identity architecture and setup
 
-Status: **separate Supabase project created and schema applied; production sign-in remains disabled**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from XONI Mail. The site contains ONLY a publishable key. Email/Google provider switches remain off pending verified email delivery, OAuth setup, redirect allow-list and live end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
+Status: **separate Supabase project and RLS schema active; Google OAuth provider enabled in Supabase and Google sign-in frontend enabled for testing, not yet verified end-to-end**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from XONI Mail. The site contains ONLY a publishable key. Email/Google provider switches remain off pending verified email delivery, OAuth setup, redirect allow-list and live end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
 
 ## Ownership boundaries
 
@@ -62,9 +62,23 @@ These are **three different URLs with different purposes**:
 2. **Google Cloud Console:** Create an OAuth project and configure Google Auth Platform Branding, Audience = External, Data Access scopes \`openid\`, \`userinfo.email\`, \`userinfo.profile\`. In "Clients", create a **Web application** using the exact origin and Supabase callback above. If Audience is set to *Testing*, only specifically added Google test users may sign in.
 3. **Supabase:** Authentication → Sign In / Providers → Google; enable it, and paste **Client ID** and **Client Secret** from Google Cloud **into the Supabase dashboard only**. Never paste a client secret into ChatGPT, public GitHub, or screenshots.
 4. Enable new user signups in Supabase **only after Google is verified and tested**. If initially launching Google-only, consider disabling the Email sign-in provider until a real outbound sender exists, since an unconfigured email provider can otherwise invite abuse.
-5. Only after end-to-end Google sign-in and logout are verified should \`googleEnabled\` be set to \`true\` in the public \`assets/id-config.js\`. The existing browser login code already uses Google + PKCE, and redirects back to \`id.html\`.
+5. ✅ The public frontend `googleEnabled` flag has been enabled **for testing** after the Google provider was enabled in Supabase. This is *not* confirmation that login works or that public signups are safe. The existing browser login code already uses Google + PKCE, and redirects back to \`id.html\`.
 6. Later, enable ordinary email signup via a **custom SMTP** provider and branded verification email. A custom DNS domain is strongly recommended for a public service, but an SMTP provider that can send from an authorized mailbox (e.g. a dedicated Gmail address with a Google app password) can be used for **small internal testing**, if the provider's terms and limits allow. Do not use a personal account for production mail. Supabase's default mailer is restricted to project-team addresses and is not suitable for public signups.
 7. XONI Mail will not authenticate via raw email strings; it needs a secure identity provider and explicit account linking.
 
 **Important:** AURVEX Launcher later uses its own OAuth 2.1/OIDC client registration and system-browser PKCE. The Google browser Client ID is **not** an app credential embedded in native builds.
 
+
+
+## Google test activation (2026-10-17)
+
+Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. An accidentally exposed original client secret has been disabled and replaced by the user; the active replacement secret is never stored in this repository. The Supabase Sign In / Providers screen shows Google ENABLED.
+
+- ✅ Frontend Google sign-in button enabled for controlled testing (\`googleEnabled:true\`).
+- ⏳ Add the Gmail being used to **Google Auth Platform → Audience → Test users**. While Google OAuth remains in Testing, non-test users should not be able to sign in.
+- ⏳ Confirm **Supabase → Authentication → Sign In / Providers → Allow new users to sign up** is ON for a first Google signup (may have been switched OFF during initial setup).
+- ⏳ Consider turning **Email provider OFF** while public signup is temporarily enabled, until a working custom SMTP transport is set up. This prevents unsupported passwordless email sign-ups through the Auth API.
+- ⏳ Verify the production Google login loop and logout with a test account on \`https://aurvex-team.github.io/aurvex-team-site/id.html#/id\`.
+- ⏳ Onboarding for untrusted public accounts, anti-abuse/rate limits, and actual production rollout are future steps.
+
+**No Google Client Secret, SMTP password or admin key should ever be placed in this repo or shared in screenshots.**
