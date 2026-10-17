@@ -48,10 +48,19 @@ export async function ownProfile(userId){
   if(error)throw error;
   return data;
 }
+export async function ensureOwnProfile(client,userId){
+  // INSERT ... ON CONFLICT DO NOTHING. Do not overwrite an existing nickname
+  // or avatar/banner when the user's first profile field is saved.
+  const {error}=await client.from('id_profiles')
+    .upsert({id:userId},{onConflict:'id',ignoreDuplicates:true});
+  if(error)throw error;
+}
 export async function saveOwnNickname(userId,nickname){
   const client=await idClient();
+  await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
-    .upsert({id:userId,nickname},{onConflict:'id'}).select('nickname,avatar_path,banner_path,created_at').single();
+    .update({nickname}).eq('id',userId)
+    .select('nickname,avatar_path,banner_path,created_at').single();
   return {data,error};
 }
 // Server wishlist is authoritative for signed-in accounts. In particular,
@@ -121,8 +130,9 @@ export async function uploadProfileMedia(userId,kind,file,existingPath){
   });
   if(uploadError)throw uploadError;
   const column=kind==='avatar'?'avatar_path':'banner_path';
+  await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
-    .upsert({id:userId,[column]:path},{onConflict:'id'})
+    .update({[column]:path}).eq('id',userId)
     .select('nickname,avatar_path,banner_path,created_at').single();
   if(error){
     await client.storage.from(MEDIA_BUCKET).remove([path]).catch(()=>{});
@@ -139,8 +149,9 @@ export async function removeProfileMedia(userId,kind,existingPath){
   if(!['avatar','banner'].includes(kind))throw new Error('Invalid media field');
   const client=await idClient();
   const column=kind==='avatar'?'avatar_path':'banner_path';
+  await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
-    .upsert({id:userId,[column]:null},{onConflict:'id'})
+    .update({[column]:null}).eq('id',userId)
     .select('nickname,avatar_path,banner_path,created_at').single();
   if(error)throw error;
   if(existingPath&&existingPath.startsWith(userId+'/'+kind+'-')){
