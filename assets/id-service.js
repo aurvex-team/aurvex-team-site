@@ -44,27 +44,42 @@ export async function currentVerifiedUser(){
 export async function ownProfile(userId){
   const client=await idClient();
   const {data,error}=await client.from('id_profiles')
-    .select('nickname').eq('id',userId).maybeSingle();
+    .select('nickname,avatar_path,banner_path,created_at').eq('id',userId).maybeSingle();
   if(error)throw error;
   return data;
 }
 export async function saveOwnNickname(userId,nickname){
   const client=await idClient();
   const {data,error}=await client.from('id_profiles')
-    .upsert({id:userId,nickname},{onConflict:'id'}).select('nickname').single();
+    .upsert({id:userId,nickname},{onConflict:'id'}).select('nickname,avatar_path,banner_path,created_at').single();
   return {data,error};
 }
-export async function syncOwnWishlist(userId,localSaved){
+// Server wishlist is authoritative for signed-in accounts. In particular,
+// NEVER merge stale localStorage into server on page load: it resurrects items
+// deleted from another device.
+export async function getOwnWishlist(userId){
   const client=await idClient();
-  if(localSaved){
-    const {error}=await client.from('id_wishlist')
-      .upsert({user_id:userId,product_id:'devive'},{onConflict:'user_id,product_id',ignoreDuplicates:true});
-    if(error)throw error;
-  }
   const {data,error}=await client.from('id_wishlist')
     .select('product_id').eq('user_id',userId).eq('product_id','devive').maybeSingle();
   if(error)throw error;
   return !!data;
+}
+export function subscribeOwnWishlist(userId,onChange){
+  let channel=null;
+  let closed=false;
+  const promise=idClient().then(client=>{
+    if(closed)return;
+    channel=client.channel('aurvex-wishlist-'+userId+'-'+crypto.randomUUID())
+      .on('postgres_changes',{
+        event:'*',schema:'public',table:'id_wishlist',filter:'user_id=eq.'+userId
+      },()=>onChange())
+      .subscribe();
+  }).catch(err=>console.warn('AURVEX wishlist subscription:',err?.message||'failed'));
+  return async()=>{
+    closed=true;
+    await promise;
+    if(channel){const client=await idClient();await client.removeChannel(channel)}
+  };
 }
 export async function setOwnWishlist(userId,wished){
   const client=await idClient();
@@ -77,4 +92,59 @@ export async function setOwnWishlist(userId,wished){
       .delete().eq('user_id',userId).eq('product_id','devive');
     if(error)throw error;
   }
+}
+
+
+// User media is public-by-design (avatars and banners shown on profiles).
+// Never upload private images, EXIF/location-sensitive photos, SVG or HTML.
+const MEDIA_BUCKET='aurvex-profile-media';
+export function profileMediaUrl(path){
+  if(!path||typeof path!=='string')return '';
+  const base=ID_CONFIG.supabaseUrl.replace(/\/$/,'');
+  return base+'/storage/v1/object/public/'+MEDIA_BUCKET+'/'+
+    path.split('/').map(encodeURIComponent).join('/');
+}
+export async function uploadProfileMedia(userId,kind,file,existingPath){
+  if(!['avatar','banner'].includes(kind))throw new Error('Invalid media field');
+  if(!file||!file.type)throw new Error('Invalid image');
+  const extMap={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'};
+  const extension=extMap[file.type];
+  const maxBytes=kind==='avatar'?3*1024*1024:8*1024*1024;
+  if(!extension||(kind==='avatar'&&extension==='gif')||file.size<1||file.size>maxBytes){
+    throw new Error('Invalid image size or type');
+  }
+  const client=await idClient();
+  // Never reuse media object URLs: changing a banner won't leave stale CDN cache.
+  const path=userId+'/'+kind+'-'+crypto.randomUUID()+'.'+extension;
+  const {error:uploadError}=await client.storage.from(MEDIA_BUCKET).upload(path,file,{
+    contentType:file.type,cacheControl:'3600',upsert:false
+  });
+  if(uploadError)throw uploadError;
+  const column=kind==='avatar'?'avatar_path':'banner_path';
+  const {data,error}=await client.from('id_profiles')
+    .upsert({id:userId,[column]:path},{onConflict:'id'})
+    .select('nickname,avatar_path,banner_path,created_at').single();
+  if(error){
+    await client.storage.from(MEDIA_BUCKET).remove([path]).catch(()=>{});
+    throw error;
+  }
+  // Only delete files previously stored for this account; user-controlled paths
+  // cannot escape their own prefix.
+  if(existingPath&&existingPath.startsWith(userId+'/'+kind+'-')&&existingPath!==path){
+    await client.storage.from(MEDIA_BUCKET).remove([existingPath]).catch(()=>{});
+  }
+  return data;
+}
+export async function removeProfileMedia(userId,kind,existingPath){
+  if(!['avatar','banner'].includes(kind))throw new Error('Invalid media field');
+  const client=await idClient();
+  const column=kind==='avatar'?'avatar_path':'banner_path';
+  const {data,error}=await client.from('id_profiles')
+    .upsert({id:userId,[column]:null},{onConflict:'id'})
+    .select('nickname,avatar_path,banner_path,created_at').single();
+  if(error)throw error;
+  if(existingPath&&existingPath.startsWith(userId+'/'+kind+'-')){
+    await client.storage.from(MEDIA_BUCKET).remove([existingPath]).catch(()=>{});
+  }
+  return data;
 }
