@@ -41,7 +41,7 @@ async function refreshFamily(){
 function onRoute(){
  const hash=location.hash||'';
  const match=hash.match(/^#\/player\/([0-9a-f-]{36})(?:\?|$)/i);
- if(match&&m.profileTarget!==match[1])void showProfile(match[1]);
+ if(match)void showProfile(match[1]);
  if(hash.startsWith('#/family')&&isSecure()){
    if(!m.familyReady||m.userId!==owner()){m.userId=owner();void refreshFamily()}
  }
@@ -135,6 +135,8 @@ document.addEventListener('click',event=>{
  })();
 });
 window.addEventListener('focus',()=>{
+ const player=location.hash.match(/^#\/player\/([0-9a-f-]{36})(?:\?|$)/i);
+ if(player)void showProfile(player[1]);
  if(location.hash.startsWith('#/family')&&isSecure()&&!m.busy)void refreshFamily();
 });
 document.addEventListener('visibilitychange',()=>{
