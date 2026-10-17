@@ -69,6 +69,10 @@ function navLink(route,key,ico,path,counter){
   return '<a class="side-link'+(isActive(path,route)?' active':'')+'" href="'+href(route)+'">'+icon(ico,18)+'<span>'+t(key)+'</span>'+(counter?'<span class="counter">'+counter+'</span>':'')+'</a>';
 }
 function header(path){
+  const id=window.AURVEX_ID;
+  const profileAvatar=id?.user&&id?.avatarUrl?
+    '<img class="top-account-avatar" src="'+esc(id.avatarUrl)+'" alt="">':icon('user',17);
+  const profileLabel=id?.user?(id.profile?.nickname||t('idAccount')):t('idSignIn');
   const langOptions=supportedLanguages.map(function(code){return '<option value="'+code+'"'+(state.language===code?' selected':'')+'>'+code.toUpperCase()+'</option>'}).join('');
   return '<header class="topbar">'+
     '<button class="icon-btn menu-trigger" type="button" data-action="menu" aria-label="'+t('menu')+'" aria-expanded="false">'+icon('menu',20)+'</button>'+
@@ -81,7 +85,7 @@ function header(path){
     '<div class="top-actions"><label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
-    '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id">'+icon('user',17)+'<span>'+t(window.AURVEX_ID?.user?'idAccount':'idSignIn')+'</span></a></div></header>';
+    '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a></div></header>';
 }
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
