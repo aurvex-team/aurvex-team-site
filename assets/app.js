@@ -171,7 +171,7 @@ function catalog(route){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('browse')+'</span></div>'+
     heading(titles[name],subtitles[name],'browseKicker')+
     '<div class="catalog-controls"><div class="filter-pills">'+routes.map(function(pair){
-      return '<a class="filter-pill'+(name===pair[1]?' selected':'')+'" href="'+href(pair[0])+'">'+t(pair[1])+'</a>';
+      return '<a class="filter-pill'+((name==='browse'&&pair[1]==='all')||name===pair[1]?' selected':'')+'" href="'+href(pair[0])+'">'+t(pair[1])+'</a>';
     }).join('')+'</div>'+
     '<label class="catalog-search">'+icon('search',17)+'<input type="search" id="catalog-search" value="'+esc(state.query)+'" placeholder="'+t('searchCatalog')+'" aria-label="'+t('search')+'" autocomplete="off" maxlength="120"></label></div>'+
     '<div class="catalog-tools"><strong id="catalog-count">'+(catalogMatches(route)?'1':'0')+' '+t(catalogMatches(route)?'oneResult':'results')+'</strong>'+
