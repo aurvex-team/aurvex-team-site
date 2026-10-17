@@ -10,7 +10,7 @@ const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
   theme:getStored(STORAGE.theme)==='light'?'light':'dark',
   wished:getStored(STORAGE.wish)==='1',
-  query:'',sort:'featured'
+  query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:''
 };
 let toastTimer=0;
 const pathIcons={
@@ -52,9 +52,10 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return ['/','/browse','/games','/apps','/free','/saved','/about','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
-  if(where==='/browse')return ['/browse','/games','/apps','/free'].includes(path);
+  if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
+  if(where==='/rewards')return path==='/rewards'||path==='/free';
   return where===path;
 }
 function navLink(route,key,ico,path,counter){
@@ -77,16 +78,13 @@ function header(path){
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
-      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+navLink('/games','games','gamepad',path,'01')+
-      navLink('/apps','apps','apps',path)+navLink('/free','free','gift',path)+'</div>'+
+      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
+      navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('categories')+'</div>'+
-      navLink('/browse?genre=horror','horror','sparkle',path)+navLink('/browse?genre=indie','indie','layers',path)+
-      navLink('/browse?genre=adventure','adventure','compass',path)+navLink('/browse?genre=utilities','utilities','tool',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+navLink('/about','about','info',path)+'</div>'+
-    '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX / 001</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
+    '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
     '<a href="#/about">'+t('bannerButton')+' '+icon('arrow',12)+'</a></div>'+
-    '<div class="side-version">AURVEX STORE • PREVIEW 2.0</div></aside>';
+    '<div class="side-version">AURVEX STORE • PREVIEW 2.1</div></aside>';
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
@@ -135,7 +133,7 @@ function home(){
   '<section class="section">'+sectionHead('explore','discoverTitle','discoverText',null,null)+
     '<div class="category-grid">'+categoryCard('/games','gamepad','collectionGames','collectionGamesDesc','#6a65fd55')+
     categoryCard('/apps','laptop','collectionApps','collectionAppsDesc','#478fc955')+
-    categoryCard('/free','gift','collectionFree','collectionFreeDesc','#3f9d8255')+
+    categoryCard('/rewards','gift','collectionFree','collectionFreeDesc','#3f9d8255')+
     categoryCard('/about','sparkle','collectionUpcoming','collectionUpcomingDesc','#c18a5b40')+'</div></section>'+
   '<section class="section">'+sectionHead('selectionKicker','selectionTitle','selectionSubtitle','showAll','/browse')+
     '<div class="editorial-grid">'+gameCard()+upcomingCard()+'</div></section>'+
