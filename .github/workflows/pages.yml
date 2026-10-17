@@ -38,6 +38,7 @@ jobs:
           node --check assets/social-ui.js
           node --check assets/social37-service.js
           node --check assets/social37-ui.js
+          node --check assets/live-visitors.js
           node --check assets/id-config.js
           npm test
       - name: Configure Pages
