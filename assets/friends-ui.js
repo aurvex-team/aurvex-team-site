@@ -4,13 +4,15 @@ import {listFriends,findPlayers,sendFriendRequest,respondFriendRequest} from './
 const model={ready:false,busy:false,searching:false,query:'',results:[],relations:[],
  statusKey:'',statusError:false,userId:''};
 window.AURVEX_FRIENDS=model;
-let serial=0;
+let refreshVersion=0;
+let searchVersion=0;
 let nextPoll=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:friends-state'));
 const authorized=()=>!!(window.AURVEX_ID?.user?.id&&window.AURVEX_ID?.mfaVerified);
 const userId=()=>authorized()?window.AURVEX_ID.user.id:'';
 function reset(){
-  ++serial;
+  ++refreshVersion;
+  ++searchVersion;
   model.userId='';model.ready=false;model.busy=false;model.searching=false;
   model.query='';model.results=[];model.relations=[];model.statusKey='';model.statusError=false;
   fire();
@@ -22,17 +24,17 @@ async function refresh(){
   const who=userId();
   if(!who){if(model.userId)reset();return}
   if(model.busy)return;
-  const run=++serial;
+  const run=++refreshVersion;
   model.userId=who;
   if(!model.ready)fire();
   try{
     const data=await listFriends();
-    if(run!==serial||userId()!==who)return;
+    if(run!==refreshVersion||userId()!==who)return;
     const changed=!model.ready||JSON.stringify(data)!==JSON.stringify(model.relations);
     model.relations=data;model.ready=true;model.statusError=false;
     if(changed)fire();
   }catch(error){
-    if(run!==serial)return;
+    if(run!==refreshVersion)return;
     console.warn('AURVEX Friends refresh:',error?.code||'failed');
     model.ready=true;warning('friendsError');
   }
@@ -42,14 +44,14 @@ async function search(query){
   if(!who)return;
   model.query=query;model.results=[];model.statusKey='';
   if(!/^[A-Za-z0-9_]{3,24}$/.test(query)){warning('friendsSearchInvalid');return}
-  const run=++serial;
+  const run=++searchVersion;
   model.searching=true;fire();
   try{
     const data=await findPlayers(query);
-    if(run!==serial||userId()!==who)return;
+    if(run!==searchVersion||userId()!==who)return;
     model.results=data;model.searching=false;fire();
   }catch(error){
-    if(run!==serial)return;
+    if(run!==searchVersion)return;
     console.warn('AURVEX Friends search:',error?.code||'failed');
     warning('friendsError');
   }
