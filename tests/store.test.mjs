@@ -230,6 +230,17 @@ test('Support page does not invent payment details or operational checkout',()=>
   assert.ok(html.includes(translations.en.supportFundingDesc));
 });
 
+test('Team joins Discord through a safe external collaboration link in all languages',()=>{
+  for(const lang of supportedLanguages){
+    const team=render('#/team',lang);
+    assert.ok(team.html.includes(translations[lang].teamJoin));
+    assert.ok(team.html.includes(translations[lang].teamJoinHint));
+    assert.ok(team.html.includes('href="https://discord.gg/KWD2rfy2Vh"'));
+    assert.ok(team.html.includes('target="_blank" rel="noopener noreferrer"'));
+    assert.ok(team.html.includes('href="#/game/devive"'));
+  }
+});
+
 test('production entrypoint always loads versioned JavaScript and stylesheet',()=>{
   assert.ok(index.includes('assets/app.js?v='));
   assert.ok(index.includes('assets/site.css?v='));
