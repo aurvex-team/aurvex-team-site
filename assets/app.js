@@ -445,6 +445,9 @@ function playerProfilePage(auth){
     }
   }
   const saving=auth.busy?' disabled aria-disabled="true"':'';
+  const socialDraft=window.AURVEX_SOCIAL?.draftUserId===auth.user?.id?window.AURVEX_SOCIAL?.socialDraft:null;
+  const shownLinks=socialDraft?.links||auth.profile?.public_links||[];
+  const shownWishlist=socialDraft?socialDraft.wishlistPublic:!!auth.profile?.wishlist_public;
   const statusText=(auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'')+
     (window.AURVEX_SOCIAL?.message?'<div class="player-flash'+(window.AURVEX_SOCIAL.error?' player-flash-error':'')+
       '" role="status">'+t(window.AURVEX_SOCIAL.message)+'</div>':'');
@@ -492,10 +495,11 @@ function playerProfilePage(auth){
              '<button class="btn btn-outline" type="button" data-social-action="copy-profile"'+saving+'>'+
                 icon('arrowUp',16)+' '+t('copyProfile')+'</button></div>'+
           '<form id="social-profile-form" class="id-form">'+
-             [1,2,3].map(i=>{const l=(auth.profile?.public_links||[])[i-1]||{};return '<div class="social-link-fields">'+
-              '<label>'+t('socialLinkTitle')+' '+i+'<input name="title'+i+'" type="text" maxlength="40" value="'+esc(l.title||'')+'" placeholder="TikTok, Discord, GitHub"></label>'+
-              '<label>'+t('socialLinkUrl')+' '+i+'<input name="url'+i+'" type="url" maxlength="220" value="'+esc(l.url||'')+'" placeholder="https://..."></label></div>'}).join('')+
-             '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(auth.profile?.wishlist_public?' checked':'')+'>'+
+             '<p class="social-link-tip">'+t('socialLinkTip')+'</p>'+
+             [1,2,3].map(i=>{const l=shownLinks[i-1]||{};return '<div class="social-link-fields">'+
+              '<label>'+t('socialLinkTitle')+' '+i+'<input name="title'+i+'" type="text" maxlength="40" value="'+esc(l.title||'')+'" placeholder="TikTok, Discord, GitHub" autocomplete="off"></label>'+
+              '<label>'+t('socialLinkUrl')+' '+i+'<input name="url'+i+'" type="text" inputmode="url" spellcheck="false" autocapitalize="none" autocomplete="url" maxlength="220" value="'+esc(l.url||'')+'" placeholder="https://github.com/username"></label></div>'}).join('')+
+             '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
                '<span><strong>'+t('socialWishlistPublic')+'</strong><small>'+t('socialWishlistPrivate')+'</small></span></label>'+
              '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('socialSave')+'</button></form></section>'+
         statusText+
