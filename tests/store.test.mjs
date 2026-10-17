@@ -8,7 +8,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -22,7 +22,7 @@ function render(route='#/',lang=null,wished=false,theme=null){
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){}};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -317,11 +317,11 @@ test('AURVEX ID has a visible account entry, sign-in and registration screens',(
     assert.ok(login.html.includes(translations[lang].idXoni));
   }
 });
-test('No demo account can be created before login providers are configured',()=>{
+test('AURVEX ID sign-in methods are clearly gated per provider',()=>{
   const html=render('#/id').html;
   assert.ok(html.includes(translations.en.idSetupTitle));
   assert.ok(html.includes(translations.en.idSetupBody));
-  assert.match(html,/data-id-action="google" disabled aria-disabled="true"/);
+  assert.match(html,/data-id-action="google" disabled aria-disabled="true"/);// No auth model has initialized in the isolated renderer
   assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
   assert.match(html,/id="id-email-form"[^>]*data-mode="signin"/);
   assert.ok(html.includes('id-xoni'));
@@ -337,7 +337,7 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
   for(const feature of ['auth.uid()','enable row level security','to authenticated','id_entitlements','revoke all'])assert.ok(migration.includes(feature),feature);
   assert.ok(config.includes("supabaseUrl:'https://zalzsgfufvppvgvqfocf.supabase.co'"));
   assert.ok(/supabasePublishableKey:'sb_publishable_[A-Za-z0-9_-]+'/.test(config));
-  assert.ok(config.includes("googleEnabled:false"));
+  assert.ok(config.includes("googleEnabled:true"));
   assert.ok(config.includes("emailEnabled:false"));
   assert.ok(config.includes("xoniEnabled:false"));
   assert.ok(ui.includes("window.AURVEX_ID=model"));
@@ -353,7 +353,7 @@ test('AURVEX ID remains isolated, publishable-only and ready for verified provid
   const ui=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
   const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
   const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_wishlist_permissions.sql',import.meta.url),'utf8');
-  assert.match(config,/googleEnabled:false/);
+  assert.match(config,/googleEnabled:true/);
   assert.match(config,/emailEnabled:false/);
   assert.match(config,/xoniEnabled:false/);
   assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled)'));
@@ -376,3 +376,18 @@ test('OAuth return URL lands on AURVEX ID without a custom domain',()=>{
   assert.ok(service.includes("provider:'google'"));
   assert.ok(index.includes('id-ui.js?v='));
 });
+
+
+test('Google sign-in is enabled when the verified Google provider config loads, while email and XONI remain unavailable',()=>{
+  const client={configured:true,googleEnabled:true,emailEnabled:false,ready:true,busy:false,user:null,pendingEmail:''};
+  for(const lang of supportedLanguages){
+    const html=render('#/id',lang,false,null,client).html;
+    assert.match(html,/<button[^>]*data-id-action="google"(?![^>]*disabled)/);
+    assert.ok(html.includes(translations[lang].idGoogle));
+    assert.ok(!html.includes(translations[lang].idSetupTitle));
+    assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
+    assert.ok(html.includes('id-xoni'));
+    assert.match(html,/id-xoni[^"]*" type="button" disabled/);
+  }
+});
+
