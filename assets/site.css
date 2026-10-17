@@ -893,3 +893,51 @@ input,select{color:var(--text)}
 }
 .account-header-btn span{max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.account-header-btn .top-account-avatar{width:26px;height:26px}}
+
+/* AURVEX ID account security — mandatory 2FA setup and challenge */
+.mfa-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(330px,.87fr);min-height:610px;
+ border-radius:22px;border:1px solid var(--line-strong);overflow:hidden;background:var(--surface);
+ box-shadow:var(--shadow)}
+.mfa-cover{background:radial-gradient(circle at 73% 32%,#9a81f850,transparent 41%),
+ linear-gradient(132deg,#252039,#111427 76%);color:#f5f2ff;padding:clamp(30px,5vw,65px);
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.mfa-lock-symbol{width:108px;height:108px;border-radius:32px;border:1px solid #ac9bff61;
+ background:linear-gradient(145deg,#b39cff33,#4e347c2c);display:grid;place-items:center;
+ box-shadow:0 13px 42px #9e79e422;color:#cebaff;margin:38px 0 27px}
+.mfa-cover h1{font-size:clamp(30px,3.4vw,47px);line-height:1.12;letter-spacing:-1.5px;
+ max-width:490px;margin:0 0 14px}
+.mfa-cover>p{color:#b6b2ca;line-height:1.8;font-size:13px;max-width:500px;margin:0}
+.mfa-level-row{display:flex;gap:9px;flex-wrap:wrap;margin:25px 0}
+.mfa-level-row>span{display:inline-flex;align-items:center;gap:7px;
+ padding:8px 12px;border:1px solid #b5a7fb55;border-radius:30px;color:#d1c3ff;
+ background:#8775d91c;font-size:11px;font-weight:800}
+.mfa-level-row>span:first-child{border-color:#5dbd9680;color:#c3f6dc;background:#34a17522}
+.mfa-cover .mfa-help{font-size:11px;line-height:1.8;color:#a9a2c2}
+.mfa-panel{min-width:0;padding:clamp(24px,4vw,46px);display:flex;flex-direction:column;justify-content:center;gap:16px}
+.mfa-panel .smallcaps{color:var(--accent)}
+.mfa-panel h2{font-size:clamp(22px,2.3vw,30px);letter-spacing:-.7px;line-height:1.2;margin:0}
+.mfa-qr-wrap{border:1px solid var(--line-strong);border-radius:15px;padding:17px;
+ display:flex;align-items:center;gap:17px;background:var(--surface-2)}
+.mfa-qr{width:156px;height:156px;display:block;object-fit:contain;background:white;
+ border-radius:10px;flex-shrink:0;padding:8px}
+.mfa-scan-note{font-size:12px;line-height:1.8;color:var(--muted)}
+.mfa-secret{border:1px solid var(--line-strong);padding:13px 15px;border-radius:11px;
+ background:var(--bg);display:flex;flex-direction:column;gap:8px;min-width:0}
+.mfa-secret>div{font-size:11px;color:var(--muted)}
+.mfa-secret code{font-size:13px;letter-spacing:1px;overflow-wrap:anywhere;user-select:all;color:var(--text)}
+.mfa-warning,.mfa-care-note{display:flex;align-items:flex-start;gap:9px;
+ font-size:11px;line-height:1.8;color:var(--muted);margin:0}
+.mfa-warning svg,.mfa-care-note svg{flex-shrink:0;color:var(--accent)}
+.mfa-code-form{gap:10px}
+.mfa-code-form input{font-size:19px;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums}
+.mfa-code-form button,.mfa-begin-btn{min-height:47px;justify-content:center}
+.player-mfa-card h3{display:flex;align-items:center;gap:8px;line-height:1.4}
+.player-mfa-card h3 svg{color:var(--accent)}
+.player-mfa-card>p{font-size:11px;line-height:1.75;color:var(--muted)}
+.player-mfa-card .btn{display:inline-flex;gap:7px;align-items:center;font-size:11px;width:100%;justify-content:center}
+.player-mfa-card .mfa-backup-hint{font-size:10px;margin-top:13px;color:var(--subtle)}
+@media(max-width:970px){.mfa-layout{grid-template-columns:1fr}.mfa-cover{padding:35px}.mfa-lock-symbol{margin:25px 0}}
+@media(max-width:550px){.mfa-layout{border-radius:16px}.mfa-cover,.mfa-panel{padding:25px}
+ .mfa-cover h1{font-size:31px}.mfa-lock-symbol{height:80px;width:80px;border-radius:24px;margin:20px 0}
+ .mfa-lock-symbol svg{width:45px;height:45px}.mfa-qr-wrap{flex-direction:column;align-items:flex-start}
+ .mfa-qr{align-self:center}.mfa-code-form input{letter-spacing:5px}}
