@@ -2,6 +2,7 @@ import { translations, supportedLanguages } from './i18n.js';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
+const galleryUrls=[sceneUrl,'./assets/devive-interior.svg','./assets/devive-hallway.svg'];
 const STORAGE={locale:'aurvex.locale',theme:'aurvex.theme',wish:'aurvex.wishlist.devive'};
 function getStored(k){try{return localStorage.getItem(k)}catch{return null}}
 function store(k,v){try{localStorage.setItem(k,v)}catch{/* Browsing still works without storage */}}
@@ -93,7 +94,7 @@ function mobileNav(path){
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
-function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
+function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
 function gameCard(){
   return '<article class="game-card"><a href="#/game/devive" class="game-cover"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"><span class="cover-label">'+t('twoD')+'</span><span class="cover-logo">DEVIVE</span></a>'+
     '<div class="game-card-body"><div class="game-name"><h3><a href="#/game/devive">Devive</a></h3>'+tag('freeAtLaunch','tag-green')+'</div><p>'+t('deviveShort')+'</p>'+
@@ -183,7 +184,7 @@ function gamePage(){
   const controlItems=[['A / D','move'],['SPACE','jump'],['E','interact'],['TAB','inventory']];
   const specItems=[['deviveTeam','AURVEX Team'],['deviveGenre','twoD'],['deviveDate','deviveDateValue'],['devivePrice','devivePriceValue'],['devivePlatform','devivePlatformValue'],['deviveStatus','inDevelopment']];
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<a href="#/games">'+t('games')+'</a>'+icon('arrow',13)+'Devive</div>'+
-    '<div class="detail-title"><div><div class="smallcaps">'+t('heroTag')+'</div><h1>Devive</h1><p>'+t('deviveShort')+'</p></div>'+tag('inDevelopment','tag-amber')+'</div>'+
+    '<div class="detail-title"><div><div class="smallcaps">'+t('heroTag')+'</div><h1>Devive</h1><p>'+t('deviveShort')+'</p></div><div class="detail-side">'+tag('inDevelopment','tag-amber')+'<button class="btn btn-outline" type="button" data-action="share">'+icon('arrowUp',15)+' '+t('share')+'</button></div></div>'+
     '<div class="detail-hero"><img src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'"><span class="detail-caption">'+t('conceptArtwork')+'</span></div>'+
     '<div class="detail-grid"><div>'+
       '<section class="detail-section"><h2>'+t('deviveDescTitle')+'</h2><p>'+t('deviveLong')+'</p></section>'+
@@ -191,7 +192,7 @@ function gamePage(){
       ['featureOne','featureTwo','featureThree','featureFour'].map(function(k){return '<div class="detail-feature">'+icon('check',19)+'<span>'+t(k)+'</span></div>'}).join('')+
       '</div><p class="notice">'+t('deviveNotice')+'</p></section>'+
       '<section class="detail-section"><h2>'+t('screenshots')+'</h2><p>'+t('screenshotsNote')+'</p><div class="concept-gallery">'+
-        ['previewExterior','previewRooms','previewNight'].map(function(k){return '<div class="concept-shot"><img src="'+sceneUrl+'" alt="'+esc(t(k))+'" loading="lazy"><span>'+t(k)+'</span></div>'}).join('')+
+        ['previewExterior','previewRooms','previewNight'].map(function(k,i){return '<div class="concept-shot"><img src="'+galleryUrls[i]+'" alt="'+esc(t(k))+'" loading="lazy"><span>'+t(k)+'</span></div>'}).join('')+
       '</div></section>'+
       '<section class="detail-section"><h2>'+t('controlsTitle')+'</h2><div class="control-grid">'+controlItems.map(function(x){return '<div class="control-row"><kbd class="key">'+x[0]+'</kbd><span>'+t(x[1])+'</span></div>'}).join('')+'</div></section>'+
     '</div><aside class="purchase-panel"><div class="purchase-banner"><img src="'+sceneUrl+'" alt=""></div><h3>Devive</h3>'+
@@ -260,12 +261,25 @@ function toast(message){
   node.textContent=message;node.classList.add('show');
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){node.classList.remove('show')},2600);
 }
+function setMenu(open){
+  document.body.classList.toggle('menu-open',open);
+  const toggle=document.querySelector('[data-action="menu"]');
+  if(toggle)toggle.setAttribute('aria-expanded',String(open));
+}
 document.addEventListener('click',function(event){
+  if(event.target.closest('.sidebar a,.mobile-bottom a'))setMenu(false);
   const button=event.target.closest('[data-action]');
   if(!button)return;
   const action=button.dataset.action;
-  if(action==='menu'){document.body.classList.toggle('menu-open');return}
-  if(action==='close-menu'){document.body.classList.remove('menu-open');return}
+  if(action==='menu'){setMenu(!document.body.classList.contains('menu-open'));return}
+  if(action==='close-menu'){setMenu(false);return}
+  if(action==='share'){
+    const url=new URL('#/game/devive',document.baseURI).href;
+    if(navigator.share){navigator.share({title:'Devive — AURVEX',url}).catch(function(){});}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast(t('linkCopied'))}).catch(function(){window.prompt(t('copyLink'),url)});}
+    else window.prompt(t('copyLink'),url);
+    return;
+  }
   if(action==='theme'){
     state.theme=state.theme==='dark'?'light':'dark';
     store(STORAGE.theme,state.theme);render(true);return;
@@ -299,5 +313,11 @@ document.addEventListener('submit',function(event){
   }
 });
 window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
-window.addEventListener('keydown',function(event){if(event.key==='Escape')document.body.classList.remove('menu-open')});
+window.addEventListener('keydown',function(event){
+  if(event.key==='Escape'){setMenu(false);return}
+  if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest('input,textarea,select,[contenteditable]')){
+    const target=window.matchMedia('(max-width: 560px)').matches?document.querySelector('#catalog-search'):document.querySelector('.top-search input');
+    if(target){event.preventDefault();target.focus()}
+  }
+});
 render();
