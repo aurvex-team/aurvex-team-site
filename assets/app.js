@@ -331,7 +331,10 @@ function teamPage(){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('team')+'</span></div>'+
     '<section class="team-hero"><div class="team-hero-copy"><div class="smallcaps">'+t('teamEyebrow')+'</div>'+
       '<h1>'+t('teamTitle')+'</h1><p>'+t('teamIntro')+'</p>'+
-      '<a class="btn btn-accent" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div>'+
+      '<div class="team-hero-actions"><a class="btn btn-accent team-join-btn" href="https://discord.gg/KWD2rfy2Vh" target="_blank" rel="noopener noreferrer" aria-label="'+t('teamJoin')+' — Discord">'+
+        icon('arrowUp',17)+' '+t('teamJoin')+'</a>'+
+      '<a class="btn btn-soft" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div>'+
+      '<p class="team-join-hint">'+t('teamJoinHint')+'</p></div>'+
       '<div class="team-art" aria-hidden="true"><div class="team-orbit team-orbit-first"></div><div class="team-orbit team-orbit-second"></div>'+
         '<div class="team-symbol">A</div><div class="team-symbol-badge badge-one">'+icon('gamepad',25)+'</div>'+
         '<div class="team-symbol-badge badge-two">'+icon('sparkle',25)+'</div><div class="team-symbol-badge badge-three">'+icon('laptop',25)+'</div></div></section>'+
