@@ -40,6 +40,7 @@ const pathIcons={
  back:'<path d="M20 12H4m7 7-7-7 7-7"/>',
  book:'<path d="M3 4h8a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H3Zm18 0h-7a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h7Z"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-6 5-6 13 0 18m0-18c6 5 6 13 0 18"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
  pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>'
 };
 function icon(name,size=19){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(pathIcons[name]||pathIcons.sparkle)+'</svg>'}
@@ -53,7 +54,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -74,14 +75,15 @@ function header(path){
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
     '<div class="top-actions"><label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
-    '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a></div></header>';
+    '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
+    '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id">'+icon('user',17)+'<span>'+t(window.AURVEX_ID?.user?'idAccount':'idSignIn')+'</span></a></div></header>';
 }
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
       navLink('/rewards','free','gift',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+'</div>'+
+    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','aurvexId','user',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
@@ -356,6 +358,59 @@ function supportPage(){
         '<a class="btn btn-outline" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></article>'+
     '</div><div class="saved-banner">'+icon('shield',20)+'<span>'+t('supportNote')+'</span></div>';
 }
+function idPage(route){
+  const auth=window.AURVEX_ID||{};
+  const configured=auth.configured===true;
+  const signedIn=!!auth.user;
+  const mode=route.params.get('mode')==='register'?'register':'signin';
+  const disabledEmail=(!configured||!auth.emailEnabled)?' disabled aria-disabled="true"':'';
+  const disabledGoogle=(!configured||!auth.googleEnabled)?' disabled aria-disabled="true"':'';
+  const message=auth.statusKey?'<p class="id-alert'+(auth.statusError?' id-alert-error':'')+'" role="status">'+t(auth.statusKey)+'</p>':'';
+  const isBusy=auth.busy===true?' disabled':'';
+  const card=signedIn?('<div class="id-form-header"><div class="smallcaps">'+t('idEmailVerified')+'</div><h2>'+t('idAccount')+'</h2></div>'+
+    '<div class="id-user-chip">'+icon('shield',21)+'<span>'+esc(auth.user.email||'AURVEX ID')+'</span></div>'+
+    '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
+      '<input id="id-nickname" name="nickname" type="text" inputmode="text" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="nickname" value="'+esc(auth.profile?.nickname||'')+'" placeholder="'+t('idProfileNamePlaceholder')+'">'+
+      '<p class="id-field-hint">3–24 · A–Z · 0–9 · _</p>'+
+      '<button class="btn btn-primary" type="submit"'+isBusy+'>'+icon('check',16)+' '+t('idProfileSave')+'</button></form>'+
+    '<p class="id-muted-note">'+icon('heart',16)+' '+t('idWishlistSync')+'</p>'+
+    '<button type="button" class="btn btn-outline id-signout" data-id-action="signout"'+isBusy+'>'+icon('back',17)+' '+t('idSignOut')+'</button>'
+  ):('<div class="id-form-header"><div class="smallcaps">'+t('idMethodLabel')+'</div><h2>'+t(mode==='register'?'idRegister':'idSignIn')+'</h2></div>'+
+    (!configured?'<div class="id-setup"><div class="id-setup-icon">'+icon('shield',23)+'</div>'+
+      '<strong>'+t('idSetupTitle')+'</strong><p>'+t('idSetupBody')+'</p><small>'+t('idSetupSmall')+'</small></div>':'')+
+    '<button class="id-provider-btn" type="button" data-id-action="google"'+disabledGoogle+isBusy+'><span class="google-mark">G</span><span>'+t('idGoogle')+'</span>'+icon('arrow',17)+'</button>'+
+    '<div class="id-divider"><span>'+t('idEmail')+'</span></div>'+
+    (auth.pendingEmail?(
+      '<div class="id-code-heading"><span>'+icon('mail',19)+'</span><strong>'+t('idEmailRequest')+'</strong></div>'+
+      '<form class="id-form" id="id-code-form"><label for="id-code">'+t('idOtpLabel')+'</label>'+
+        '<input id="id-code" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" required minlength="6" maxlength="6" pattern="[0-9]{6}" placeholder="••••••">'+
+        '<button class="btn btn-primary" type="submit"'+isBusy+'>'+t('idOtpAction')+' '+icon('arrow',16)+'</button>'+
+        '<p class="id-field-hint">'+t('idOtpHint')+'</p></form>'+
+      '<button type="button" class="id-text-link" data-id-action="change-email">'+t('idEmailAddress')+' ↩</button>'
+    ):(
+      '<form class="id-form" id="id-email-form" data-mode="'+mode+'"><label for="id-email">'+t('idEmailAddress')+'</label>'+
+        '<input id="id-email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="'+esc(t('idEmailPlaceholder'))+'"'+disabledEmail+'>'+
+        '<button class="btn btn-primary" type="submit"'+disabledEmail+isBusy+'>'+icon('mail',17)+' '+t('idEmailAction')+'</button>'+
+        '<p class="id-field-hint">'+t('idEmailHint')+'</p></form>'
+    ))+
+    '<button class="id-provider-btn id-xoni" type="button" disabled aria-disabled="true"><span class="id-xoni-icon">'+icon('shield',21)+'</span>'+
+      '<span>'+t('idXoni')+'</span><span class="id-soon">'+t('idAvailableSoon')+'</span></button>'+
+    '<p class="id-method-note">'+t('idXoniHint')+'</p>'+
+    '<p class="id-mode-switch">'+t(mode==='register'?'idHaveAccount':'idNoAccountYet')+' <a href="'+(mode==='register'?'#/id':'#/id?mode=register')+'">'+t(mode==='register'?'idStartLogin':'idStartRegister')+'</a></p>'
+  );
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
+    '<div class="id-page">'+
+      '<section class="id-intro"><div class="id-brand-pill">'+icon('shield',16)+' '+t('aurvexId')+'</div>'+
+        '<h1>'+t('idHeading')+'</h1><p>'+t('idLead')+'</p>'+
+        '<div class="id-connection"><div>'+icon('globe',21)+'<strong>AURVEX Store</strong></div>'+
+          '<span>'+icon('arrow',20)+'</span><div>'+icon('gamepad',21)+'<strong>AURVEX Launcher</strong></div></div>'+
+        '<div class="id-privacy"><div class="smallcaps">'+t('idPrivacyLabel')+'</div>'+
+          '<p>'+t('idPrivacyText')+'</p></div></section>'+
+      '<section class="id-panel"><div class="id-panel-top"><span class="id-avatar">'+icon('user',22)+'</span>'+
+        '<span class="id-state'+(configured?' configured':'')+'">'+t(configured?'idStateReady':'idStateLocked')+'</span></div>'+
+        card+message+'<p class="id-bottom-note">'+icon('shield',14)+' '+t('idLinkSoon')+'</p></section>'+
+    '</div>';
+}
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
@@ -390,8 +445,9 @@ function render(keepScroll=false){
   else if(route.path==='/about')page=aboutPage();
   else if(route.path==='/team')page=teamPage();
   else if(route.path==='/support')page=supportPage();
+  else if(route.path==='/id')page=idPage(route);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -535,7 +591,8 @@ document.addEventListener('click',function(event){
   }
   if(action==='wishlist'){
     state.wished=!state.wished;store(STORAGE.wish,state.wished?'1':'0');
-    render(true);toast(t(state.wished?'savedAdded':'savedRemoved'));return;
+    render(true);toast(t(state.wished?'savedAdded':'savedRemoved'));
+    if(typeof window.dispatchEvent==='function')window.dispatchEvent(new CustomEvent('aurvex:wishlist-changed',{detail:{wished:state.wished}}));return;
   }
 });
 document.addEventListener('change',function(event){
@@ -572,6 +629,11 @@ document.addEventListener('submit',function(event){
     const url='/browse'+(text?'?q='+encodeURIComponent(text):'');
     if(location.hash==='#'+url)render(true);else location.hash=url;
   }
+});
+window.addEventListener('aurvex:id-state',function(){render(true)});
+window.addEventListener('aurvex:sync-wishlist',function(event){
+  if(!event.detail||typeof event.detail.wished!=='boolean')return;
+  state.wished=event.detail.wished;store(STORAGE.wish,state.wished?'1':'0');render(true);
 });
 window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
 window.addEventListener('keydown',function(event){
