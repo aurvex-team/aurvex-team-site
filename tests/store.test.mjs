@@ -396,7 +396,8 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
 test('signed-in AURVEX ID renders a beautiful avatar and animated banner profile',()=>{
   const auth={
     configured:true,googleEnabled:true,emailEnabled:false,busy:false,
-    ready:true,statusKey:'',statusError:false,
+    ready:true,statusKey:'',statusError:false,mfaVerified:true,mfaHasFactors:true,
+    mfaFactors:[{id:'test-factor-id',status:'verified'}],
     user:{id:'e0c4207a-39ab-4a51-820f-f2f27cd33719',email:'test@example.com',created_at:'2026-10-17T12:00:00Z'},
     profile:{
       nickname:'fleki',avatar_path:'e0c4207a-39ab-4a51-820f-f2f27cd33719/avatar-88edca11-b50f-476e-b678-a061989c40fa.webp',
@@ -427,7 +428,8 @@ test('signed-in AURVEX ID renders a beautiful avatar and animated banner profile
 
 test('signed-in profile escapes nickname and email rather than inserting HTML',()=>{
   const auth={
-    configured:true,user:{email:'<script>alert(1)</script>',created_at:'2026-10-17T00:00:00Z'},
+    configured:true,mfaVerified:true,mfaHasFactors:true,mfaFactors:[{id:'test-factor-id'}],
+    user:{email:'<script>alert(1)</script>',created_at:'2026-10-17T00:00:00Z'},
     profile:{nickname:'<img src=x onerror=alert(1)>'}
   };
   const html=render('#/id','en',false,null,auth).html;
@@ -466,4 +468,89 @@ test('only own images can be uploaded and banner GIFs have constrained public st
   assert.ok(service.includes("ignoreDuplicates:true"));
   assert.ok(service.includes(".update({[column]:path})"));
   assert.ok(service.includes(".update({nickname})"));
+});
+
+
+test('AURVEX ID navigation is Profile, not AURVEX ID in the left sidebar',()=>{
+  for(const lang of supportedLanguages){
+    const html=render('#/',lang).html;
+    const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
+    assert.ok(sidebar.includes('href="#/id"'));
+    assert.ok(sidebar.includes(translations[lang].profileNav));
+    assert.ok(!sidebar.includes('class="side-link" href="#/id"')||sidebar.includes(translations[lang].profileNav));
+  }
+});
+
+test('Google-only session cannot see verified badge or enter protected profile before MFA',()=>{
+  const user={id:'u',email:'user@example.com',created_at:'2026-10-17T10:10:00Z'};
+  for(const lang of supportedLanguages){
+    const page=render('#/id',lang,false,null,{
+      user,mfaVerified:false,mfaHasFactors:false,mfaFactors:[],ready:true
+    }).html;
+    assert.ok(page.includes(translations[lang].mfaSetupTitle));
+    assert.ok(page.includes(translations[lang].mfaStart));
+    assert.ok(page.includes('data-id-action="mfa-start"'));
+    assert.ok(!page.includes('class="player-profile"'));
+    assert.ok(!page.includes(translations[lang].mfaVerifiedLabel));
+    assert.ok(!page.includes('id="id-nickname-form"'));
+  }
+});
+
+test('Previously enrolled MFA requires a TOTP code before viewing AURVEX ID',()=>{
+  const page=render('#/id','uk',false,null,{
+    user:{id:'u',email:'user@example.com'},mfaVerified:false,
+    mfaHasFactors:true,mfaFactors:[{id:'second-factor',status:'verified'}],ready:true
+  }).html;
+  assert.ok(page.includes(translations.uk.mfaChallengeTitle));
+  assert.ok(page.includes('id="id-mfa-form"'));
+  assert.ok(page.includes('name="code"'));
+  assert.ok(!page.includes('id="id-nickname-form"'));
+  assert.ok(!page.includes(translations.uk.mfaVerifiedLabel));
+});
+
+test('Enrollment shows a QR code and manual secret only in the MFA setup flow',()=>{
+  const page=render('#/id','en',false,null,{
+    user:{id:'u',email:'test@example.com'},mfaVerified:false,mfaHasFactors:false,
+    mfaEnrollment:{
+      factorId:'pending',qr:'data:image/svg+xml;base64,PHN2Zy8+',secret:'EXAMPLESECRET'
+    }
+  }).html;
+  assert.ok(page.includes('class="mfa-qr"'));
+  assert.ok(page.includes('EXAMPLESECRET'));
+  assert.ok(page.includes('id="id-mfa-form"'));
+  assert.ok(!page.includes('class="player-profile"'));
+});
+
+test('Verified profile explicitly requires aal2 and offers a backup authenticator',()=>{
+  const profile=render('#/id','en',false,null,{
+    user:{id:'u',email:'user@example.com',created_at:'2026-10-17T00:00:00Z'},
+    mfaVerified:true,mfaHasFactors:true,mfaFactors:[{id:'factor',status:'verified'}],
+    profile:{nickname:'player'},statusKey:''
+  }).html;
+  assert.ok(profile.includes('class="player-profile"'));
+  assert.ok(profile.includes(translations.en.mfaVerifiedLabel));
+  assert.ok(profile.includes('data-id-action="mfa-backup"'));
+  assert.ok(profile.includes(translations.en.mfaBackupDesc));
+  const twice=render('#/id','en',false,null,{
+    user:{id:'u'},mfaVerified:true,mfaHasFactors:true,
+    mfaFactors:[{id:'a',status:'verified'},{id:'b',status:'verified'}],profile:{nickname:'player'}
+  }).html;
+  assert.ok(!twice.includes('data-id-action="mfa-backup"'));
+});
+
+test('Server MFA enforcement restricts ALL profile/wishlist/entitlement and media writes',()=>{
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const ui=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+  const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_mfa_required.sql',import.meta.url),'utf8');
+  for(const method of ['getAuthenticatorAssuranceLevel','listFactors','mfa.enroll','mfa.challenge','mfa.verify'])
+    assert.ok(service.includes(method),method);
+  for(const rule of ['aurvex_profiles_require_mfa','aurvex_wishlist_require_mfa',
+      'aurvex_entitlements_require_mfa','aurvex_media_insert_requires_mfa','aurvex_media_delete_requires_mfa']){
+    assert.ok(migration.includes(rule),rule);
+  }
+  assert.ok(migration.includes('as restrictive'));
+  assert.ok(migration.includes("='aal2'"));
+  assert.ok(ui.includes('model.mfaVerified=mfa.verified'));
+  assert.ok(ui.indexOf('const mfa=await getMfaState()')<ui.indexOf('ownProfile(user.id)'));
+  assert.ok(ui.includes('!model.mfaVerified'));
 });
