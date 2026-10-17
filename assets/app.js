@@ -199,10 +199,47 @@ function resultHTML(route){
   return '<div class="empty-state"><div class="empty-icon">'+icon('search',30)+'</div><h3>'+t('noResults')+'</h3>'+
     '<p>'+t('noResultsDesc')+'</p><button type="button" class="btn btn-outline" data-action="clear-filters">'+t('clearFilters')+' '+icon('arrow',15)+'</button></div>';
 }
-function filterOptions(options,current){
-  return options.map(function(item){
-    return '<option value="'+esc(item[0])+'"'+(current===item[0]?' selected':'')+'>'+esc(item[1])+'</option>';
-  }).join('');
+function customChoice(id,label,options,current,name,extraClass=''){
+  const chosen=options.find(function(opt){return opt[0]===current})||options[0];
+  return '<div class="filter-field">'+(label?'<span>'+esc(label)+'</span>':'')+'<details class="filter-dropdown '+extraClass+'" id="'+id+'" name="aurvex-filters">'+
+    '<summary class="filter-trigger"><span class="filter-current">'+esc(chosen[1])+'</span>'+icon('chevron',17)+'</summary>'+
+    '<div class="filter-menu" role="group" aria-label="'+esc(label||t('sort'))+'">'+
+      '<div class="filter-option-list">'+options.map(function(opt){
+        const selected=opt[0]===current;
+        return '<button type="button" class="filter-option'+(selected?' chosen':'')+'" aria-pressed="'+selected+'" data-filter-choice="'+name+'" data-value="'+esc(opt[0])+'">'+
+          '<span>'+esc(opt[1])+'</span><span class="option-check">'+icon('check',15)+'</span></button>';
+      }).join('')+'</div></div></details></div>';
+}
+function customGenres(){
+  const selected=selectedGenres();
+  const label=selected.length?(selected.length===1?t((gameGenres.find(function(x){return x[0]===selected[0]})||[])[1]):selected.length+' '+t('genresSelected')):t('allGenres');
+  return '<div class="filter-field"><span>'+t('genre')+'</span><details class="filter-dropdown genre-dropdown" id="filter-genre" name="aurvex-filters">'+
+    '<summary class="filter-trigger"><span class="filter-current" id="genre-filter-label">'+esc(label)+'</span>'+
+      (selected.length?'<span class="selection-bubble">'+selected.length+'</span>':'')+icon('chevron',17)+'</summary>'+
+    '<div class="filter-menu genre-menu" role="group" aria-label="'+t('genre')+'">'+
+      '<div class="genre-menu-top"><span>'+t('selectMultipleGenres')+'</span><span class="genre-count" id="genre-selected-count">'+selected.length+'</span></div>'+
+      '<label class="genre-search">'+icon('search',16)+'<input type="search" id="genre-lookup" autocomplete="off" placeholder="'+esc(t('searchGenres'))+'" aria-label="'+t('searchGenres')+'"></label>'+
+      '<div class="genre-list">'+gameGenres.map(function(x){
+        const checked=selected.includes(x[0]),name=t(x[1]);
+        return '<label class="genre-check" data-genre-row data-genre-name="'+esc(name.toLocaleLowerCase(state.language))+'">'+
+          '<input type="checkbox" value="'+esc(x[0])+'" data-genre-option="'+esc(x[0])+'"'+(checked?' checked':'')+'>'+
+          '<span class="fake-check">'+icon('check',13)+'</span><span>'+esc(name)+'</span></label>';
+      }).join('')+'</div>'+
+      '<div class="genre-menu-footer"><button type="button" data-action="genre-clear" class="genre-clear">'+t('clearGenres')+'</button>'+
+        '<button type="button" data-action="dropdown-done" class="genre-done">'+t('done')+'</button></div>'+
+    '</div></details></div>';
+}
+function activeFilters(){
+  const list=[];
+  if(state.kind!=='all')list.push(['kind',state.kind,t(state.kind==='game'?'games':'apps')]);
+  selectedGenres().forEach(function(g){const entry=gameGenres.find(function(x){return x[0]===g});if(entry)list.push(['genre',g,t(entry[1])]);});
+  if(state.minPrice!=='')list.push(['min','',t('minPriceUah')+': '+state.minPrice]);
+  if(state.maxPrice!=='')list.push(['max','',t('maxPriceUah')+': '+state.maxPrice]);
+  if(state.releaseYear!=='')list.push(['year','',t('releaseYear')+': '+state.releaseYear]);
+  return list.length?'<div class="active-filter-chips" aria-label="'+t('activeFilters')+'">'+
+    '<span class="active-filter-label">'+t('activeFilters')+'</span>'+
+    list.map(function(x){return '<button type="button" class="active-filter-chip" data-remove-filter="'+esc(x[0])+'" data-value="'+esc(x[1])+'" aria-label="'+t('removeFilter')+': '+esc(x[2])+'">'+esc(x[2])+icon('close',13)+'</button>'}).join('')+
+    '</div>':'';
 }
 function catalog(route){
   const initialKind=route.path==='/apps'?'app':route.path==='/games'?'game':'all';
@@ -220,7 +257,6 @@ function catalog(route){
   const yearNow=new Date().getFullYear();
   const yearList=[['',t('anyYear')]];
   for(let y=yearNow+1;y>=1970;y--)yearList.push([String(y),String(y)]);
-  const genreList=[['all',t('allGenres')]].concat(gameGenres.map(function(entry){return [entry[0],t(entry[1])]}));
   const typeList=[['all',t('allProducts')],['game',t('games')],['app',t('apps')]];
   const isGame=route.path==='/games',isApp=route.path==='/apps';
   const title=isGame?'gamesTitle':isApp?'appsTitle':'browseTitle';
@@ -234,16 +270,17 @@ function catalog(route){
       '<div class="filters-heading"><div>'+icon('layers',19)+' <strong>'+t('filters')+'</strong><span>'+t('filterDescription')+'</span></div>'+
       '<button class="filter-reset" type="button" data-action="clear-filters">'+icon('close',14)+' '+t('clearFilters')+'</button></div>'+
       '<div class="filter-fields">'+
-        '<label class="filter-field"><span>'+t('productType')+'</span><select id="filter-kind">'+filterOptions(typeList,state.kind)+'</select></label>'+
-        '<label class="filter-field"><span>'+t('genre')+'</span><select id="filter-genre">'+filterOptions(genreList,state.genre)+'</select></label>'+
+        customChoice('filter-kind',t('productType'),typeList,state.kind,'kind')+
+        customGenres()+
         '<label class="filter-field"><span>'+t('minPriceUah')+'</span><input id="filter-min-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="0" value="'+esc(state.minPrice)+'"></label>'+
         '<label class="filter-field"><span>'+t('maxPriceUah')+'</span><input id="filter-max-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="'+t('anyPrice')+'" value="'+esc(state.maxPrice)+'"></label>'+
-        '<label class="filter-field"><span>'+t('releaseYear')+'</span><select id="filter-year">'+filterOptions(yearList,state.releaseYear)+'</select></label>'+
+        customChoice('filter-year',t('releaseYear'),yearList,state.releaseYear,'year','year-dropdown')+
       '</div>'+
       '<p class="filter-note">'+icon('info',15)+' '+t('filtersNote')+'</p>'+
     '</div>'+
+    '<div id="active-filters">'+activeFilters()+'</div>'+ 
     '<div class="catalog-tools"><strong id="catalog-count">'+count+' '+t(count===1?'oneResult':'results')+'</strong>'+
-    '<label>'+t('sort')+' &nbsp;<select id="sort-select"><option value="featured">'+t('sortFeatured')+'</option><option value="name">'+t('sortName')+'</option><option value="free">'+t('sortFree')+'</option></select></label></div>'+
+    '<div class="sort-block"><span>'+t('sort')+'</span>'+customChoice('sort-select','',[['featured',t('sortFeatured')],['name',t('sortName')],['free',t('sortFree')]],state.sort,'sort','sort-dropdown')+'</div></div>'+
     '<div class="catalog-results" id="catalog-results">'+resultHTML(route)+'</div>'+
     '<div class="catalog-tip">'+icon('info',19)+'<span>'+t('onlyDevive')+'</span></div>';
 }
