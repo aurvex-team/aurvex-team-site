@@ -122,3 +122,16 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - Database migration: `supabase/migrations/20261017_aurvex_friends_v1.sql` applied to `aurvex-id` after the prior MFA migration.
 - Google OAuth is still in Testing. To test with a second real Google account, add that account to Google Auth Platform test users, then sign in, enroll AURVEX MFA, and choose a distinct public nickname on both accounts.
 - Verify manually with 2 accounts: search nickname, send request, accept it from second user, ensure both see each other on next focus/refresh, cancel/remove/decline. Automated checks cover scripts, UI and DB policy invariants.
+
+
+## Public-facing profiles, family invitations and game gifts (v3.6)
+
+- ✅ `supabase/migrations/20261017_profile_public_links.sql` is deployed in `aurvex-id`. Players may set up to 3 named HTTPS links. Wishlist visibility is OFF by default, and the server-side public projection RPC returns only nickname, public artwork, links, join date and opt-in Wishlist product IDs. Never exposes email, private permissions, MFA session, billing data or login secrets.
+- ✅ `#/player/<player-uuid>` is the real public-view route. The owner's `View as others` button uses the same endpoint and rendering as another visitor, not the authenticated private profile view.
+- ✅ `supabase/migrations/20261017_aurvex_family_v1.sql` implements family creation, one-family-per-user membership, a six-person limit, invitations only via a 256-bit private random link token hashed at rest, seven-day expiration and owner invitation rotation. Family RPCs require AAL2. Members can leave, owners can remove members, and owners can close their family after others leave.
+- ✅ Explicit game-by-game opt-in sharing by each purchasing family member uses verified `source='purchase'` entitlements. Borrowed family licenses never count as the owner's purchases, and membership removal automatically revokes membership access.
+- ✅ `supabase/migrations/20261017_family_product_allowlist.sql` adds an administrator-only eligibility table; games are **not shareable by default**, even after purchase. A first-party publisher will opt in only licenses permitting family sharing. The server's family access RPC rechecks ownership, membership AND game eligibility every time.
+- ⚠️ No completed payment processing, purchased inventory, gifts or launched paid games exist in AURVEX at this point. Friend Gift button deliberately displays `coming soon` and is disabled. A future checkout/gifting implementation requires payment verification webhooks, fraud controls, chargeback/refund revocation, gift acceptance, ownership policy and publisher consent. Never mark a gift delivered until purchase is proven server-side.
+- ⚠️ `aurvex_family_access` is a protected **server-side rights-query foundation**, not yet integrated with game download/play in a released AURVEX Launcher. The future launcher/backend must revalidate this access every download and launch and respect license and concurrency restrictions.
+- ⚠️ User-facing family and profile views have automated tests, but verify invitation joining, six-person capacity, preview after editing, public Wishlist privacy, and family share revocation with two or more actual test users before broader deployment.
+- Existing XONI Mail infrastructure remains completely separate.
