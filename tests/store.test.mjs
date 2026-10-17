@@ -8,7 +8,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -22,7 +22,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -856,4 +856,58 @@ test('Social 3.7 controller is authentication-gated and uses server RPCs, not pu
  assert.ok(ui.includes("data-social37-action"));
  assert.ok(ui.includes("location.hash='#/family?invite='"));
  assert.ok(html.includes('social37-ui.js?v='));
+});
+
+
+test('live visitors pill appears across desktop and mobile responsive header in four languages',()=>{
+  for(const lang of supportedLanguages){
+    const initial=render('#/',lang).html;
+    assert.ok(initial.includes('data-live-visitors'),lang);
+    assert.ok(initial.includes('data-live-state="connecting"'),lang);
+    assert.ok(initial.includes('data-live-visitors-count'),lang);
+    assert.ok(initial.includes(translations[lang].visitorsLoading),lang);
+    const live=render('#/',lang,false,null,null,null,null,null,{status:'live',count:12}).html;
+    assert.ok(live.includes('data-live-state="live"'),lang);
+    assert.ok(live.includes('>12</span>'),lang);
+    assert.ok(live.includes(translations[lang].visitorsOnline),lang);
+    assert.ok(live.includes(translations[lang].visitorsLiveHint),lang);
+    const unavailable=render('#/',lang,false,null,null,null,null,null,{status:'unavailable',count:null}).html;
+    assert.ok(unavailable.includes('data-live-state="unavailable"'),lang);
+    assert.ok(unavailable.includes(translations[lang].visitorsUnavailable),lang);
+    assert.ok(unavailable.includes('>—</span>'),lang);
+  }
+});
+
+test('live count cannot include untrusted HTML and never claims 0 when disconnected',()=>{
+  const html=render('#/',null,false,null,null,null,null,null,{
+    status:'unavailable',count:'<img src=x onerror=alert(1)>'
+  }).html;
+  assert.ok(html.includes('data-live-state="unavailable"'));
+  assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
+  assert.ok(html.includes('data-live-visitors-count'));
+  assert.ok(html.includes('>—</span>'));
+});
+
+test('live visitor presence counts distinct ephemeral tabs, not duplicate presence entries',()=>{
+  const code=readFileSync(new URL('../assets/live-visitors.js',import.meta.url),'utf8');
+  const match=code.match(/export function countActivePresences\(state\)\{[\s\S]*?\n\}/);
+  assert.ok(match,'Pure presence counter exists');
+  const count=new Function(match[0].replace('export ','')+';return countActivePresences;')();
+  assert.equal(count(null),0);
+  assert.equal(count({}),0);
+  assert.equal(count({abc:[{active:true}],def:[{active:true}]}),2);
+  assert.equal(count({abc:[{active:true},{active:true}],def:[]}),1);
+  assert.equal(count({abc:null}),0);
+  for(const clause of ['crypto.randomUUID()',"config:{presence:{key}}","channel.track({active:true})",
+    'channel.untrack()', "'presence',{event:'sync'}", "document.visibilityState==='hidden'",
+    "window.addEventListener('pagehide'","window.addEventListener('pageshow'",
+    "update('unavailable')"])
+    assert.ok(code.includes(clause),clause);
+  assert.ok(!code.includes('localStorage'));
+  assert.ok(!code.includes('auth.uid'));
+  assert.ok(!code.includes('user_metadata'));
+  assert.ok(!code.includes('.from('),'No visitor database writes');
+  const workflow=readFileSync(new URL('../.github/workflows/pages.yml',import.meta.url),'utf8');
+  assert.ok(workflow.includes('node --check assets/live-visitors.js'));
+  assert.ok(index.includes('assets/live-visitors.js?v='));
 });
