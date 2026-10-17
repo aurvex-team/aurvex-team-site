@@ -354,6 +354,13 @@ document.addEventListener('click',function(event){
     else window.prompt(t('copyLink'),url);
     return;
   }
+  if(action==='clear-filters'){
+    state.query='';state.kind='all';state.genre='all';state.minPrice='';state.maxPrice='';state.releaseYear='';state.sort='featured';
+    const route=routeInfo();
+    if(route.path!=='/browse'||route.params.toString())location.hash='/browse';
+    else render(true);
+    return;
+  }
   if(action==='theme'){
     state.theme=state.theme==='dark'?'light':'dark';
     store(STORAGE.theme,state.theme);render(true);return;
@@ -368,14 +375,23 @@ document.addEventListener('change',function(event){
     const lang=event.target.value;
     if(!supportedLanguages.includes(lang))return;
     state.language=lang;store(STORAGE.locale,lang);render(true);
+  }else if(event.target.id==='filter-kind'){
+    state.kind=event.target.value;refreshCatalog();
+  }else if(event.target.id==='filter-genre'){
+    state.genre=event.target.value;refreshCatalog();
+  }else if(event.target.id==='filter-year'){
+    state.releaseYear=event.target.value;refreshCatalog();
   }else if(event.target.id==='sort-select'){
     state.sort=event.target.value;
   }
 });
 document.addEventListener('input',function(event){
   if(event.target.id==='catalog-search'){
-    state.query=event.target.value;
-    refreshCatalog();
+    state.query=event.target.value;refreshCatalog();
+  }else if(event.target.id==='filter-min-price'){
+    state.minPrice=event.target.value;refreshCatalog();
+  }else if(event.target.id==='filter-max-price'){
+    state.maxPrice=event.target.value;refreshCatalog();
   }
 });
 document.addEventListener('submit',function(event){
@@ -390,7 +406,7 @@ window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
 window.addEventListener('keydown',function(event){
   if(event.key==='Escape'){setMenu(false);return}
   if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest('input,textarea,select,[contenteditable]')){
-    const target=window.matchMedia('(max-width: 560px)').matches?document.querySelector('#catalog-search'):document.querySelector('.top-search input');
+    const target=document.querySelector('#catalog-search')||document.querySelector('.top-search input');
     if(target){event.preventDefault();target.focus()}
   }
 });
