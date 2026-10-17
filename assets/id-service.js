@@ -159,3 +159,43 @@ export async function removeProfileMedia(userId,kind,existingPath){
   }
   return data;
 }
+
+ 
+// Supabase validates the authenticator code server-side. Never save an MFA
+// secret in localStorage, a profile row or GitHub.
+export async function getMfaState(){
+  const client=await idClient();
+  const [{data:aal,error:aalError},{data:factors,error:factorsError}]=await Promise.all([
+    client.auth.mfa.getAuthenticatorAssuranceLevel(),
+    client.auth.mfa.listFactors()
+  ]);
+  if(aalError)throw aalError;
+  if(factorsError)throw factorsError;
+  const verified=(factors?.totp||[]).filter(f=>f.status==='verified');
+  return {
+    verified:aal?.currentLevel==='aal2'&&verified.length>0,
+    hasFactors:verified.length>0,
+    verifiedFactors:verified,
+    currentLevel:aal?.currentLevel||'aal1',
+    nextLevel:aal?.nextLevel||'aal1'
+  };
+}
+export async function beginMfaEnrollment(label='AURVEX Authenticator'){
+  const client=await idClient();
+  const {data,error}=await client.auth.mfa.enroll({factorType:'totp',friendlyName:label});
+  if(error)throw error;
+  return {
+    factorId:data.id,
+    // Supabase-generated QR is used directly as an image URL.
+    qr:data.totp?.qr_code||'',
+    secret:data.totp?.secret||''
+  };
+}
+export async function verifyMfaCode(factorId,code){
+  const client=await idClient();
+  const {data,error}=await client.auth.mfa.challenge({factorId});
+  if(error)throw error;
+  const verified=await client.auth.mfa.verify({factorId,challengeId:data.id,code});
+  if(verified.error)throw verified.error;
+  return verified.data;
+}
