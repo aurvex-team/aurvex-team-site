@@ -84,6 +84,10 @@ function header(path){
   const liveState=['live','connecting','unavailable'].includes(live.status)?live.status:'connecting';
   const liveHint=liveState==='unavailable'?t('visitorsUnavailable'):liveState==='connecting'?t('visitorsLoading'):t('visitorsLiveHint');
   const liveBadge='<span class="live-visitors" data-live-visitors data-live-state="'+liveState+
+    '" data-live-label="'+esc(t('visitorsOnline'))+
+    '" data-live-hint-live="'+esc(t('visitorsLiveHint'))+
+    '" data-live-hint-connecting="'+esc(t('visitorsLoading'))+
+    '" data-live-hint-unavailable="'+esc(t('visitorsUnavailable'))+
     '" title="'+esc(liveHint)+'" aria-label="'+esc(t('visitorsOnline')+': '+liveCount+'. '+liveHint)+'" aria-busy="'+String(liveState==='connecting')+'">'+
     '<span class="live-visitors-dot" aria-hidden="true"></span>'+
     '<span data-live-visitors-count class="live-visitors-count">'+liveCount+'</span>'+
