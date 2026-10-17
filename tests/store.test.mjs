@@ -8,7 +8,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -22,7 +22,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null){
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -553,4 +553,90 @@ test('Server MFA enforcement restricts ALL profile/wishlist/entitlement and medi
   assert.ok(ui.includes('model.mfaVerified=mfa.verified'));
   assert.ok(ui.indexOf('const mfa=await getMfaState()')<ui.indexOf('ownProfile(user.id)'));
   assert.ok(ui.includes('!model.mfaVerified'));
+});
+
+
+test('Friends navigation exists in desktop and mobile and is localized in 4 languages',()=>{
+  for(const lang of supportedLanguages){
+    const html=render('#/',lang).html;
+    assert.ok(html.includes('href="#/friends"'));
+    assert.ok(html.includes(translations[lang].friendsNav));
+    assert.ok(html.includes('class="mobile-bottom"'));
+  }
+});
+
+test('Friends route requires AURVEX ID and MFA, not merely Google sign-in',()=>{
+  const locked=render('#/friends','uk').html;
+  assert.ok(locked.includes(translations.uk.friendsLockedTitle));
+  assert.ok(locked.includes('href="#/id"'));
+  const google=render('#/friends','en',false,null,{user:{id:'u'},mfaVerified:false}).html;
+  assert.ok(google.includes(translations.en.friends2faNeeded));
+  assert.ok(!google.includes('id="friends-search-form"'));
+});
+
+test('Friends shows accepted, incoming and outgoing states with server-driven actions',()=>{
+  const one='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+  const two='4d3530f2-f06c-45e7-b1fb-a1388a3d2c56';
+  const three='dce252e9-ed92-4c92-b04f-a64f3428aece';
+  const auth={user:{id:'current'},mfaVerified:true};
+  const model={ready:true,busy:false,query:'dev',relations:[
+    {peer_id:one,nickname:'tester_one',relation:'friend'},
+    {peer_id:two,nickname:'tester_two',relation:'incoming'},
+    {peer_id:three,nickname:'tester_three',relation:'outgoing'}
+  ],results:[{player_id:one,nickname:'tester_one',relation:'friend'},
+    {player_id:two,nickname:'tester_two',relation:'incoming'},
+    {player_id:three,nickname:'tester_three',relation:'outgoing'},
+    {player_id:'02d5f47c-a6e9-48ab-930c-d7e468d7cf36',nickname:'new_friend',relation:'none'}]};
+  for(const lang of supportedLanguages){
+    const html=render('#/friends',lang,false,null,auth,model).html;
+    assert.ok(html.includes('id="friends-search-form"'));
+    assert.ok(html.includes(translations[lang].friendsMyFriends));
+    assert.ok(html.includes(translations[lang].friendsIncoming));
+    assert.ok(html.includes(translations[lang].friendsOutgoing));
+    for(const action of ['accept','decline','cancel','remove','send'])
+      assert.ok(html.includes('data-friend-action="'+action+'"'),action);
+    assert.ok(html.includes(translations[lang].friendsPrivacy));
+    assert.ok(html.includes('href="#/friends"'));
+  }
+});
+
+test('Friends nickname and media URL are escaped and never show email',()=>{
+  const html=render('#/friends','en',false,null,{user:{id:'current'},mfaVerified:true},{
+    ready:true,relations:[{peer_id:'8b16e575-8a49-49cf-bf9c-b512988923a2',
+       nickname:'<img src=x onerror=alert(1)>',
+       avatarUrl:'https://example.com/?x=" onerror="alert(1)',
+       relation:'friend'}]
+  }).html;
+  assert.ok(html.includes('&lt;img'));
+  assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
+  assert.ok(html.includes('&quot; onerror='));
+  assert.ok(!html.includes('mailto:'));
+});
+
+test('Friends backend limits public exposure and guarantees only 2FA-authenticated users can act',()=>{
+  const sql=readFileSync(new URL('../supabase/migrations/20261017_aurvex_friends_v1.sql',import.meta.url),'utf8');
+  for(const name of ['aurvex_search_players','aurvex_friends_list','aurvex_friend_send','aurvex_friend_action','aurvex_friends_require_mfa'])
+    assert.ok(sql.includes(name),name);
+  assert.ok(sql.includes("is distinct from 'aal2'"));
+  assert.ok(sql.includes('security definer set search_path='));
+  assert.ok(sql.includes('revoke all on public.id_friendships from public,anon,authenticated'));
+  assert.ok(sql.includes('revoke all on public.id_friend_attempts from public,anon,authenticated'));
+  assert.ok(sql.includes("count(*) from public.id_friend_attempts"));
+  assert.ok(sql.includes("f.requester<>who"));
+  assert.ok(sql.includes("other_player=who"));
+  assert.ok(sql.includes("status='declined'"));
+  assert.ok(sql.includes("limit 15"));
+  assert.ok(!sql.includes('p.email'));
+});
+
+test('Friends controller calls only vetted RPC functions, never private table reads',()=>{
+  const service=readFileSync(new URL('../assets/friends-service.js',import.meta.url),'utf8');
+  const controller=readFileSync(new URL('../assets/friends-ui.js',import.meta.url),'utf8');
+  const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  for(const name of ['aurvex_search_players','aurvex_friends_list','aurvex_friend_send','aurvex_friend_action'])
+    assert.ok(service.includes(name));
+  assert.ok(controller.includes('window.AURVEX_ID?.mfaVerified'));
+  assert.ok(controller.includes('setInterval(polling,30000)'));
+  assert.ok(index.includes('friends-ui.js?v='));
+  assert.ok(!service.includes(".from('id_profiles')"));
 });
