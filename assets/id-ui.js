@@ -8,7 +8,7 @@ import {
 } from './id-service.js';
 
 const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
- configured:isIdConfigured(),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
+ configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
 const t=(key)=>translations[document.documentElement.lang]?.[key]||translations.en[key]||key;
 const notify=()=>window.dispatchEvent(new CustomEvent('aurvex:id-state'));
@@ -50,7 +50,7 @@ async function reload(){
   }
 }
 async function initialize(){
-  if(!isIdConfigured()){model.ready=true;notify();return}
+  if(!isIdConfigured()||(!ID_CONFIG.emailEnabled&&!ID_CONFIG.googleEnabled)){model.ready=true;notify();return}
   try{
     const client=await idClient();
     client.auth.onAuthStateChange((event)=>{
