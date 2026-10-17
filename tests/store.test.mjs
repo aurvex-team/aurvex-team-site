@@ -391,3 +391,79 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
   }
 });
 
+
+
+test('signed-in AURVEX ID renders a beautiful avatar and animated banner profile',()=>{
+  const auth={
+    configured:true,googleEnabled:true,emailEnabled:false,busy:false,
+    ready:true,statusKey:'',statusError:false,
+    user:{id:'e0c4207a-39ab-4a51-820f-f2f27cd33719',email:'test@example.com',created_at:'2026-10-17T12:00:00Z'},
+    profile:{
+      nickname:'fleki',avatar_path:'e0c4207a-39ab-4a51-820f-f2f27cd33719/avatar-88edca11-b50f-476e-b678-a061989c40fa.webp',
+      banner_path:'e0c4207a-39ab-4a51-820f-f2f27cd33719/banner-ab7ed1aa-ec9e-4d18-a4c4-679a83bde839.gif'
+    },
+    avatarUrl:'https://example.test/public/avatar.webp',
+    bannerUrl:'https://example.test/public/banner.gif'
+  };
+  for(const lang of supportedLanguages){
+    const html=render('#/id',lang,false,null,auth).html;
+    assert.ok(html.includes('class="player-profile"'));
+    assert.ok(html.includes('class="player-cover-image"'));
+    assert.ok(html.includes('https://example.test/public/banner.gif'));
+    assert.ok(html.includes('https://example.test/public/avatar.webp'));
+    assert.ok(html.includes('fleki'));
+    assert.ok(html.includes(translations[lang].profilePersonalize));
+    assert.ok(html.includes(translations[lang].profileMemberSince));
+    assert.ok(html.includes(translations[lang].profileArtworkPublic));
+    assert.ok(html.includes('id="id-avatar-upload"'));
+    assert.ok(html.includes('id="id-banner-upload"'));
+    assert.ok(html.includes('image/gif'));
+    assert.ok(html.includes('data-id-action="remove-banner"'));
+    assert.ok(html.includes('data-id-action="remove-avatar"'));
+    assert.ok(html.includes('id="id-nickname-form"'));
+    assert.ok(html.includes('href="#/saved"'));
+  }
+});
+
+test('signed-in profile escapes nickname and email rather than inserting HTML',()=>{
+  const auth={
+    configured:true,user:{email:'<script>alert(1)</script>',created_at:'2026-10-17T00:00:00Z'},
+    profile:{nickname:'<img src=x onerror=alert(1)>'}
+  };
+  const html=render('#/id','en',false,null,auth).html;
+  assert.ok(html.includes('&lt;img'));
+  assert.ok(html.includes('&lt;script&gt;'));
+  assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
+});
+
+test('wishlist uses server truth and changes sync across devices without resurrection',()=>{
+  const code=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_profile_media_realtime.sql',import.meta.url),'utf8');
+  assert.ok(code.includes('getOwnWishlist(user.id)'));
+  assert.ok(code.includes('subscribeOwnWishlist(userId'));
+  assert.ok(code.includes('visibilitychange'));
+  assert.ok(code.includes('setInterval('));
+  assert.ok(code.includes('pendingWishlistWrites'));
+  assert.ok(!code.includes("localStorage.getItem('aurvex.wishlist.devive')"));
+  assert.ok(!service.includes('syncOwnWishlist('));
+  assert.ok(migration.includes('alter publication supabase_realtime add table public.id_wishlist'));
+});
+
+test('only own images can be uploaded and banner GIFs have constrained public storage',()=>{
+  const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+  const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_profile_media_realtime.sql',import.meta.url),'utf8');
+  for(const key of ['avatar_path','banner_path','file_size_limit','allowed_mime_types','aurvex-profile-media']){
+    assert.ok(migration.includes(key),key);
+  }
+  assert.ok(migration.includes("storage.foldername(name)"));
+  assert.ok(migration.includes("auth.uid()"));
+  assert.ok(migration.includes("for insert to authenticated"));
+  assert.ok(migration.includes("for delete to authenticated"));
+  assert.ok(service.includes("contentType:file.type"));
+  assert.ok(service.includes("upsert:false"));
+  assert.ok(service.includes("kind==='avatar'?3*1024*1024:8*1024*1024"));
+  assert.ok(service.includes("ignoreDuplicates:true"));
+  assert.ok(service.includes(".update({[column]:path})"));
+  assert.ok(service.includes(".update({nickname})"));
+});
