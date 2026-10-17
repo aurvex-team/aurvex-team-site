@@ -32,6 +32,8 @@ jobs:
           node --check assets/app.js
           node --check assets/id-ui.js
           node --check assets/id-service.js
+          node --check assets/friends-service.js
+          node --check assets/friends-ui.js
           node --check assets/id-config.js
           npm test
       - name: Configure Pages
