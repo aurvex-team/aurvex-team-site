@@ -19,6 +19,8 @@ const pathIcons={
  gamepad:'<path d="M6.5 8.5h11a4 4 0 0 1 3.9 3.1l.5 3.8a2.8 2.8 0 0 1-4.5 2.6l-2.2-1.8H8.8l-2.2 1.8a2.8 2.8 0 0 1-4.5-2.6l.5-3.8a4 4 0 0 1 3.9-3.1Z"/><path d="M7 12v4m-2-2h4m7-1h.01M19 15h.01"/>',
  apps:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+ bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+ ban:'<circle cx="12" cy="12" r="9"/><path d="M5.7 5.7 18.3 18.3"/>',
  gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9H8a3 3 0 1 1 3-3c.6 1.2 1 3 1 3Zm0 0h4a3 3 0 1 0-3-3c-.6 1.2-1 3-1 3Z"/>',
  heart:'<path d="M20.5 8.5c0 4.9-8.5 10.7-8.5 10.7S3.5 13.4 3.5 8.5a4.8 4.8 0 0 1 8.5-3.1 4.8 4.8 0 0 1 8.5 3.1Z"/>',
  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
@@ -62,7 +64,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -88,6 +90,8 @@ function header(path){
     '<div class="top-actions"><label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
+    '<a class="icon-btn social-bell'+(path==='/notifications'?' active':'')+'" href="#/notifications" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'">'+
+      icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</a>'+
     '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a></div></header>';
 }
 function sidebar(path){
@@ -97,7 +101,8 @@ function sidebar(path){
       navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+
       navLink('/friends','friendsNav','users',path,
-        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+'</div>'+
+        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
+      (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
@@ -498,6 +503,9 @@ function playerProfilePage(auth){
       '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('familyNav')+'</div>'+
         '<h3>'+icon('home',20)+' '+t('familyTitle')+'</h3>'+
         '<p>'+t('familyLead')+'</p><a class="btn btn-outline" href="#/family">'+t('familyNav')+' '+icon('arrow',16)+'</a></div>'+
+      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('social37Nav')+'</div>'+
+        '<h3>'+icon('bell',20)+' '+t('social37Title')+'</h3>'+
+        '<p>'+t('social37Lead')+'</p><a class="btn btn-outline" href="#/notifications">'+t('social37Nav')+' '+icon('arrow',16)+'</a></div>'+
       '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
         '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
         '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
@@ -583,9 +591,14 @@ function friendPlayerRow(player){
     icon(action==='accept'?'check':action==='send'?'users':'close',15)+' '+t(label)+'</button>').join('');
   return '<article class="friends-player"><div class="friends-avatar">'+avatar+'</div>'+
     '<div class="friends-player-info"><strong><a class="friend-profile-link" href="#/player/'+uuid+'">'+esc(player.nickname||t('friendsUnknown'))+'</a></strong>'+
-    '<span>'+t(relationKeys[relation]||'friendsUnavailable')+'</span></div>'+
+    '<span>'+t(relationKeys[relation]||'friendsUnavailable')+
+      (relation==='friend'?' · '+(((window.AURVEX_SOCIAL37?.onlineIds||[]).includes(uuid))?t('social37Online'):t('social37Offline')):'')+'</span></div>'+
     '<div class="friends-player-actions">'+(buttons||'<small>'+t('friendsUnavailable')+'</small>')+
      (relation==='friend'?'<button class="btn btn-outline" disabled title="'+t('giftExplain')+'">'+icon('gift',15)+' '+t('giftSoon')+'</button>':'')+
+     '<a class="btn btn-outline" href="#/player/'+uuid+'" title="'+t('social37ViewProfile')+'">'+icon('user',14)+' '+t('social37ViewProfile')+'</a>'+
+     (relation==='friend'&&window.AURVEX_SOCIAL37?.canInvite?
+       '<button class="btn btn-outline" type="button" data-social37-action="invite-friend" data-player-id="'+uuid+'">'+icon('users',14)+' '+t('social37SendFamilyInvite')+'</button>':'')+
+     '<button class="btn btn-outline" type="button" data-social37-action="block" data-player-id="'+uuid+'">'+icon('ban',14)+' '+t('social37Block')+'</button>'+
      '</div></article>';
 }
 function friendsPage(){
@@ -651,6 +664,10 @@ function publicPlayerPage(path){
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
      '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div></div>'+
    '<div class="public-profile-body">'+
+     (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?
+      '<div class="public-profile-actions"><button class="btn btn-outline" type="button" data-social37-action="'+
+        ((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'unblock':'block')+
+        '" data-player-id="'+esc(id)+'">'+icon('ban',16)+' '+t((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'social37Unblock':'social37Block')+'</button></div>':'')+
     (auth.user?.id===id?'<div class="public-preview-note">'+icon('info',16)+' '+t('socialPreviewHint')+
      ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
     '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
@@ -714,6 +731,51 @@ function familyPage(route){
      '<button type="button" class="btn btn-outline" data-social-action="family-leave"'+(m.busy?' disabled':'')+'>'+
       t('familyLeave')+'</button>')+'</section></div>';
 }
+
+function socialNotificationsPage(){
+  const auth=window.AURVEX_ID||{}, social=window.AURVEX_SOCIAL37||{};
+  if(!auth.user||!auth.mfaVerified)return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('social37Nav')+'</div>'+
+    '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',36)+'</div><h1>'+t('social37Title')+'</h1>'+
+      '<p>'+t('social37Login')+'</p><a class="btn btn-primary" href="#/id">'+t('friendsOpenProfile')+'</a></section>';
+  const notes=Array.isArray(social.notifications)?social.notifications:[],blocked=Array.isArray(social.blocked)?social.blocked:[];
+  const unread=notes.filter(n=>!n.read).length;
+  const msg=social.status?'<div class="friends-alert'+(social.error?' friends-error':'')+'" role="status">'+t(social.status)+'</div>':'';
+  const entries=notes.map(n=>{
+    const family=n.kind==='family_invite',uid=esc(n.actor_id),nid=esc(n.id),avatar=n.avatarUrl?
+      '<img src="'+esc(n.avatarUrl)+'" alt="">':icon('user',24);
+    const title=family?'social37FamilyInvite':'social37FriendRequest';
+    return '<article class="social-notification'+(n.read?' is-read':' is-unread')+'">'+
+      '<div class="friends-avatar">'+avatar+'</div><div class="social-notification-copy">'+
+      '<strong><a href="#/player/'+uid+'">'+esc(n.nickname||t('friendsUnknown'))+'</a></strong>'+
+      '<p>'+t(title)+'</p><div class="social-notification-actions">'+
+      (family?'<button type="button" class="btn btn-accent" data-social37-action="open-invite" data-notification-id="'+nid+'"'+(social.busy?' disabled':'')+'>'+
+       icon('home',15)+' '+t('social37OpenInvite')+'</button>':
+       '<a href="#/friends" class="btn btn-outline">'+icon('users',15)+' '+t('social37OpenFriends')+'</a>')+
+      (!n.read?'<button type="button" class="btn btn-outline" data-social37-action="read" data-notification-id="'+nid+'"'+(social.busy?' disabled':'')+'>'+
+       icon('check',14)+' '+t('social37Read')+'</button>':'')+
+      '</div></div></article>';
+  }).join('');
+  const blockedList=blocked.length?blocked.map(b=>'<div class="friends-player">'+
+    '<div class="friends-player-info"><strong>'+esc(b.nickname||t('friendsUnknown'))+'</strong></div>'+
+    '<button type="button" class="btn btn-outline" data-social37-action="unblock" data-player-id="'+esc(b.id)+'"'+(social.busy?' disabled':'')+'>'+
+      icon('ban',14)+' '+t('social37Unblock')+'</button></div>').join(''):
+    '<div class="friends-empty">'+t('social37BlockedEmpty')+'</div>';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('social37Nav')+'</span></div>'+
+    '<header class="friends-hero"><div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('social37Title')+'</h1>'+
+      '<p>'+t('social37Lead')+'</p><div class="friends-stats"><span>'+icon('bell',17)+' '+unread+' '+t('social37Unread')+'</span></div></header>'+msg+
+    '<div class="social-notifications-layout"><div class="social-notifications-main"><section class="friends-panel">'+
+      '<h2>'+t('social37Nav')+'</h2>'+
+      (entries||'<div class="friends-empty">'+icon('bell',24)+' '+t('social37Empty')+'</div>')+
+      '<p class="social-muted">'+t('social37FamilyInvitationHelp')+'</p></section></div>'+
+      '<aside class="social-notification-settings"><section class="friends-panel">'+
+        '<div class="smallcaps">'+t('social37Settings')+'</div><h2>'+t('social37Settings')+'</h2>'+
+        '<label class="social-wish-toggle social37-online-control">'+
+        '<input type="checkbox" data-social37-action="visibility"'+(social.showOnline?' checked':'')+(social.busy?' disabled':'')+'>'+
+        '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label>'+
+       '</section><section class="friends-panel"><div class="smallcaps">'+t('social37BlockedTitle')+'</div>'+
+        '<h2>'+t('social37BlockedTitle')+'</h2><div class="friends-list">'+blockedList+'</div>'+
+        '<p class="social-muted">'+t('social37BlockedNote')+'</p></section></aside></div>';
+}
 function aboutPage(){
   const steps=[['roadmap1','roadmap1Desc','roadmapDone','tag-green'],['roadmap2','roadmap2Desc','roadmapProgress','tag-amber'],
                ['roadmap3','roadmap3Desc','roadmapPlanned',''],['roadmap4','roadmap4Desc','roadmapPlanned',''],['roadmap5','roadmap5Desc','roadmapPlanned','']];
@@ -750,10 +812,11 @@ function render(keepScroll=false){
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
   else if(route.path==='/friends')page=friendsPage();
+  else if(route.path==='/notifications')page=socialNotificationsPage();
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -939,6 +1002,7 @@ document.addEventListener('submit',function(event){
 window.addEventListener('aurvex:id-state',function(){render(true)});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
 window.addEventListener('aurvex:social-state',function(){render(true)});
+window.addEventListener('aurvex:social37-state',function(){render(true)});
 window.addEventListener('aurvex:sync-wishlist',function(event){
   if(!event.detail||typeof event.detail.wished!=='boolean')return;
   state.wished=event.detail.wished;store(STORAGE.wish,state.wished?'1':'0');render(true);
