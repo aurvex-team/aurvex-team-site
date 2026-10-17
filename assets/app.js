@@ -215,7 +215,7 @@ function customGenres(){
   const label=selected.length?(selected.length===1?t((gameGenres.find(function(x){return x[0]===selected[0]})||[])[1]):selected.length+' '+t('genresSelected')):t('allGenres');
   return '<div class="filter-field"><span>'+t('genre')+'</span><details class="filter-dropdown genre-dropdown" id="filter-genre" name="aurvex-filters">'+
     '<summary class="filter-trigger"><span class="filter-current" id="genre-filter-label">'+esc(label)+'</span>'+
-      (selected.length?'<span class="selection-bubble">'+selected.length+'</span>':'')+icon('chevron',17)+'</summary>'+
+      '<span class="selection-bubble"'+(selected.length?'':' hidden')+'>'+selected.length+'</span>'+icon('chevron',17)+'</summary>'+
     '<div class="filter-menu genre-menu" role="group" aria-label="'+t('genre')+'">'+
       '<div class="genre-menu-top"><span>'+t('selectMultipleGenres')+'</span><span class="genre-count" id="genre-selected-count">'+selected.length+'</span></div>'+
       '<label class="genre-search">'+icon('search',16)+'<input type="search" id="genre-lookup" autocomplete="off" placeholder="'+esc(t('searchGenres'))+'" aria-label="'+t('searchGenres')+'"></label>'+
@@ -374,6 +374,25 @@ function syncCatalogUrl(){
   const next='#'+route.path+(params.toString()?'?'+params.toString():'');
   if(next!==location.hash)history.replaceState(null,'',location.pathname+location.search+next);
 }
+function updateFilterUi(){
+  const label=document.getElementById('genre-filter-label');
+  const selected=selectedGenres();
+  if(label){
+    const name=selected.length===1?gameGenres.find(function(x){return x[0]===selected[0]})?.[1]:null;
+    label.textContent=selected.length===0?t('allGenres'):selected.length===1?t(name):selected.length+' '+t('genresSelected');
+  }
+  const bubble=document.querySelector('#filter-genre .selection-bubble');
+  if(bubble){bubble.textContent=String(selected.length);bubble.hidden=!selected.length}
+  const count=document.getElementById('genre-selected-count');
+  if(count)count.textContent=String(selected.length);
+  const active=document.getElementById('active-filters');
+  if(active)active.innerHTML=activeFilters();
+}
+function closeFilterMenus(except){
+  document.querySelectorAll('details.filter-dropdown[open]').forEach(function(dropdown){
+    if(dropdown!==except)dropdown.open=false;
+  });
+}
 function refreshCatalog(){
   const route=routeInfo();route.path=safeRoute(route.path);
   const results=document.getElementById('catalog-results');
@@ -382,6 +401,7 @@ function refreshCatalog(){
   const matches=catalogMatches(route).length;
   results.innerHTML=resultHTML(route);
   count.textContent=matches+' '+t(matches===1?'oneResult':'results');
+  updateFilterUi();
   syncCatalogUrl();
 }
 function toast(message){
@@ -397,6 +417,41 @@ function setMenu(open){
 }
 document.addEventListener('click',function(event){
   if(event.target.closest('.sidebar a,.mobile-bottom a'))setMenu(false);
+  const dropdown=event.target.closest('details.filter-dropdown');
+  if(!dropdown)closeFilterMenus();
+  const choice=event.target.closest('[data-filter-choice]');
+  if(choice){
+    const filter=choice.dataset.filterChoice,value=choice.dataset.value;
+    if(filter==='kind'&&['all','game','app'].includes(value))state.kind=value;
+    if(filter==='year'&&(/^\d{4}$/.test(value)||value===''))state.releaseYear=value;
+    if(filter==='sort'&&['featured','name','free'].includes(value))state.sort=value;
+    const group=choice.closest('details.filter-dropdown');
+    if(group){
+      const display=group.querySelector('.filter-current');
+      if(display)display.textContent=choice.querySelector('span')?.textContent||'';
+      group.querySelectorAll('[data-filter-choice]').forEach(function(option){
+        const chosen=option===choice;
+        option.classList.toggle('chosen',chosen);
+        option.setAttribute('aria-pressed',String(chosen));
+      });
+      group.open=false;
+    }
+    refreshCatalog();
+    return;
+  }
+  const removable=event.target.closest('[data-remove-filter]');
+  if(removable){
+    const type=removable.dataset.removeFilter;
+    if(type==='genre')state.genre=selectedGenres().filter(function(g){return g!==removable.dataset.value}).join(',')||'all';
+    if(type==='kind')state.kind='all';
+    if(type==='min')state.minPrice='';
+    if(type==='max')state.maxPrice='';
+    if(type==='year')state.releaseYear='';
+    // Re-render to sync the filter controls with the removed chip.
+    syncCatalogUrl();
+    render(true);
+    return;
+  }
   const button=event.target.closest('[data-action]');
   if(!button)return;
   const action=button.dataset.action;
@@ -407,6 +462,17 @@ document.addEventListener('click',function(event){
     if(navigator.share){navigator.share({title:'Devive — AURVEX',url}).catch(function(){});}
     else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast(t('linkCopied'))}).catch(function(){window.prompt(t('copyLink'),url)});}
     else window.prompt(t('copyLink'),url);
+    return;
+  }
+  if(action==='genre-clear'){
+    state.genre='all';
+    document.querySelectorAll('[data-genre-option]').forEach(function(box){box.checked=false});
+    refreshCatalog();
+    return;
+  }
+  if(action==='dropdown-done'){
+    const parent=button.closest('details.filter-dropdown');
+    if(parent)parent.open=false;
     return;
   }
   if(action==='clear-filters'){
@@ -430,17 +496,20 @@ document.addEventListener('change',function(event){
     const lang=event.target.value;
     if(!supportedLanguages.includes(lang))return;
     state.language=lang;store(STORAGE.locale,lang);render(true);
-  }else if(event.target.id==='filter-kind'){
-    state.kind=event.target.value;refreshCatalog();
-  }else if(event.target.id==='filter-genre'){
-    state.genre=event.target.value;refreshCatalog();
-  }else if(event.target.id==='filter-year'){
-    state.releaseYear=event.target.value;refreshCatalog();
-  }else if(event.target.id==='sort-select'){
-    state.sort=event.target.value;
+  }else if(event.target.matches('[data-genre-option]')){
+    const selected=new Set(selectedGenres());
+    if(event.target.checked)selected.add(event.target.value);
+    else selected.delete(event.target.value);
+    state.genre=[...selected].filter(function(g){return gameGenres.some(function(x){return x[0]===g})}).join(',')||'all';
+    refreshCatalog();
   }
 });
 document.addEventListener('input',function(event){
+  if(event.target.id==='genre-lookup'){
+    const query=event.target.value.trim().toLocaleLowerCase(state.language);
+    document.querySelectorAll('[data-genre-row]').forEach(function(row){row.hidden=!!query&&!row.dataset.genreName.includes(query)});
+    return;
+  }
   if(event.target.id==='catalog-search'){
     state.query=event.target.value;refreshCatalog();
   }else if(event.target.id==='filter-min-price'){
@@ -459,7 +528,7 @@ document.addEventListener('submit',function(event){
 });
 window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
 window.addEventListener('keydown',function(event){
-  if(event.key==='Escape'){setMenu(false);return}
+  if(event.key==='Escape'){closeFilterMenus();setMenu(false);return}
   if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest('input,textarea,select,[contenteditable]')){
     const target=document.querySelector('#catalog-search')||document.querySelector('.top-search input');
     if(target){event.preventDefault();target.focus()}
