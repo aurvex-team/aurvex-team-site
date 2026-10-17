@@ -58,7 +58,7 @@ export async function syncOwnWishlist(userId,localSaved){
   const client=await idClient();
   if(localSaved){
     const {error}=await client.from('id_wishlist')
-      .upsert({user_id:userId,product_id:'devive'},{onConflict:'user_id,product_id'});
+      .upsert({user_id:userId,product_id:'devive'},{onConflict:'user_id,product_id',ignoreDuplicates:true});
     if(error)throw error;
   }
   const {data,error}=await client.from('id_wishlist')
@@ -70,7 +70,7 @@ export async function setOwnWishlist(userId,wished){
   const client=await idClient();
   if(wished){
     const {error}=await client.from('id_wishlist')
-      .upsert({user_id:userId,product_id:'devive'},{onConflict:'user_id,product_id'});
+      .upsert({user_id:userId,product_id:'devive'},{onConflict:'user_id,product_id',ignoreDuplicates:true});
     if(error)throw error;
   }else{
     const {error}=await client.from('id_wishlist')
