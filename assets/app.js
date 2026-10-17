@@ -446,6 +446,13 @@ function officialProfileBadges(titles){
     badges.map(([code,ico,label])=>'<span class="official-profile-title official-profile-title-'+code+'">'+
       icon(ico,16)+' '+t(label)+'</span>').join('')+'</div>';
 }
+function profileMemberSince(joined,titles){
+  // Special launch-era label is server-authorized for the original CEO.
+  // All other accounts retain their real registration month and year.
+  return Array.isArray(titles)&&titles.includes('aurvex_ceo')
+    ? t('profileFounderSince')
+    : t('profileMemberSince')+' '+esc(joined);
+}
 function playerProfilePage(auth){
   const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
   const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
@@ -484,7 +491,7 @@ function playerProfilePage(auth){
         '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           officialProfileBadges(auth.profileTitles)+
-          '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div>'+
+          '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,auth.profileTitles)+'</p></div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
       '<div class="player-content"><section class="player-main">'+
@@ -695,7 +702,7 @@ function publicPlayerPage(path){
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
      officialProfileBadges(p.profileTitles)+
-     '<p>'+icon('calendar',15)+' '+t('profileMemberSince')+' '+esc(joined)+'</p></div></div>'+
+     '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,p.profileTitles)+'</p></div></div>'+
    '<div class="public-profile-body">'+
      (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?
       '<div class="public-profile-actions"><button class="btn btn-outline" type="button" data-social37-action="'+
