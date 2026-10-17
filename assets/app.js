@@ -47,6 +47,7 @@ const pathIcons={
  pencil:'<path d="m4 20 4-.8 11.7-11.7a2 2 0 0 0-3-3L5 16.3 4 20z"/>',
  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>',
  pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>',
+ gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9H8a3 3 0 1 1 3-3c.6 1.2 1 3 1 3Zm0 0h4a3 3 0 1 0-3-3c-.6 1.2-1 3-1 3Z"/>',
  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m18 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/>'
 };
 function icon(name,size=19){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(pathIcons[name]||pathIcons.sparkle)+'</svg>'}
@@ -60,7 +61,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return ['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -95,7 +96,7 @@ function sidebar(path){
       navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+
       navLink('/friends','friendsNav','users',path,
-        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+'</div>'+
+        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo"><div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><p>'+t('bannerDesc')+'</p>'+
@@ -464,6 +465,18 @@ function playerProfilePage(auth){
               '<div><strong>'+t('profileBannerUpload')+'</strong><p>'+t('profileBannerHint')+'</p></div>'+
               '<div class="player-media-buttons"><label for="id-banner-upload" class="btn btn-outline'+(auth.busy?' is-disabled':'')+'">'+icon('upload',15)+' '+t('profileBannerUpload')+'</label></div></div>'+
           '</div></div>'+
+        '<section class="player-social-settings"><div class="smallcaps">'+t('socialSettings')+'</div>'+
+          '<h2>'+t('socialSettings')+'</h2><p>'+t('socialSettingsDesc')+'</p>'+
+          '<div class="player-social-actions"><a class="btn btn-accent" href="#/player/'+esc(auth.user.id)+'">'+icon('user',17)+' '+t('viewAsOthers')+'</a>'+
+             '<button class="btn btn-outline" type="button" data-social-action="copy-profile"'+saving+'>'+
+                icon('arrowUp',16)+' '+t('copyProfile')+'</button></div>'+
+          '<form id="social-profile-form" class="id-form">'+
+             [1,2,3].map(i=>{const l=(auth.profile?.public_links||[])[i-1]||{};return '<div class="social-link-fields">'+
+              '<label>'+t('socialLinkTitle')+' '+i+'<input name="title'+i+'" type="text" maxlength="40" value="'+esc(l.title||'')+'" placeholder="TikTok, Discord, GitHub"></label>'+
+              '<label>'+t('socialLinkUrl')+' '+i+'<input name="url'+i+'" type="url" maxlength="220" value="'+esc(l.url||'')+'" placeholder="https://..."></label></div>'}).join('')+
+             '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(auth.profile?.wishlist_public?' checked':'')+'>'+
+               '<span><strong>'+t('socialWishlistPublic')+'</strong><small>'+t('socialWishlistPrivate')+'</small></span></label>'+
+             '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('socialSave')+'</button></form></section>'+
         statusText+
         '<div class="player-privacy">'+icon('shield',20)+'<span>'+t('profileArtworkPublic')+'</span></div>'+
       '</section>'+
@@ -479,6 +492,9 @@ function playerProfilePage(auth){
       '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('friendsNav')+'</div>'+
         '<h3>'+icon('users',20)+' '+t('friendsMyFriends')+'</h3>'+
         '<p>'+t('friendsLead')+'</p><a class="btn btn-outline" href="#/friends">'+t('friendsNav')+' '+icon('arrow',16)+'</a></div>'+
+      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('familyNav')+'</div>'+
+        '<h3>'+icon('home',20)+' '+t('familyTitle')+'</h3>'+
+        '<p>'+t('familyLead')+'</p><a class="btn btn-outline" href="#/family">'+t('familyNav')+' '+icon('arrow',16)+'</a></div>'+
       '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
         '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
         '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
@@ -565,7 +581,9 @@ function friendPlayerRow(player){
   return '<article class="friends-player"><div class="friends-avatar">'+avatar+'</div>'+
     '<div class="friends-player-info"><strong>'+esc(player.nickname||t('friendsUnknown'))+'</strong>'+
     '<span>'+t(relationKeys[relation]||'friendsUnavailable')+'</span></div>'+
-    '<div class="friends-player-actions">'+(buttons||'<small>'+t('friendsUnavailable')+'</small>')+'</div></article>';
+    '<div class="friends-player-actions">'+(buttons||'<small>'+t('friendsUnavailable')+'</small>')+
+     (relation==='friend'?'<button class="btn btn-outline" disabled title="'+t('giftExplain')+'">'+icon('gift',15)+' '+t('giftSoon')+'</button>':'')+
+     '</div></article>';
 }
 function friendsPage(){
   const auth=window.AURVEX_ID||{}, data=window.AURVEX_FRIENDS||{};
