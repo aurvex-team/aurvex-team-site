@@ -7,14 +7,16 @@ import {idClient} from './id-service.js?v=20261017-393';
 export function countActivePresences(state){
   if(!state||typeof state!=='object'||Array.isArray(state))return 0;
   // Realtime Presence state is keyed by ephemeral per-tab Presence keys.
-  return Object.values(state).reduce((count,entries)=>
-    count+(Array.isArray(entries)?entries.length:0),0);
+  // Each Presence key is a random per-tab identifier; count each key once.
+  return Object.keys(state).filter(key=>
+    Array.isArray(state[key])&&state[key].length>0).length;
 }
 
 const model={status:'connecting',count:null};
 window.AURVEX_VISITORS=model;
 let channel=null;
 let subscribed=false;
+let tracking=false;
 let requestQueue=Promise.resolve();
 const update=(nextStatus,nextCount=null)=>{
   const count=Number.isSafeInteger(nextCount)&&nextCount>=0?nextCount:null;
@@ -24,6 +26,10 @@ const update=(nextStatus,nextCount=null)=>{
   // Patch only the counter: rerendering the whole Store would reset active forms.
   document.querySelectorAll('[data-live-visitors]').forEach(el=>{
     el.dataset.liveState=nextStatus;
+    const hint=el.getAttribute('data-live-hint-'+nextStatus)||'';
+    const label=el.getAttribute('data-live-label')||'';
+    el.setAttribute('title',hint);
+    el.setAttribute('aria-label',label+': '+(count===null?'—':String(count))+'. '+hint);
     const n=el.querySelector('[data-live-visitors-count]');
     if(n)n.textContent=count===null?'—':String(count);
     // Keep stale counts hidden while the WebSocket is disconnected.
@@ -32,7 +38,7 @@ const update=(nextStatus,nextCount=null)=>{
 };
 
 function syncCount(){
-  if(!channel||!subscribed||document.visibilityState==='hidden')return;
+  if(!channel||!subscribed||!tracking||document.visibilityState==='hidden')return;
   update('live',countActivePresences(channel.presenceState()));
 }
 function updateTracking(){
@@ -42,6 +48,7 @@ function updateTracking(){
     const visible=document.visibilityState==='visible';
     const result=visible?await channel.track({active:true}):await channel.untrack();
     if(result==='error'||result==='timeout')throw new Error('Presence tracking failed');
+    tracking=visible;
     if(visible)syncCount();
   }).catch(error=>{
     console.warn('AURVEX live visitors: presence temporarily unavailable',error?.message||'network');
@@ -59,10 +66,12 @@ async function start(){
     channel.subscribe(status=>{
       if(status==='SUBSCRIBED'){
         subscribed=true;
+        tracking=false;
         update('connecting');
         updateTracking();
       }else if(status==='CLOSED'||status==='TIMED_OUT'||status==='CHANNEL_ERROR'){
         subscribed=false;
+        tracking=false;
         update('unavailable');
       }
     });
@@ -76,6 +85,10 @@ document.addEventListener('visibilitychange',()=>{
   updateTracking();
 });
 window.addEventListener('pagehide',()=>{
+  tracking=false;
   if(channel&&subscribed)void channel.untrack().catch(()=>{});
+});
+window.addEventListener('pageshow',()=>{
+  if(subscribed)updateTracking();
 });
 void start();
