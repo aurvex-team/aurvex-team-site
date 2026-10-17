@@ -1,6 +1,6 @@
 # AURVEX ID — identity architecture and setup
 
-Status: **separate Supabase project and RLS schema active; Google OAuth provider enabled in Supabase and Google sign-in frontend enabled for testing, not yet verified end-to-end**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from XONI Mail. The site contains ONLY a publishable key. Email/Google provider switches remain off pending verified email delivery, OAuth setup, redirect allow-list and live end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
+Status: **separate Supabase project and RLS schema active; Google OAuth provider enabled in Supabase and Google sign-in frontend enabled for testing, not yet verified end-to-end**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from XONI Mail. The site contains ONLY a publishable key. Google provider and Google frontend switch are ON for testing; email and XONI frontend switches remain OFF pending verified email delivery, proper delegated authentication and end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
 
 ## Ownership boundaries
 
