@@ -1,11 +1,11 @@
 // AURVEX ID browser controller. No secret is stored in this repository.
 // Auth buttons remain disabled until a separate AURVEX auth project is ready.
-import { translations } from './i18n.js?v=20261017-310';
-import { ID_CONFIG,isIdConfigured } from './id-config.js';
+import { translations } from './i18n.js?v=20261017-320';
+import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-320';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,syncOwnWishlist,setOwnWishlist
-} from './id-service.js';
+} from './id-service.js?v=20261017-320';
 
 const model={user:null,profile:null,pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
