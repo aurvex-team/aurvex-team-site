@@ -16,7 +16,7 @@ export async function idClient(){
 export function idReturnUrl(){
   // Point OAuth and email verification at a normal HTTPS page; PKCE "code"
   // returns in URL query parameters, NOT the hash used by our SPA routes.
-  return new URL('store.html',document.baseURI).href.split('#')[0];
+  return new URL('id.html',document.baseURI).href.split('#')[0];
 }
 export async function requestEmailCode(email,register){
   const client=await idClient();
