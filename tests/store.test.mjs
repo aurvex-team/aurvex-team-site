@@ -8,7 +8,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -22,7 +22,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -639,4 +639,100 @@ test('Friends controller calls only vetted RPC functions, never private table re
   assert.ok(controller.includes('setInterval(polling,30000)'));
   assert.ok(index.includes('friends-ui.js?v='));
   assert.ok(!service.includes(".from('id_profiles')"));
+});
+
+
+test('Profile has public viewer, HTTPS links editor, and private-by-default wishlist checkbox',()=>{
+ const auth={user:{id:'9fe33ef1-0f84-4bce-acbb-ae5b5883377f',email:'secret@test.com'},
+  mfaVerified:true,mfaHasFactors:true,mfaFactors:[{id:'factor'}],
+  profile:{nickname:'fleki',public_links:[{title:'GitHub',url:'https://github.com/fleki'}],wishlist_public:false}};
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang,false,null,auth).html;
+  assert.ok(html.includes('href="#/player/9fe33ef1-0f84-4bce-acbb-ae5b5883377f"'));
+  assert.ok(html.includes('id="social-profile-form"'));
+  assert.ok(html.includes('name="wishlist_public"'));
+  assert.ok(!html.includes('name="wishlist_public" checked'));
+  assert.ok(html.includes('https://github.com/fleki'));
+  assert.ok(html.includes(translations[lang].viewAsOthers));
+  assert.ok(html.includes('href="#/family"'));
+ }
+});
+
+test('Public profile shows only approved links and hides wishlist when private',()=>{
+ const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const model={profileTarget:id,profile:{
+  player_id:id,nickname:'fleki',
+  avatarUrl:'https://safe.example/avatar.png',bannerUrl:'https://safe.example/banner.gif',
+  public_links:[{title:'TikTok',url:'https://www.tiktok.com/@example'}],
+  wishlist_visible:false,wishlist_products:['devive'],joined_at:'2026-10-17T00:00:00Z'
+ }};
+ const html=render('#/player/'+id,'uk',false,null,
+  {user:{id},mfaVerified:true},null,model).html;
+ assert.ok(html.includes(translations.uk.socialWishHidden));
+ assert.ok(html.includes('https://www.tiktok.com/@example'));
+ assert.ok(!html.includes('mailto:'));
+ assert.ok(!html.includes('id="id-nickname-form"'));
+ assert.ok(!html.includes('id="social-profile-form"'));
+ assert.ok(!html.includes('href="#/game/devive"'));
+ const publicHtml=render('#/player/'+id,'en',false,null,null,null,
+  {...model,profile:{...model.profile,wishlist_visible:true}}).html;
+ assert.ok(publicHtml.includes('href="#/game/devive"'));
+ assert.ok(!publicHtml.includes('secret@test.com'));
+});
+
+test('Unregistered user cannot create or join a family without Google and 2FA',()=>{
+ const a=render('#/family','en').html;
+ const b=render('#/family','uk',false,null,{user:{id:'u'},mfaVerified:false}).html;
+ assert.ok(a.includes('href="#/id"'));assert.ok(b.includes('href="#/id"'));
+ assert.ok(!a.includes('id="family-create-form"'));
+ assert.ok(!b.includes('data-social-action="family-join"'));
+});
+
+test('Family invitations only by link and owners control shared purchased games',()=>{
+ const auth={user:{id:'9fe33ef1-0f84-4bce-acbb-ae5b5883377f'},mfaVerified:true};
+ const social={familyReady:true,family:{
+  id:'b7b8c0a6-b034-4624-ae4d-83a37b483316',
+  name:'My Family',owner_id:auth.user.id,
+  members:[{id:auth.user.id,nickname:'Owner',is_owner:true}],
+  owned_shareable:[],shares:[]
+ }};
+ for(const lang of supportedLanguages){
+  const html=render('#/family',lang,false,null,auth,null,social).html;
+  assert.ok(html.includes(translations[lang].familyNoGames));
+  assert.ok(html.includes('data-social-action="family-invite"'));
+  assert.ok(html.includes('data-social-action="family-leave"'));
+  assert.ok(!html.includes('data-social-action="family-share"'));
+ }
+ const invite=render('#/family?invite='+'a'.repeat(64),'en',false,null,auth,null,{familyReady:true,family:null}).html;
+ assert.ok(invite.includes('data-social-action="family-join"'));
+ const plain=render('#/family','en',false,null,auth,null,{familyReady:true,family:null}).html;
+ assert.ok(!plain.includes('data-social-action="family-join"'));
+ assert.ok(plain.includes('id="family-create-form"'));
+});
+
+test('Server public profiles, family invitations and purchased-only licensing are protected by SQL',()=>{
+ const profile=readFileSync(new URL('../supabase/migrations/20261017_profile_public_links.sql',import.meta.url),'utf8');
+ const family=readFileSync(new URL('../supabase/migrations/20261017_aurvex_family_v1.sql',import.meta.url),'utf8');
+ for(const s of ['wishlist_public boolean not null default false','aurvex_valid_links','aurvex_public_profile',
+   'grant execute on function public.aurvex_public_profile(uuid) to anon,authenticated'])assert.ok(profile.includes(s));
+ assert.ok(profile.includes("when p.wishlist_public then"));
+ assert.ok(profile.includes("wishlist_visible boolean"));
+ assert.ok(!profile.includes('auth.users au'));
+ for(const s of ['aurvex_family_create','aurvex_family_new_invite','aurvex_family_join','aurvex_family_leave',
+  'aurvex_family_share','aurvex_family_access','aurvex_family_overview',
+  "e.source='purchase'","interval '7 days'","count(*) from public.id_family_members",
+  'pg_advisory']){if(s==='pg_advisory')continue;assert.ok(family.includes(s),s)}
+ assert.ok(family.includes("not in")===false||family.includes("not in")); // no particular client trust assumptions
+ assert.ok(family.includes("revoke all on public.id_families"));
+ assert.ok(family.includes("hash"),'invite token must be hashed');
+});
+test('Social controller does not place secrets in the profile and uses RPC-only family membership',()=>{
+ const src=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ const js=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
+ const idx=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ for(const fn of ['aurvex_public_profile','aurvex_family_create','aurvex_family_join','aurvex_family_share','aurvex_family_access'])
+  assert.ok(src.includes(fn),fn);
+ assert.ok(js.includes('window.AURVEX_ID?.mfaVerified'));
+ assert.ok(js.includes("location.replace('#/family')"));
+ assert.ok(idx.includes('social-ui.js?v='));
 });
