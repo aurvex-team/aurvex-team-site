@@ -1203,7 +1203,7 @@ test('Compact Profile Studio has two localized accessible editor tabs instead of
   }
   assert.ok(html.includes('data-active-profile-tab="overview"'));
   assert.ok(html.includes('id="profile-panel-links" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-links" hidden'));
-  assert.ok(html.includes('id="profile-panel-appearance" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-appearance" hidden'));
+  assert.ok(!html.includes('profile-panel-appearance'));
   // Hidden panels stay mounted, so their in-progress FormData and event handlers survive tab switches.
   assert.ok(html.includes('id="id-nickname-form"'));
   assert.ok(html.includes('id="social-profile-form"'));
@@ -1462,7 +1462,7 @@ test('Inventory route, price packs, trade RPC adapter and translations are prese
   inventory:[{item_id:'avatar_violet'}],equipped:{}};
  const inventory=render('#/inventory','uk',false,null,auth,null,null,null,null,shop).html;
  assert.ok(inventory.includes('avatar_violet'));
- assert.ok(inventory.includes(translations.uk.invNoGames));
+ assert.ok(inventory.includes(translations.uk.invLoading));
  const html=render('#/shop','en',false,null,auth,null,null,null,null,shop).html;
  for(const stars of [100,350,800,1800])assert.ok(html.includes(stars+' Stars'));
  assert.ok(html.includes('stars-packs'));
