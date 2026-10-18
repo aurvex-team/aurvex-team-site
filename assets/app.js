@@ -67,7 +67,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -101,6 +101,7 @@ function header(path){
     '<span class="brand-crest"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4 29 27H3L16 4Z" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><path d="M16 13 22 24H10l6-11Z" fill="white"/></svg></span><span>AURVEX</span></a>'+
     '<nav class="top-links" aria-label="Main navigation"><a href="#/" class="'+(path==='/'?'active':'')+'">'+t('discover')+'</a>'+
     '<a href="#/browse" class="'+(isActive(path,'/browse')?'active':'')+'">'+t('browse')+'</a>'+
+    '<a href="#/shop" class="'+(path==='/shop'?'active':'')+'">'+t('shopNav')+'</a>'+
     '<a href="#/about" class="'+(path==='/about'?'active':'')+'">'+t('about')+'</a></nav>'+
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
     '<div class="top-actions">'+liveBadge+'<label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
@@ -114,7 +115,7 @@ function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
-      navLink('/rewards','free','gift',path)+'</div>'+
+      navLink('/rewards','free','gift',path)+navLink('/shop','shopNav','sparkle',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+
       navLink('/friends','friendsNav','users',path,
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
@@ -127,7 +128,7 @@ function sidebar(path){
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
-   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/saved','saved','heart',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/notifications','social37Nav','bell',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
+   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/shop','shopNav','sparkle',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/notifications','social37Nav','bell',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
@@ -436,6 +437,13 @@ function mfaGatePage(auth){
       '</section></div>';
 }
 
+// Shop cosmetics are rendered through a fixed allowlist, never arbitrary CSS.
+function shopStyleAttrs(equipped){
+ const e=equipped&&typeof equipped==='object'?equipped:{};
+ const avatar=['avatar_violet','avatar_ruby','avatar_cyan','avatar_gold'].includes(e.avatar)?e.avatar:'none';
+ const profile=['profile_emerald','profile_cosmic','profile_frost','profile_flame'].includes(e.profile)?e.profile:'none';
+ return ' data-shop-avatar="'+avatar+'" data-shop-profile="'+profile+'"';
+}
 function profileVisualAttrs(raw){
  const v=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
  const safe=(key,valid,fallback)=>valid.includes(v[key])?v[key]:fallback;
@@ -523,7 +531,9 @@ function playerProfilePage(auth){
         ' aria-selected="'+(activeTab===tab)+'" aria-controls="profile-panel-'+tab+'" tabindex="'+(activeTab===tab?'0':'-1')+'" data-profile-tab="'+tab+'">'+
         icon(iconName,17)+'<span>'+t(textKey)+'</span></button>').join('')+'</nav>';
   // Always visible alongside the tabs, regardless of which editor section is open.
-  const publicPreview='<a class="btn btn-accent profile-preview-action" href="#/player/'+esc(auth.user.id)+'"'+
+  const publicPreview='<a class="btn btn-outline profile-shop-action" href="#/shop">'+icon('sparkle',16)+
+    '<span>'+t('shopNav')+'</span></a>'+
+    '<a class="btn btn-accent profile-preview-action" href="#/player/'+esc(auth.user.id)+'"'+
     ' aria-label="'+esc(t('viewAsOthers'))+'">'+icon('eye',17)+'<span>'+t('viewAsOthers')+'</span></a>';
   const tabToolbar='<div class="profile-tab-toolbar">'+tabNav+publicPreview+'</div>';
   const panelStart=tab=>'<div id="profile-panel-'+tab+'" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-'+tab+'"'+
@@ -536,7 +546,7 @@ function playerProfilePage(auth){
   const bannerRemove=auth.profile?.banner_path?
     '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
-    '<div class="player-profile"'+profileVisualAttrs(appearance)+'>'+
+    '<div class="player-profile"'+profileVisualAttrs(appearance)+shopStyleAttrs(window.AURVEX_SHOP?.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+'>'+
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
@@ -799,7 +809,7 @@ function publicPlayerPage(path){
  const date=new Date(p.joined_at);
  const joined=Number.isFinite(date.getTime())?date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{year:'numeric',month:'long'}):'';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
-  '<div class="player-profile public-profile"'+profileVisualAttrs(p.profile_appearance)+'>'+
+  '<div class="player-profile public-profile"'+profileVisualAttrs(p.profile_appearance)+shopStyleAttrs(p.shop_equipped)+'>'+
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
@@ -824,6 +834,59 @@ function publicPlayerPage(path){
        renderProfileLinks(links,'footer')+'</div></div>';
 }
 
+function shopPage(){
+ const m=window.AURVEX_SHOP||{},auth=window.AURVEX_ID||{};
+ const signed=!!auth.user?.id&&auth.mfaVerified;
+ const owned=new Set((m.userId===auth.user?.id&&m.inventory||[]).map(x=>x.item_id));
+ const equipped=m.userId===auth.user?.id?m.equipped||{}:{};
+ const balance=signed&&m.ready?String(m.balance??0):'—';
+ const displayItem=item=>{
+   const title=t('shopItem_'+item.id),kind=item.kind==='avatar'?'avatar':'profile';
+   const isOwned=owned.has(item.id),isEquipped=equipped[kind]===item.id;
+   const preview=m.previewId===item.id;
+   const pts=Number.isSafeInteger(item.price_points)?item.price_points:0;
+   const hryvnia=Number.isSafeInteger(item.price_uah_kop)?(item.price_uah_kop/100).toFixed(0):'—';
+   return '<article class="shop-card">'+
+     '<div class="shop-card-preview" data-shop-card-theme="'+esc(item.theme)+'" data-shop-card-kind="'+kind+'">'+
+       '<span class="shop-art-ring"></span><span class="shop-art-core">A</span>'+
+       '<span class="shop-art-smallcaps">AURVEX</span></div>'+
+     '<div class="shop-card-body"><span class="smallcaps">'+t(kind==='avatar'?'shopAvatar':'shopProfile')+'</span>'+
+     '<h3>'+esc(title)+'</h3><div class="shop-prices">'+
+       '<span>'+icon('sparkle',15)+' '+pts+' '+t('shopPoints')+'</span><span>'+hryvnia+' ₴</span></div>'+
+     '<div class="shop-card-actions"><button class="btn btn-outline" type="button" data-shop-action="preview" data-item-id="'+esc(item.id)+'">'+
+       icon('eye',15)+' '+t(preview?'shopHidePreview':'shopPreview')+'</button>'+
+     (isOwned?'<button class="btn btn-primary" type="button" data-shop-action="'+(isEquipped?'unequip':'equip')+'" data-kind="'+kind+'" data-item-id="'+esc(item.id)+'"'+(m.busy?' disabled':'')+'>'+
+         t(isEquipped?'shopUnequip':'shopEquip')+'</button>':
+       '<button class="btn btn-primary" type="button" data-shop-action="buy-points" data-item-id="'+esc(item.id)+'"'+
+       (!signed||!m.ready||m.busy||m.balance<pts?' disabled':'')+'>'+t('shopBuyPoints')+'</button>')+
+     '<button class="btn btn-outline shop-money-button" type="button" disabled title="'+esc(t('shopMoneyPending'))+'">'+
+       hryvnia+' ₴ · '+t('shopComingSoon')+'</button></div>'+
+     (preview?'<div class="shop-tryon"'+shopStyleAttrs(kind==='avatar'?{avatar:item.id}:{profile:item.id})+'>'+
+       '<div class="shop-tryon-card"><div class="shop-tryon-avatar">A</div><strong>'+esc(auth.profile?.nickname||'AURVEX PLAYER')+'</strong>'+
+       '<small>'+t('shopPreviewOnly')+'</small></div></div>':'')+
+     '</div></article>';
+ };
+ const catalog=Array.isArray(m.catalog)?m.catalog:[];
+ const list=kind=>catalog.filter(x=>x.kind===kind).map(displayItem).join('');
+ const wallet=signed?('<div class="shop-wallet">'+icon('sparkle',25)+
+   '<div><span>'+t('shopBalance')+'</span><strong>'+balance+' '+t('shopPoints')+'</strong></div>'+
+   '<a class="btn btn-outline" href="#/id">'+t('shopInventory')+' '+icon('arrow',15)+'</a></div>'):
+   '<div class="shop-wallet">'+icon('shield',23)+' <p>'+t('shopSignInHint')+'</p>'+
+   '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>';
+ return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('shopNav')+'</span></div>'+
+   '<header class="shop-hero"><div class="smallcaps">AURVEX · POINTS SHOP</div>'+
+   '<h1>'+t('shopTitle')+'</h1><p>'+t('shopIntro')+'</p></header>'+
+   wallet+
+   (m.messageKey?'<p class="shop-feedback'+(m.error?' is-error':'')+'" role="status">'+t(m.messageKey)+'</p>':'')+
+   (!m.catalogReady?'<div class="friends-empty">'+t('shopLoading')+'</div>':
+     m.catalogError?'<div class="friends-empty">'+t('shopLoadError')+
+       '<button class="btn btn-outline" type="button" data-shop-action="retry">'+t('shopRetry')+'</button></div>':
+     '<section class="shop-section"><h2>'+icon('user',20)+' '+t('shopAvatarFrames')+'</h2><div class="shop-grid">'+list('avatar')+'</div></section>'+
+     '<section class="shop-section"><h2>'+icon('layers',20)+' '+t('shopProfileFrames')+'</h2><div class="shop-grid">'+list('profile')+'</div></section>')+
+   '<section class="shop-explainer"><h2>'+t('shopHow')+'</h2>'+
+     '<p>'+t('shopWelcomeNote')+'</p><p>'+t('shopMoneyPending')+'</p>'+
+     '<p>'+t('shopPointsDisclaimer')+'</p></section>';
+}
 function familyPage(route){
  const auth=window.AURVEX_ID||{},m=window.AURVEX_SOCIAL||{},invite=route.params.get('invite');
  if(!auth.user||!auth.mfaVerified)return '<div class="breadcrumb">'+t('familyNav')+'</div>'+
@@ -955,12 +1018,13 @@ function render(keepScroll=false){
   else if(route.path==='/team')page=teamPage();
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
+  else if(route.path==='/shop')page=shopPage();
   else if(route.path==='/friends')page=friendsPage();
   else if(route.path==='/notifications')page=socialNotificationsPage();
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -1169,6 +1233,7 @@ document.addEventListener('submit',function(event){
 });
 window.addEventListener('aurvex:id-state',function(){render(true)});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
+window.addEventListener('aurvex:shop-state',function(){render(true)});
 window.addEventListener('aurvex:social-state',function(){render(true)});
 window.addEventListener('aurvex:social37-state',function(){render(true)});
 window.addEventListener('aurvex:sync-wishlist',function(event){
