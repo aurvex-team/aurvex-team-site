@@ -21,16 +21,11 @@ export async function saveSocialProfile(userId,links,wishlistPublic){
  if(error)throw error;
  return data;
 }
-export async function saveProfileAppearance(userId,appearance,hiddenTitleCodes){
- const client=await idClient();
- await ensureOwnProfile(client,userId);
- const {data,error}=await client.from('id_profiles')
-   .update({profile_appearance:appearance,hidden_title_codes:hiddenTitleCodes})
-   .eq('id',userId)
-   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes')
-   .single();
- if(error)throw error;
- return data;
+export async function saveWishlistVisibility(userId,visible){
+ const client=await idClient();await ensureOwnProfile(client,userId);
+ const {data,error}=await client.from('id_profiles').update({wishlist_public:!!visible}).eq('id',userId)
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
+ if(error)throw error;return data;
 }
 export async function getFamilyOverview(){
  const client=await idClient();
