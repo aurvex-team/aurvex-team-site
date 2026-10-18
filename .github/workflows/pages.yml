@@ -36,6 +36,8 @@ jobs:
           node --check assets/friends-ui.js
           node --check assets/social-service.js
           node --check assets/social-ui.js
+          node --check assets/shop-service.js
+          node --check assets/shop-ui.js
           node --check assets/social-links.js
           node --check assets/social37-service.js
           node --check assets/social37-ui.js
