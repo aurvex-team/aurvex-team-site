@@ -31,6 +31,7 @@ function messageRow(x){
  '<select aria-label="'+esc(t('chatReportReason'))+'">'+
  ['spam','harassment','unsafe','privacy','other'].map(y=>'<option value="'+y+'">'+t('chatReason_'+y)+'</option>').join('')+
  '</select><button type="button" data-chat-report="'+x.id+'">'+t('chatReportSend')+'</button></div></details>':'')+
+ (window.AURVEX_CHAT_ADMIN_POST_TOOLS?.(x)||'')+
  '</div></div></article>';
 }
 const svgUser='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>';
@@ -48,6 +49,7 @@ function renderMessages(){
  const send=document.querySelector('#community-chat-form button[type="submit"]');
  if(send)send.disabled=s.busy;
 }
+window.AURVEX_CHAT_RENDER=renderMessages;
 function renderComposer(){
  const area=document.getElementById('chat-compose-slot');
  if(!area)return;
@@ -84,6 +86,7 @@ async function load(){
  })();
  try{await fetching}finally{fetching=null}
 }
+window.AURVEX_CHAT_RELOAD=load;
 async function subscribe(){
  if(channel||starting||!active())return;
  starting=true;
