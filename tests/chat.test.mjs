@@ -100,7 +100,7 @@ test('Chat escapes posted HTML, displays accounts and includes abuse-safety affo
  assert.ok(src.includes('data-chat-action'));
  assert.ok(src.includes("if(!verified()||s.busy)return"));
  const css=read('assets/site.css');
- for(const selector of ['.chat-layout{','.chat-room{','.chat-message-feed{','.chat-composer-row{',
+ for(const selector of ['.chat-layout{','.chat-room,.chat-guidelines{','.chat-message-feed{','.chat-composer-row{',
   '.chat-report-tools{','@media(max-width:700px)'])
   assert.ok(css.includes(selector));
  assert.ok(existsSync(new URL('../docs/AURVEX-CHAT.md',import.meta.url)));
