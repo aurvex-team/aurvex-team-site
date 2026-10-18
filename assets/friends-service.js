@@ -1,7 +1,7 @@
 // AURVEX Friends v1: strict Supabase RPC adapter.
 // Only nickname, optional public avatar and relationship status are exposed.
 // All RPC functions verify Auth JWT AAL2 on the database server.
-import { idClient,profileMediaUrl } from './id-service.js?v=20261017-395';
+import { idClient,profileMediaUrl } from './id-service.js?v=20261018-381';
 export async function listFriends(){
   const client=await idClient();
   const {data,error}=await client.rpc('aurvex_friends_list');
