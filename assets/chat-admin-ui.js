@@ -35,6 +35,8 @@ function render(){
   '<button data-mod-toggle aria-expanded="'+mod.open+'">'+t(mod.open?'modClose':'modOpen')+'</button></div>'+
   (mod.feedback?'<p class="mod-feedback">'+t(mod.feedback)+'</p>':'')+
   (mod.open?'<div class="mod-panel-inner"><section><h3>'+t('modAccountSection')+'</h3>'+
+   '<form id="mod-find-form" class="mod-find"><input type="search" name="search" minlength="3" maxlength="40" required placeholder="'+esc(t('modSearchPlaceholder'))+'">'+
+   '<button type="submit">'+t('modSearchButton')+'</button></form>'+
    '<form id="mod-account-form"><label>'+t('modTarget')+'<select name="target" required>'+members+'</select></label>'+
    '<label>'+t('modAction')+'<select name="decision">'+options+'</select></label>'+
    '<button type="submit"'+(mod.busy?' disabled':'')+'>'+t('modApply')+'</button></form>'+
