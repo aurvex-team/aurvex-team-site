@@ -963,7 +963,8 @@ test('Profile links editor survives external redraws and works with URL-only inp
    assert.ok(html.includes('name="url1" type="text"'));
    assert.ok(html.includes('value="github.com/flekiii"'));
    assert.ok(html.includes('value="https://www.tiktok.com/@fleki"'));
-   assert.ok(html.includes('name="wishlist_public" checked'));
+   assert.ok(!html.includes('name="wishlist_public" checked'),'Overview Wishlist must reflect saved setting, not unsaved Links draft');
+   assert.ok(html.includes('id="wishlist-privacy-form"'));
    assert.ok(html.includes(translations[lang].socialLinkTip));
  }
  const staleDraft={...draft,draftUserId:'someone-else'};
