@@ -1,14 +1,13 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
-import {loadPlayerProfile,saveSocialProfile,saveProfileAppearance,getFamilyOverview,createFamily,
+import {loadPlayerProfile,saveSocialProfile,saveWishlistVisibility,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
- from './social-service.js?v=20261018-391';
-import {normalizePublicLinks} from './social-links.js?v=20261018-391';
-import {normalizeAppearance,normalizeHiddenTitles} from './profile-customization.js?v=20261018-391';
+ from './social-service.js?v=20261018-410';
+import {normalizePublicLinks} from './social-links.js?v=20261018-410';
 
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
  family:null,familyLibrary:[],familyReady:false,familyLoading:false,
  inviteUrl:'',busy:false,message:'',error:false,userId:'',
- socialDraft:null,draftUserId:'',appearanceDraft:null,appearanceUserId:''};
+ socialDraft:null,draftUserId:''};
 window.AURVEX_SOCIAL=m;
 let profileSeq=0,familySeq=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:social-state'));
@@ -53,11 +52,11 @@ window.addEventListener('hashchange',onRoute);
 window.addEventListener('aurvex:id-state',()=>{
  const current=owner();
  if(!current){
-   if(m.userId||m.draftUserId||m.appearanceUserId){m.userId='';m.family=null;m.familyLibrary=[];
-     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';m.appearanceDraft=null;m.appearanceUserId='';fire();}
- }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)||(m.appearanceUserId&&m.appearanceUserId!==current)){
+   if(m.userId||m.draftUserId){m.userId='';m.family=null;m.familyLibrary=[];
+     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';fire();}
+ }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
-   m.socialDraft=null;m.draftUserId='';m.appearanceDraft=null;m.appearanceUserId='';
+   m.socialDraft=null;m.draftUserId='';
    if(location.hash.startsWith('#/family'))void refreshFamily();
  }
 });
@@ -71,23 +70,7 @@ function readSocialDraft(form){
      slot:String(data.get('slot'+i)||'main'),
      align:String(data.get('align'+i)||'left')
    })),
-   wishlistPublic:data.has('wishlist_public')
- };
-}
-function readAppearanceDraft(form){
- const data=new FormData(form);
- return {
-   appearance:{
-     font:String(data.get('font')||'system'),
-     avatar_frame:String(data.get('avatar_frame')||'violet'),
-     profile_frame:String(data.get('profile_frame')||'none'),
-     glow_color:String(data.get('glow_color')||'violet'),
-     glow_avatar:data.has('glow_avatar'),glow_banner:data.has('glow_banner'),
-     glow_name:data.has('glow_name'),glow_links:data.has('glow_links'),
-     glow_profile:data.has('glow_profile')
-   },
-   hidden: (window.AURVEX_ID?.profileTitles||[])
-      .filter(code=>['aurvex_ceo','site_launcher_developer'].includes(code)&&!data.has('show_'+code))
+   wishlistPublic:!!window.AURVEX_ID?.profile?.wishlist_public
  };
 }
 document.addEventListener('input',event=>{
@@ -95,27 +78,14 @@ document.addEventListener('input',event=>{
  if(!form||!isSecure())return;
  m.socialDraft=readSocialDraft(form);m.draftUserId=owner();
 });
-document.addEventListener('input',event=>{
- const appearance=event.target?.closest?.('#profile-appearance-form');
- if(appearance&&isSecure()){
-   m.appearanceDraft=readAppearanceDraft(appearance);m.appearanceUserId=owner();
- }
-});
 document.addEventListener('change',event=>{
  const form=event.target?.closest?.('#social-profile-form');
  if(!form||!isSecure())return;
  m.socialDraft=readSocialDraft(form);m.draftUserId=owner();
-});
-document.addEventListener('change',event=>{
- const appearance=event.target?.closest?.('#profile-appearance-form');
- if(appearance&&isSecure()){
-   m.appearanceDraft=readAppearanceDraft(appearance);m.appearanceUserId=owner();
- }
- if(appearance)fire();
 });
 document.addEventListener('submit',event=>{
  const form=event.target;
- if(!form||!['social-profile-form','family-create-form','profile-appearance-form'].includes(form.id))return;
+ if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form'].includes(form.id))return;
  event.preventDefault();if(!isSecure()||m.busy)return;
  // Read data before any notification could rerender and detach this form.
  const originalUser=owner();
@@ -142,25 +112,16 @@ document.addEventListener('submit',event=>{
        if(m.busy){m.busy=false;fire()}
      }
    })();
- }else if(form.id==='profile-appearance-form'){
-   const draft=readAppearanceDraft(form);
-   m.appearanceDraft=draft;m.appearanceUserId=originalUser;
+ }else if(form.id==='wishlist-privacy-form'){
    m.busy=true;
    const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
-   void (async()=>{
-     try{
-       const appearance=normalizeAppearance(draft.appearance);
-       const hidden=normalizeHiddenTitles(draft.hidden,window.AURVEX_ID?.profileTitles||[]);
-       const updated=await saveProfileAppearance(originalUser,appearance,hidden);
-       if(owner()!==originalUser)return;
-       m.appearanceDraft=null;m.appearanceUserId='';
-       window.AURVEX_ID.profile=updated;
-       window.dispatchEvent(new CustomEvent('aurvex:id-state'));
-       message('customSaved');
-     }catch(error){
-       console.warn('AURVEX appearance saving failed:',error?.code||error?.message||'unknown');
-       message('customSaveFailed',true);
-     }finally{if(m.busy){m.busy=false;fire()}}
+   void(async()=>{try{
+     const updated=await saveWishlistVisibility(originalUser,data.has('wishlist_public'));
+     if(owner()!==originalUser)return;
+     window.AURVEX_ID.profile=updated;window.dispatchEvent(new CustomEvent('aurvex:id-state'));
+     message('socialSaved');
+   }catch(error){console.warn('Wishlist save:',error?.code||'error');message('socialSaveFailed',true)}
+   finally{if(m.busy){m.busy=false;fire()}}
    })();
  }else{
    m.busy=true;fire();
