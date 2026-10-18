@@ -1053,7 +1053,7 @@ test('Official team title metadata is publicly readable but has no user write pr
  assert.ok(!sql.includes('grant insert'));
  assert.ok(!sql.includes('grant update'));
  assert.ok(idService.includes('aurvex_own_titles'));
- assert.ok(idUi.includes('getProfileTitles(user.id)'));
+ assert.ok(idUi.includes('getOwnProfileTitles(user.id)'));
  assert.ok(socialService.includes('getProfileTitles(id)'));
 });
 
