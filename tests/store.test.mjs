@@ -1331,7 +1331,7 @@ test('AURVEX Points Shop is a first-party navigable screen with eight collectibl
   assert.ok(html.includes(translations[lang].shopTitle));
   assert.ok(html.includes('href="#/shop"'));
   for(const item of catalog){
-   assert.ok(html.includes(translations[lang]['shopItem_'+item.id]),item.id);
+   assert.ok(html.includes(translations[lang]['shopItem_'+item.id].replaceAll("'","&#39;")),item.id);
    assert.ok(html.includes('data-item-id="'+item.id+'"'),item.id);
   }
   assert.ok(html.includes('49 ₴'));
