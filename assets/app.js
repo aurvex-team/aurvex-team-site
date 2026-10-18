@@ -883,6 +883,20 @@ function shopPage(){
        '<button class="btn btn-outline" type="button" data-shop-action="retry">'+t('shopRetry')+'</button></div>':
      '<section class="shop-section"><h2>'+icon('user',20)+' '+t('shopAvatarFrames')+'</h2><div class="shop-grid">'+list('avatar')+'</div></section>'+
      '<section class="shop-section"><h2>'+icon('layers',20)+' '+t('shopProfileFrames')+'</h2><div class="shop-grid">'+list('profile')+'</div></section>')+
+   (signed&&m.ready?'<section class="shop-collection"><h2>'+icon('layers',19)+' '+t('shopCollectionTitle')+'</h2>'+
+     '<p>'+t('shopCollectionCount')+': '+owned.size+'</p>'+
+     (owned.size?'<div class="shop-collection-pills">'+(m.inventory||[]).map(x=>{
+       const item=catalog.find(i=>i.id===x.item_id);
+       if(!item)return '';
+       const wearing=equipped[item.kind]===item.id;
+       return '<span>'+esc(t('shopItem_'+item.id))+(wearing?' · '+t('shopEquipped'):'')+'</span>';
+     }).join('')+'</div>':'<p>'+t('shopCollectionEmpty')+'</p>')+
+     (Array.isArray(m.history)&&m.history.length?'<details><summary>'+t('shopHistory')+'</summary>'+
+       '<div class="shop-history">'+m.history.slice(0,10).map(h=>
+         '<div><span>'+t(h.reason==='welcome'?'shopWelcomeTransaction':'shopPurchaseTransaction')+
+         (h.item_id?' · '+esc(t('shopItem_'+h.item_id)):'')+'</span><strong>'+
+         (h.points_delta>0?'+':'')+Number(h.points_delta||0)+'</strong></div>').join('')+'</div></details>':'')+
+     '</section>':'')+
    '<section class="shop-explainer"><h2>'+t('shopHow')+'</h2>'+
      '<p>'+t('shopWelcomeNote')+'</p><p>'+t('shopMoneyPending')+'</p>'+
      '<p>'+t('shopPointsDisclaimer')+'</p></section>';
