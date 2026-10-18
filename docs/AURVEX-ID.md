@@ -148,3 +148,16 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - ✅ New web view: `#/notifications`; Notifications link in desktop sidebar, top bar and mobile bottom navigation, plus account profile. Friends show online/offline, profile link, block action, and family invite only to eligible friends when current user owns a family.
 - ✅ Translations for English, Ukrainian, Polish, and German; added scripted tests for privacy/permissions and UI. Migration files: `20261017_aurvex_social_v37.sql`, `20261017_aurvex_social_v37_followup.sql`, `20261017_aurvex_social_v37_invite_guard.sql`, `20261017_aurvex_social_v37_rate_limit.sql`.
 - ⚠️ Automated tests and schema checks are not a substitute for end-to-end verification with two real, independently authenticated accounts. Before public launch, test online status, inbox delivery, blocking, link redemption, and re-joining family after invitation rotation with two separate test users.
+
+
+## Profile Customization Studio v3.8 (2026-10-18)
+
+- The AURVEX ID **Profile Studio** customizes all visible text with five allowlisted font families: default, modern sans, rounded, mono and serif. No uploaded arbitrary fonts, CSS or injected style URLs.
+- Avatar and outer profile each have individually configurable colored frames: no frame, violet, red, cyan, emerald or gold.
+- Glow color and five independent zones: avatar, cover banner, nickname, links and whole profile. Rendering uses allowlisted HTML data attributes and scoped CSS presets; no arbitrary user CSS or JavaScript is evaluated.
+- Every one of three public profile links independently chooses its **section** (under nickname, main profile, bottom) and alignment (left, center, right). The form also supports up/down link ordering. Previously stored links default to main/left. HTTPS URLs remain mandatory and validated client-side and server-side.
+- Official AURVEX CEO and Website & Launcher Developer badges can be individually hidden/unhidden in Profile Studio. Assignment never changes. Private grants were removed from the underlying title table; server RPC `aurvex_visible_titles` returns only shown badges to all visitors and `aurvex_own_titles` requires 2FA to retrieve the owner's assigned badges.
+- Appearance and badge display settings live in `id_profiles.profile_appearance` / `id_profiles.hidden_title_codes` and are only writable through existing owner-only, mandatory AAL2 RLS. Public appearance read uses `aurvex_public_appearance` and never returns private account settings.
+- Removed the redundant Friends / Family / Notifications promotional cards from the personal profile; those separate sections still exist in global navigation. Kept account management, Wishlist and 2FA card.
+- Supabase migrations: `supabase/migrations/20261018_profile_customization.sql` and `supabase/migrations/20261018_profile_titles_private.sql`; source of truth remains the AURVEX ID project, not XONI Mail.
+- Verify with two users and in two browsers: make theme changes, save, reload, open public URL, hide and unhide one badge, reorder links and change areas/alignment. Scripted tests and deployment checks don't replace manual end-to-end QA.
