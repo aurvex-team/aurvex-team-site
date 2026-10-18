@@ -2195,3 +2195,45 @@ input,select{color:var(--text)}
  .chat-composer-row button span{display:none}
 }
 @media(prefers-reduced-motion:reduce){.chat-message-feed{scroll-behavior:auto}}
+
+
+/* Community 3.17: staff-only dashboard, report triage and secure account actions. */
+.chat-admin-slot:empty{display:none}
+.mod-panel{margin:12px 17px;border:1px solid color-mix(in srgb,var(--accent) 55%,var(--line));
+ background:linear-gradient(130deg,var(--accent-soft),var(--surface-2));border-radius:12px;padding:15px}
+.mod-panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.mod-panel-head .smallcaps{color:var(--accent);font-size:9px;letter-spacing:1.3px}
+.mod-panel-head h2{font-size:17px;margin:5px 0}
+.mod-panel-head p{font-size:11px;line-height:1.5;color:var(--muted);margin:3px 0}
+.mod-panel-head button,.mod-review-head button{background:var(--accent-soft);border:1px solid var(--line-strong);
+ border-radius:9px;padding:9px 12px;color:var(--text);font-size:11px;font-weight:750;white-space:nowrap}
+.mod-panel-head button:hover,.mod-review-head button:hover{border-color:var(--accent)}
+.mod-panel-inner{margin-top:16px;display:grid;gap:12px}
+.mod-panel-inner section{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:15px}
+.mod-panel-inner h3{font-size:13px;margin:0 0 13px}
+.mod-panel-inner p{font-size:10px;color:var(--muted);line-height:1.65}
+#mod-account-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end;gap:9px}
+#mod-account-form label{min-width:0;display:grid;gap:7px;font-size:10px;font-weight:750;color:var(--muted)}
+#mod-account-form select{min-width:0;width:100%;padding:11px 10px;border:1px solid var(--line-strong);
+ border-radius:9px;background:var(--surface-2);color:var(--text);font-size:11px}
+#mod-account-form button{height:39px;padding:0 15px;border-radius:9px;background:var(--accent);font-size:11px;
+ color:#161227;font-weight:900}
+#mod-account-form button:disabled{opacity:.5}
+.mod-review-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mod-review-head h3{margin-bottom:11px}
+.mod-review-item{border-top:1px solid var(--line);padding:13px 0}
+.mod-review-item strong{font-size:12px}.mod-review-item span{font-size:10px;color:var(--muted);margin-left:9px}
+.mod-review-item p{font-size:11px;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere}
+.mod-review-item>div:last-child{display:flex;flex-wrap:wrap;gap:7px}
+.mod-review-item button,.mod-message-menu button{border:1px solid var(--line-strong);border-radius:7px;
+ font-size:10px;color:var(--text);background:var(--surface-2);padding:7px 9px}
+.mod-review-item button:hover,.mod-message-menu button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mod-feedback{padding:7px 0;margin:0;color:var(--accent);font-size:11px}
+.mod-message-menu{min-width:0}.mod-message-menu summary{cursor:pointer;list-style:none;color:var(--accent);font-size:10px}
+.mod-message-menu summary::-webkit-details-marker{display:none}
+.mod-message-menu>div{display:flex;gap:6px;flex-wrap:wrap;padding:9px;
+ margin-top:6px;border:1px solid var(--line-strong);border-radius:9px;background:var(--surface-2)}
+.mod-message-menu button:last-child{border-color:#f26c7555}
+@media(max-width:800px){#mod-account-form{grid-template-columns:1fr}
+ .mod-panel{margin:10px}.mod-panel-head{align-items:flex-start}.mod-panel-head button{white-space:normal}
+ .mod-review-item span{display:block;margin:4px 0 0}}
