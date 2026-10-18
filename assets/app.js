@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261018-382';
+import { translations, supportedLanguages } from './i18n.js?v=20261018-391';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
