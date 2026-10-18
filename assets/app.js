@@ -896,17 +896,19 @@ function communityChatPage(){
  '<div class="chat-layout"><section class="chat-room"><div class="chat-room-header"><div>'+
  '<span class="chat-presence-dot"></span><strong># '+t('chatGeneral')+'</strong><small id="chat-message-count"></small></div>'+
  '<div class="chat-header-buttons"><button type="button" data-chat-action="refresh" aria-label="'+esc(t('chatRefresh'))+'">'+icon('refresh',17)+'</button>'+
- '<button type="button" data-chat-action="show-hidden" aria-label="'+esc(t('chatShowHidden'))+'">'+icon('eye',17)+'</button></div></div>'+
- '<div id="chat-admin-panel" class="chat-admin-slot"></div>'+ 
+ '<button type="button" data-chat-action="show-hidden" aria-label="'+esc(t('chatShowHidden'))+'">'+icon('eye',17)+'</button>'+
+ '<button type="button" class="chat-mobile-staff-button" data-mod-mobile-open hidden aria-label="'+esc(t('modTitle'))+'">'+icon('shield',17)+'</button></div></div>'+
  '<div id="chat-message-feed" class="chat-message-feed" role="log" aria-label="'+esc(t('chatGeneral'))+'" aria-live="off">'+
  '<div class="chat-empty">'+icon('message',27)+'<p>'+t('chatLoading')+'</p></div></div>'+
  '<div id="chat-notice" class="chat-notice" role="status"></div>'+
  '<div id="chat-compose-slot" class="chat-compose-slot" data-chat-mode="initial">'+
  '<div class="chat-locked">'+icon('shield',23)+'<span>'+t('chatReadOnly')+'</span></div></div></section>'+
- '<aside class="chat-guidelines"><div class="smallcaps">COMMUNITY RULES</div><h2>'+icon('shield',19)+' '+t('chatRules')+'</h2>'+
+ '<aside class="chat-side-column"><button type="button" class="chat-admin-backdrop" data-mod-mobile-close aria-label="'+esc(t('modClose'))+'"></button>'+
+ '<div id="chat-admin-panel" class="chat-admin-slot"></div>'+
+ '<section class="chat-guidelines"><div class="smallcaps">COMMUNITY RULES</div><h2>'+icon('shield',19)+' '+t('chatRules')+'</h2>'+
  '<p>'+t('chatRulesLead')+'</p><ul><li>'+t('chatRule1')+'</li><li>'+t('chatRule2')+'</li>'+
  '<li>'+t('chatRule3')+'</li><li>'+t('chatRule4')+'</li></ul>'+
- '<div class="chat-guideline-note">'+icon('info',18)+'<span>'+t('chatCaution')+'</span></div></aside></div>';
+ '<div class="chat-guideline-note">'+icon('info',18)+'<span>'+t('chatCaution')+'</span></div></section></aside></div>';
 }
 
 function friendsPage(){
