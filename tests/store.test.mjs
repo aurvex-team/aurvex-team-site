@@ -1426,3 +1426,26 @@ test('Shop server security: MFA, wallet row locking, one-time Points grant, pric
  assert.ok(workflow.includes('node --check assets/shop-ui.js'));
  assert.ok(index.includes('assets/shop-ui.js?v='));
 });
+
+test('Nebula Vault precedes Free and language / currency have custom menus',()=>{
+ const html=render('#/shop','uk').html;
+ assert.ok(html.includes('Nebula Vault'));
+ assert.ok(html.indexOf('href="#/shop"')<html.indexOf('href="#/rewards"'));
+ assert.ok(html.includes('data-pref-lang="uk"'));
+ assert.ok(html.includes('data-pref-currency="USD"'));
+ assert.ok(html.includes('data-pref-search'));
+ assert.ok(!html.includes('<select id="language-select"'));
+ assert.ok(html.includes('Rates By Exchange Rate API'));
+});
+test('all localized currency controls exist and checkout stays unavailable',()=>{
+ const keys=['currency','currencySearch','currencyEstimate','currencyUnavailable','filterMinPrice','filterMaxPrice'];
+ for(const lang of supportedLanguages){
+   for(const key of keys)assert.ok(translations[lang][key]);
+ }
+ const html=render('#/shop','en',false,null,null,null,null,null,null,{
+   catalog:[{id:'avatar_violet',kind:'avatar',theme:'violet',price_points:150,price_uah_kop:4900}],
+   catalogReady:true
+ }).html;
+ assert.ok(html.includes('49 ₴'));
+ assert.ok(html.includes('shop-money-button" type="button" disabled'));
+});
