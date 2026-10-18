@@ -1721,7 +1721,7 @@ test('Profile bio edits survive redraws and are not shown for the wrong signed-i
  const html=render('#/id','en',false,null,auth,null,draft).html;
  assert.ok(html.includes('Unsaved editor description'));
  assert.ok(html.includes('Saved status'),'Current status stays visible while editing biography');
- assert.ok(html.includes('value="💻" aria-label="💻" aria-pressed="true"'));
+ assert.ok(html.includes('data-profile-emoji="💻" aria-label="💻" aria-pressed="true"'));
  const stale=render('#/id','en',false,null,auth,null,
   {...draft,aboutDraftUser:'other-user'}).html;
  assert.ok(!stale.includes('Unsaved editor description'));
