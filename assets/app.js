@@ -56,6 +56,8 @@ const pathIcons={
  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>',
  pin:'<path d="M12 22s7-7.1 7-13a7 7 0 0 0-14 0c0 5.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2"/>',
  gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9H8a3 3 0 1 1 3-3c.6 1.2 1 3 1 3Zm0 0h4a3 3 0 1 0-3-3c-.6 1.2-1 3-1 3Z"/>',
+ wallet:'<rect x="2.5" y="5" width="19" height="16" rx="3"/><path d="M2.5 9h19M15 14h6m-4 0h.1"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m18 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/>'
 };
 function icon(name,size=19){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(pathIcons[name]||pathIcons.sparkle)+'</svg>'}
@@ -79,6 +81,16 @@ const currencyList=[
  ['AZN','🇦🇿','Azerbaijani manat']
 ];
 const currencyCodes=new Set(currencyList.map(x=>x[0]));
+const walletPacks=[[50,5000],[100,10000],[250,25000],[500,50000],[1000,100000]];
+function formatAccountBalance(kop){
+ if(!Number.isSafeInteger(kop)||kop<0)return '— '+state.currency;
+ const converted=kop===0?0:convertUah(kop/100);
+ if(converted===null)return '— '+state.currency;
+ return new Intl.NumberFormat(localeTags[state.language]||'en-US',{
+  style:'currency',currency:state.currency,minimumFractionDigits:state.currency==='UAH'?2:undefined
+ }).format(converted);
+}
+
 const localeTags={en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'};
 const fxState={rates:{UAH:1},time:0,status:'loading'};
 try{
@@ -158,7 +170,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/checkout','/payment','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/balance','/checkout','/payment','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -172,6 +184,9 @@ function header(path){
   const profileAvatar=id?.user&&id?.avatarUrl?
     '<img class="top-account-avatar" src="'+esc(id.avatarUrl)+'" alt="">':icon('user',17);
   const profileLabel=id?.user?(id.profile?.nickname||t('idAccount')):t('idSignIn');
+  const wallet=window.AURVEX_WALLET||{};
+  const balanceReady=!!id?.user?.id&&id.mfaVerified===true&&wallet.ready===true&&wallet.userId===id.user.id;
+  const balanceLabel=balanceReady?formatAccountBalance(wallet.balanceUahKop):'— '+state.currency;
   const live=window.AURVEX_VISITORS||{status:'connecting',count:null};
   const liveCount=Number.isSafeInteger(live.count)&&live.count>=0?String(live.count):'—';
   const liveState=['live','connecting','unavailable'].includes(live.status)?live.status:'connecting';
@@ -199,14 +214,16 @@ function header(path){
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
     '<a class="icon-btn social-bell'+(path==='/notifications'?' active':'')+'" href="#/notifications" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'">'+
       icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</a>'+
-    '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a></div></header>';
+    '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a>'+
+    '<a class="header-balance-btn'+(path==='/balance'?' active':'')+'" href="#/balance" aria-label="'+esc(t('balanceNav')+': '+balanceLabel)+'">'+icon('wallet',17)+
+    '<span class="header-balance-caption">'+t('balanceNav')+'</span><strong>'+esc(balanceLabel)+'</strong><span class="header-balance-plus">'+icon('plus',15)+'</span></a></div></header>';
 }
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
       navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/inventory','inventoryNav','layers',path)+
+    '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/balance','balanceNav','wallet',path)+navLink('/inventory','inventoryNav','layers',path)+
       navLink('/friends','friendsNav','users',path,
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
@@ -1089,21 +1106,62 @@ function shopPage(){
      '<p>'+t('shopPointsDisclaimer')+'</p></section>';
 }
 
+
+function balancePage(){
+ const id=window.AURVEX_ID||{},m=window.AURVEX_WALLET||{},payment=window.AURVEX_PAYMENTS||{};
+ const signed=!!id.user?.id&&id.mfaVerified===true;
+ const ready=signed&&m.userId===id.user.id&&m.ready;
+ const sum=ready?formatAccountBalance(m.balanceUahKop):'— '+state.currency;
+ const history=ready&&Array.isArray(m.entries)?m.entries:[];
+ const rows=history.map(x=>'<div class="money-ledger-row"><span class="money-ledger-icon">'+icon('plus',17)+'</span>'+
+   '<div><strong>'+t('balanceDeposit')+'</strong><small>'+esc(new Date(x.createdAt).toLocaleDateString(localeTags[state.language]||'en-US'))+
+   '</small></div><b>+'+esc(formatAccountBalance(x.amountUahKop))+'</b></div>').join('');
+ const cards=walletPacks.map(([uah,kop])=>
+  '<a class="money-deposit-option" href="#/checkout?kind=wallet&sku=wallet_'+uah+'">'+
+  '<span class="money-deposit-option-icon">'+icon('plus',18)+'</span><strong>'+esc(formatAccountBalance(kop))+'</strong>'+
+  '<small>'+uah+' ₴ '+(state.currency==='UAH'?'':'· '+t('balanceApproximate'))+'</small>'+
+  '<span class="money-deposit-arrow">'+icon('arrow',16)+'</span></a>').join('');
+ return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('balanceNav')+'</span></div>'+
+ '<section class="money-hero"><div class="money-hero-head"><span class="smallcaps">AURVEX ID · WALLET</span>'+
+  '<span class="money-wallet-status">'+icon('shield',15)+' '+t('balanceProtected')+'</span></div>'+
+  '<div class="money-hero-main"><div><p>'+t('balanceAvailable')+'</p><h1>'+esc(sum)+'</h1>'+
+    '<div class="money-hero-sub">'+icon('globe',15)+' '+t('balanceCurrency')+': <strong>'+state.currency+'</strong>'+
+      (ready?'<span>· '+t('balanceBase')+': '+esc((m.balanceUahKop/100).toFixed(2))+' ₴</span>':'')+'</div></div>'+
+   '<div class="money-hero-mark">'+icon('wallet',48)+'</div></div>'+
+  '<p class="money-hero-foot">'+t('balanceSeparateStars')+'</p></section>'+
+ (!signed?'<section class="money-panel money-signin"><h2>'+t('balanceSignInTitle')+'</h2><p>'+t('balanceSignInHint')+'</p>'+
+    '<a class="btn btn-primary" href="#/id">'+t('paySignIn')+' '+icon('arrow',16)+'</a></section>':
+  '<div class="money-content"><section class="money-panel"><div class="money-section-heading"><div>'+
+     '<span class="smallcaps">'+t('balanceTopUpSubtitle')+'</span><h2>'+t('balanceTopUp')+'</h2></div>'+
+     icon('plus',22)+'</div><p>'+t('balanceChoose')+'</p>'+
+     '<div class="money-deposit-grid">'+cards+'</div>'+
+     '<p class="money-wallet-note">'+icon('info',17)+' '+t('balancePaymentPending')+'</p></section>'+
+   '<section class="money-panel money-history"><div class="money-section-heading"><div><span class="smallcaps">AURVEX WALLET</span><h2>'+
+     t('balanceHistory')+'</h2></div><button type="button" class="money-refresh" data-wallet-action="refresh"'+(m.loading?' disabled':'')+
+     '>'+icon('refresh',16)+' '+t('balanceRefresh')+'</button></div>'+
+     (!ready?'<p class="money-empty">'+t(m.error?'balanceLoadError':'balanceLoading')+'</p>':
+       rows?'<div class="money-ledger-list">'+rows+'</div>':
+        '<div class="money-history-empty">'+icon('wallet',31)+'<strong>'+t('balanceNoHistory')+'</strong><p>'+t('balanceNoHistoryHint')+'</p></div>')+
+   '</section></div>')+
+ '<p class="money-legal-note">'+t('balanceConversionNote')+'</p>';
+}
+
 function paymentCheckoutPage(route){
  const sku=route.params.get('sku'),kind=route.params.get('kind');
  const packs={stars_100:[100,3900],stars_350:[350,11900],stars_800:[800,24900],stars_1800:[1800,49900]};
+ const walletPack=kind==='wallet'?walletPacks.find(x=>'wallet_'+x[0]===sku):null;
  const pack=kind==='stars'?packs[sku]:null;
  const frame=kind==='cosmetic'?(window.AURVEX_SHOP?.catalog||[]).find(x=>x.id===sku):null;
- const cents=pack?pack[1]:frame?.price_uah_kop;
+ const cents=walletPack?walletPack[1]:pack?pack[1]:frame?.price_uah_kop;
  if(!Number.isInteger(cents))return '<section class="pay-screen"><h1>'+t('payUnavailable')+'</h1><a href="#/shop">'+t('shopNav')+'</a></section>';
  const model=window.AURVEX_PAYMENTS||{},auth=window.AURVEX_ID||{};
- const title=pack?pack[0]+' Stars':t('shopItem_'+sku);
+ const title=walletPack?t('balanceDeposit')+' · '+walletPack[0]+' ₴':pack?pack[0]+' Stars':t('shopItem_'+sku);
  const actual=Array.isArray(model.checkoutCurrencies)&&model.checkoutCurrencies.includes(state.currency)?state.currency:'UAH';
  const ready=model.ready&&!!auth.user?.id&&auth.mfaVerified&&!model.busy;
  return '<div class="breadcrumb"><a href="#/shop">'+t('shopNav')+'</a>'+icon('arrow',13)+'<span>'+t('payTitle')+'</span></div>'+
   '<div class="pay-screen"><div class="smallcaps">AURVEX · PAYMENTS</div><h1>'+t('payTitle')+'</h1>'+
    '<p>'+t('payIntroduction')+'</p><div class="pay-product">'+
-    '<span>'+icon(pack?'sparkle':'layers',30)+'</span><strong>'+esc(title)+'</strong></div>'+
+    '<span>'+icon(walletPack?'wallet':pack?'sparkle':'layers',30)+'</span><strong>'+esc(title)+'</strong></div>'+
    '<div class="pay-details"><div><span>'+t('payOriginal')+'</span><strong>'+(cents/100).toFixed(2)+' UAH</strong></div>'+
     '<div><span>'+t('payShown')+'</span><strong>'+state.currency+'</strong></div>'+
     '<div><span>'+t('payEstimate')+'</span><strong>'+esc(formatShopMoney(cents))+'</strong></div>'+
@@ -1264,6 +1322,7 @@ function render(keepScroll=false){
   else if(route.path==='/support')page=supportPage();
   else if(route.path==='/id')page=idPage(route);
   else if(route.path==='/shop')page=shopPage();
+  else if(route.path==='/balance')page=balancePage();
   else if(route.path==='/checkout')page=paymentCheckoutPage(route);
   else if(route.path==='/payment')page=paymentResultPage(route);
   else if(route.path==='/inventory')page=inventoryPage();
@@ -1272,7 +1331,7 @@ function render(keepScroll=false){
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
@@ -1503,6 +1562,7 @@ window.addEventListener('aurvex:id-state',function(){render(true)});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
 window.addEventListener('aurvex:shop-state',function(){render(true)});
 window.addEventListener('aurvex:payment-state',function(){if(['/shop','/checkout','/payment'].includes(routeInfo().path))render(true)});
+window.addEventListener('aurvex:wallet-state',function(){render(true)});
 window.addEventListener('aurvex:inventory-state',function(){if(routeInfo().path==='/inventory')render(true)});
 window.addEventListener('aurvex:social-state',function(){render(true)});
 window.addEventListener('aurvex:social37-state',function(){render(true)});

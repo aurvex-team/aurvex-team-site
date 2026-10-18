@@ -30,7 +30,7 @@ async function refreshOrders(){
 async function beginCheckout(button){
  if(model.busy||!model.ready||!window.AURVEX_ID?.mfaVerified)return;
  const kind=button.dataset.kind,sku=button.dataset.sku,currency=button.dataset.currency;
- if(!['stars','cosmetic'].includes(kind)||!/^[-a-z0-9_]{3,64}$/.test(sku||'')||
+ if(!['stars','cosmetic','wallet'].includes(kind)||!/^[-a-z0-9_]{3,64}$/.test(sku||'')||
    !/^[A-Z]{3}$/.test(currency||''))return;
  const debit=model.checkoutCurrencies.includes(currency)?currency:'UAH';
  if(!window.confirm(t(debit===currency?'payConfirm':'payFallbackConfirm')
