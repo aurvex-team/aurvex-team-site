@@ -603,6 +603,7 @@ function playerProfilePage(auth){
              '<span>'+t(code==='aurvex_ceo'?'profileTitleCeo':'profileTitleDeveloper')+'</span></label>').join('')+'</div>':'')+
          '<button class="btn btn-primary" type="submit"'+(window.AURVEX_SOCIAL?.busy?' disabled':'')+'>'+
           icon('check',17)+' '+t('customSave')+'</button></form></section>'+
+        renderProfileLinks(profileLinks,'main')+
         statusText+
         '<div class="player-privacy">'+icon('shield',20)+'<span>'+t('profileArtworkPublic')+'</span></div>'+
       '</section>'+
@@ -612,16 +613,15 @@ function playerProfilePage(auth){
         '<h3>'+t('aurvexId')+'</h3><p class="player-private-email">'+esc(auth.user?.email||'')+'</p>'+
         '<span class="player-account-badge">'+icon('shield',14)+' '+t('mfaVerifiedLabel')+'</span>'+
         '<button type="button" class="btn btn-outline player-signout" data-id-action="signout"'+saving+'>'+icon('back',15)+' '+t('idSignOut')+'</button></div>'+
-      renderProfileLinks(profileLinks,'main')+
-            '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
+      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
         '<h3>'+icon('heart',20)+' '+t('profileWishlist')+'</h3>'+
         '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div>'+
       '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
         '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
         '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
         (auth.mfaFactors?.length<2?'<button class="btn btn-outline" type="button" data-id-action="mfa-backup">'+icon('shield',16)+' '+t('mfaAddBackup')+'</button>':'')+
-        '<p class="mfa-backup-hint">'+t('mfaBackupDesc')+'</p></div>'+
-      renderProfileLinks(profileLinks,'footer')+'</aside></div>'+
+        '<p class="mfa-backup-hint">'+t('mfaBackupDesc')+'</p></div></aside></div>'+
+      renderProfileLinks(profileLinks,'footer')+
       '<input class="profile-file-input" id="id-avatar-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-label="'+esc(t('profileAvatarUpload'))+'"'+saving+'>'+
       '<input class="profile-file-input" id="id-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="'+esc(t('profileBannerUpload'))+'"'+saving+'>'+
     '</div>';
