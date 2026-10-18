@@ -134,6 +134,25 @@ document.addEventListener('click',event=>{
  if(site){void apply('site',site.dataset.modSiteUser,site.dataset.modDecision);return}
 });
 document.addEventListener('submit',event=>{
+ if(event.target?.id==='mod-find-form'){
+  event.preventDefault();
+  if(!verified()||!mod.moderator||mod.busy)return;
+  const term=String(new FormData(event.target).get('search')||'').trim();
+  if(term.length<3||term.length>40)return;
+  mod.busy=true;mod.feedback='';
+  void(async()=>{
+   try{
+    const {data,error}=await (await idClient()).rpc('aurvex_chat_staff_find_users',{search_text:term});
+    if(error)throw error;
+    if(!verified()||window.AURVEX_ID.user.id!==mod.who)return;
+    const matches=Array.isArray(data)?data.filter(x=>valid(x.userId)):[];
+    const unique=new Map([...matches,...mod.roster].map(x=>[x.userId,x]));
+    mod.roster=[...unique.values()];
+    mod.feedback=matches.length?'modSearchFound':'modSearchEmpty';
+   }catch(e){mod.feedback='modFailed';console.warn('Moderator search:',e?.code||'unavailable')}
+   finally{mod.busy=false;render()}
+  })();return;
+ }
  if(event.target?.id!=='mod-account-form')return;
  event.preventDefault();
  const info=new FormData(event.target);
