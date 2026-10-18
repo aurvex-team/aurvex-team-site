@@ -526,7 +526,7 @@ function playerProfilePage(auth){
         '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           officialProfileBadges(visibleTitles)+
-          '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,auth.profileTitles)+'</p>'+
+          '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,visibleTitles)+'</p>'+
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
