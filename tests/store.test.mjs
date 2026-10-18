@@ -1813,7 +1813,7 @@ test('Custom status writes require server auth/MFA and server-controlled expirat
  for(const fragment of ['profile_status_text','profile_status_emoji','profile_status_expires_at',
    'aurvex_status_text_limit','aurvex_profile_set_custom_status',
    'public.aurvex_shop_actor()','aurvex_public_profile_about',
-   'profile_status_expires_at>now()','when \\'30m\\'','when \\'7d\\'',
+   'profile_status_expires_at>now()',"when '30m'","when '7d'",
    'grant execute on function public.aurvex_profile_set_custom_status']){
   assert.ok(sql.includes(fragment),fragment);
  }
