@@ -43,6 +43,7 @@ jobs:
           node --check assets/payment-ui.js
           node --check assets/wallet-ui.js
           node --check assets/chat-ui.js
+          node --check assets/chat-admin-ui.js
           node --check assets/social-links.js
           node --check assets/social37-service.js
           node --check assets/social37-ui.js
