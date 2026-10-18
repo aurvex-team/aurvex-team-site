@@ -1,14 +1,14 @@
 // Public-facing AURVEX profiles and family membership are isolated from Google/Auth secrets.
-import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261017-395';
+import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles,getPublicAppearance} from './id-service.js?v=20261017-395';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles]=await Promise.all([
+ const [{data,error},titles,appearance]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
-   getProfileTitles(id)
+   getProfileTitles(id),getPublicAppearance(id)
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
- return p?{...p,profileTitles:titles,avatarUrl:profileMediaUrl(p.avatar_path),
+ return p?{...p,profileTitles:titles,profile_appearance:appearance,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
 }
 export async function saveSocialProfile(userId,links,wishlistPublic){
@@ -16,7 +16,18 @@ export async function saveSocialProfile(userId,links,wishlistPublic){
  await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles')
    .update({public_links:links,wishlist_public:!!wishlistPublic}).eq('id',userId)
-   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public').single();
+   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
+ if(error)throw error;
+ return data;
+}
+export async function saveProfileAppearance(userId,appearance,hiddenTitleCodes){
+ const client=await idClient();
+ await ensureOwnProfile(client,userId);
+ const {data,error}=await client.from('id_profiles')
+   .update({profile_appearance:appearance,hidden_title_codes:hiddenTitleCodes})
+   .eq('id',userId)
+   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes')
+   .single();
  if(error)throw error;
  return data;
 }
