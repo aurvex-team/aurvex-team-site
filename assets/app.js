@@ -46,6 +46,7 @@ const pathIcons={
  book:'<path d="M3 4h8a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H3Zm18 0h-7a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h7Z"/>',
  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-6 5-6 13 0 18m0-18c6 5 6 13 0 18"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+ eye:'<path d="M2 12s3.7-7 10-7 10 7 10 7-3.7 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5-10 10"/>',
  upload:'<path d="M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4"/>',
@@ -521,6 +522,10 @@ function playerProfilePage(auth){
       '<button type="button" id="profile-tab-'+tab+'" class="profile-tab'+(activeTab===tab?' is-active':'')+'" role="tab"'+
         ' aria-selected="'+(activeTab===tab)+'" aria-controls="profile-panel-'+tab+'" tabindex="'+(activeTab===tab?'0':'-1')+'" data-profile-tab="'+tab+'">'+
         icon(iconName,17)+'<span>'+t(textKey)+'</span></button>').join('')+'</nav>';
+  // Always visible alongside the tabs, regardless of which editor section is open.
+  const publicPreview='<a class="btn btn-accent profile-preview-action" href="#/player/'+esc(auth.user.id)+'"'+
+    ' aria-label="'+esc(t('viewAsOthers'))+'">'+icon('eye',17)+'<span>'+t('viewAsOthers')+'</span></a>';
+  const tabToolbar='<div class="profile-tab-toolbar">'+tabNav+publicPreview+'</div>';
   const panelStart=tab=>'<div id="profile-panel-'+tab+'" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-'+tab+'"'+
     (activeTab===tab?'':' hidden')+'>';
   const statusText=(auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'')+
@@ -549,7 +554,7 @@ function playerProfilePage(auth){
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
-      tabNav+
+      tabToolbar+
       '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
         panelStart('overview')+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
@@ -573,8 +578,7 @@ function playerProfilePage(auth){
         panelStart('links')+
         '<section class="player-social-settings"><div class="smallcaps">'+t('socialSettings')+'</div>'+
           '<h2>'+t('socialSettings')+'</h2><p>'+t('socialSettingsDesc')+'</p>'+
-          '<div class="player-social-actions"><a class="btn btn-accent" href="#/player/'+esc(auth.user.id)+'">'+icon('user',17)+' '+t('viewAsOthers')+'</a>'+
-             '<button class="btn btn-outline" type="button" data-social-action="copy-profile"'+saving+'>'+
+          '<div class="player-social-actions"><button class="btn btn-outline" type="button" data-social-action="copy-profile"'+saving+'>'+
                 icon('arrowUp',16)+' '+t('copyProfile')+'</button></div>'+
           '<form id="social-profile-form" class="id-form">'+
              '<p class="social-link-tip">'+t('socialLinkTip')+'</p>'+
