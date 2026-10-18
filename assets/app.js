@@ -1212,23 +1212,6 @@ document.addEventListener('click',function(event){
     return;
   }
 
-  const langChoice=event.target.closest('[data-pref-lang]');
-  if(langChoice){
-    const lang=langChoice.dataset.prefLang;
-    if(supportedLanguages.includes(lang)){state.language=lang;store(STORAGE.locale,lang);render(true)}
-    return;
-  }
-  const currencyChoice=event.target.closest('[data-pref-currency]');
-  if(currencyChoice){
-    const code=currencyChoice.dataset.prefCurrency;
-    if(currencyCodes.has(code)){
-      state.currency=code;store(STORAGE.currency,code);
-      state.minPrice='';state.maxPrice='';syncCatalogUrl();render(true);
-      if(currencyRate()===null)refreshCurrencyRates();
-    }
-    return;
-  }
-  if(!event.target.closest('details.pref-dropdown'))document.querySelectorAll('details.pref-dropdown[open]').forEach(x=>{x.open=false});
   if(event.target.closest('.sidebar a,.mobile-bottom a'))setMenu(false);
   const dropdown=event.target.closest('details.filter-dropdown');
   if(!dropdown)closeFilterMenus();
@@ -1265,6 +1248,23 @@ document.addEventListener('click',function(event){
     render(true);
     return;
   }
+  const langChoice=event.target.closest('[data-pref-lang]');
+  if(langChoice){
+    const lang=langChoice.dataset.prefLang;
+    if(supportedLanguages.includes(lang)){state.language=lang;store(STORAGE.locale,lang);render(true)}
+    return;
+  }
+  const currencyChoice=event.target.closest('[data-pref-currency]');
+  if(currencyChoice){
+    const code=currencyChoice.dataset.prefCurrency;
+    if(currencyCodes.has(code)){
+      state.currency=code;store(STORAGE.currency,code);
+      state.minPrice='';state.maxPrice='';syncCatalogUrl();render(true);
+      if(currencyRate()===null)refreshCurrencyRates();
+    }
+    return;
+  }
+  if(!event.target.closest('details.pref-dropdown'))document.querySelectorAll('details.pref-dropdown[open]').forEach(x=>{x.open=false});
   const button=event.target.closest('[data-action]');
   if(!button)return;
   const action=button.dataset.action;
