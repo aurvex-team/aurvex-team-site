@@ -1,5 +1,5 @@
 // AURVEX Social 3.7: isolated, server-verified opt-in presence and inbox.
-import {idClient,profileMediaUrl} from './id-service.js?v=20261017-395';
+import {idClient,profileMediaUrl} from './id-service.js?v=20261018-381';
 async function rpc(name,args){
  const client=await idClient();
  const {data,error}=await client.rpc(name,args);
