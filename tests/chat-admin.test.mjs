@@ -68,3 +68,29 @@ test('Moderator text is localized and untrusted account names are escaped',()=>{
  assert.ok(admin.includes("esc(String(x.body||'').slice(0,500))"));
  assert.ok(!admin.includes("innerHTML=String(x.body"));
 });
+
+
+test('Staff can search account by nickname or UUID without exposing email data',()=>{
+ const admin=read('assets/chat-admin-ui.js');
+ const sql=read('supabase/migrations/aurvex_chat_staff_find_users_v317_20261018.sql');
+ for(const fragment of ["mod-find-form","name=\"search\"",
+   "rpc('aurvex_chat_staff_find_users'","if(!verified()||!mod.moderator",
+   "new Map([...matches,...mod.roster]"]){
+   assert.ok(admin.includes(fragment),fragment);
+ }
+ for(const fragment of ["aurvex_chat_staff_find_users",
+   "who:=public.aurvex_shop_actor()",
+   "CHAT_NOT_MODERATOR",
+   "char_length(term)<3",
+   "char_length(term)>40",
+   "order by nickname limit 12",
+   "revoke all on function public.aurvex_chat_staff_find_users(text) from public,anon"]){
+   assert.ok(sql.includes(fragment),fragment);
+ }
+ assert.ok(!sql.includes('select email'));
+ assert.ok(!sql.includes('auth.users u where'));
+ for(const locale of supportedLanguages){
+   assert.ok(translations[locale].modSearchPlaceholder);
+   assert.ok(translations[locale].modSearchButton);
+ }
+});
