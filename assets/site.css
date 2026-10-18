@@ -1866,3 +1866,21 @@ input,select{color:var(--text)}
  .si-offer-columns{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){.si-tile{transition:none}.si-tile:hover{transform:none}}
+
+/* Future merchant checkout: preview is read-only until verified activation. */
+.pay-screen{max-width:825px;margin:22px auto;padding:clamp(22px,4vw,43px);border-radius:18px;border:1px solid var(--line-strong);background:var(--surface)}
+.pay-screen .smallcaps{color:var(--accent)}.pay-screen h1{font-size:clamp(27px,3vw,38px);margin:7px 0 13px}
+.pay-screen>p{font-size:12px;line-height:1.7;color:var(--muted)}
+.pay-product{display:flex;align-items:center;gap:16px;padding:19px;margin:23px 0;background:var(--surface-2);border:1px solid var(--line);border-radius:13px}
+.pay-product>span{color:var(--accent)}.pay-product strong{font-size:18px}
+.pay-details{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pay-details>div{display:flex;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:12px}
+.pay-details>div:last-child{border:0;background:var(--surface-2)}
+.pay-details span{color:var(--muted)}.pay-details strong{text-align:right;overflow-wrap:anywhere}
+.pay-disclaimer{font-size:11px;color:var(--muted);margin:14px 0 20px}
+.pay-buttons{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.pay-buttons .btn{display:inline-flex;align-items:center;gap:7px;min-height:43px}
+.pay-safety{display:flex;align-items:center;gap:13px;margin-top:12px;border:1px solid var(--line);
+ background:var(--surface-2);border-radius:12px;padding:12px 15px}
+.pay-safety svg{color:var(--accent)}.pay-safety p{font-size:12px;color:var(--muted);margin:0}
+.stars-pack .btn{display:flex;justify-content:center;align-items:center;gap:7px}
