@@ -30,8 +30,7 @@ declare who uuid; bio_text text; result jsonb;
 begin
  who:=public.aurvex_shop_actor();
  bio_text:=trim(coalesce(new_bio,''));
- if char_length(bio_text)>240 or
-    bio_text ~ '[[:cntrl:]]' or new_status not in ('building','open','busy','chilling') then
+ if char_length(bio_text)>240 or new_status not in ('building','open','busy','chilling') then
    raise exception 'PROFILE_ABOUT_INVALID';
  end if;
  insert into public.id_profiles(id,profile_bio,profile_status)

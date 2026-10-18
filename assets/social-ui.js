@@ -81,7 +81,7 @@ function captureAbout(event){
  const form=event.target?.closest?.('#profile-about-form');
  if(!form||!isSecure())return;
  m.aboutDraft=readAboutDraft(form);m.aboutDraftUser=owner();
- const indicator=form.querySelector('.profile-about-count');
+ const indicator=form.closest('.profile-about-editor')?.querySelector('.profile-about-count');
  if(indicator)indicator.textContent=m.aboutDraft.bio.length+' / 240';
 }
 document.addEventListener('input',captureAbout);
