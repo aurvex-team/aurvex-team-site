@@ -1,0 +1,7 @@
+# AURVEX payment functions (stay locked until merchant onboarding)
+[functions.aurvex-payment-checkout]
+verify_jwt = true
+[functions.aurvex-payment-webhook]
+verify_jwt = false
+[functions.aurvex-payment-status]
+verify_jwt = false
