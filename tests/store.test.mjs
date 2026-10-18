@@ -10,7 +10,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null,shop=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null,shop=null,inventory=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -24,7 +24,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors,AURVEX_SHOP:shop};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors,AURVEX_SHOP:shop,AURVEX_INVENTORY:inventory};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -1452,7 +1452,7 @@ test('Inventory route, price packs, trade RPC adapter and translations are prese
  for(const lang of supportedLanguages){
   const html=render('#/inventory',lang).html;
   assert.ok(html.includes('href="#/inventory"'));
-  assert.ok(html.includes(translations[lang].invTitle));
+  assert.ok(html.includes(translations[lang].inventoryNav));
   assert.ok(html.includes(translations[lang].invLogin));
   const s=translations[lang];for(const key of ['invTrades','invGames','starsBuyTitle','invConfirm'])assert.ok(s[key]);
  }
@@ -1463,15 +1463,78 @@ test('Inventory route, price packs, trade RPC adapter and translations are prese
   inventory:[{item_id:'avatar_violet'}],equipped:{}};
  const inventory=render('#/inventory','uk',false,null,auth,null,null,null,null,shop).html;
  assert.ok(inventory.includes('avatar_violet'));
- assert.ok(inventory.includes(translations.uk.invLoading));
+ assert.ok(inventory.includes('class="si-workspace"'));
+ assert.ok(inventory.includes('class="si-grid"'));
  const html=render('#/shop','en',false,null,auth,null,null,null,null,shop).html;
  for(const stars of [100,350,800,1800])assert.ok(html.includes(stars+' Stars'));
  assert.ok(html.includes('stars-packs'));
  const svc=readFileSync(new URL('../assets/inventory-service.js',import.meta.url),'utf8');
- for(const rpc of ['aurvex_inventory_state','aurvex_trade_create','aurvex_trade_action','aurvex_trade_peer_items']){
+ for(const rpc of ['aurvex_inventory_state','aurvex_trade_create_bundle','aurvex_trade_action','aurvex_trade_peer_items']){
   assert.ok(svc.includes(rpc));
  }
  const ui=readFileSync(new URL('../assets/inventory-ui.js',import.meta.url),'utf8');
  assert.ok(ui.includes('window.confirm'));
  assert.ok(!ui.includes(".insert("));
+});
+
+test('Steam-inspired Inventory uses dense grid, category sidebar and real item-detail panel',()=>{
+ const id='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const auth={user:{id},mfaVerified:true};
+ const shop={userId:id,ready:true,catalog:[{id:'avatar_violet',kind:'avatar',theme:'violet'}],
+  inventory:[{item_id:'avatar_violet'}],equipped:{avatar:'avatar_violet'}};
+ const inventory={userId:id,ready:true,gameItems:[
+  {id:'74724e28-e3d9-436c-9c53-c43276b2e131',name:'Sample game item',item_code:'alpha',game_id:'devive',tradable:true}
+ ],offers:[],screen:'items',category:'all',selectedKey:'cosmetic:avatar_violet',search:'',give:[],take:[]};
+ const html=render('#/inventory','en',false,null,auth,null,null,null,null,shop,inventory).html;
+ for(const fragment of ['class="si-workspace"','class="si-categories"','class="si-grid"',
+  'data-inventory-action="inspect"','class="si-detail"','data-inventory-search',
+  'cosmetic:avatar_violet','Sample game item','data-shop-action="unequip"']){
+   assert.ok(html.includes(fragment),fragment);
+ }
+ assert.ok(html.includes('class="si-art si-art-violet'));
+ assert.ok(css.includes('.si-grid{display:grid'));
+ assert.ok(css.includes('.si-details-col'));
+});
+test('Multi-item trades support explicit zero-return gifts and select-all',()=>{
+ const id='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const peerId='4af7aeeb-420e-40c8-a91b-293bafc0a0ef';
+ const auth={user:{id},mfaVerified:true};
+ const friends={relations:[{relation:'friend',peer_id:peerId,nickname:'Buddy'}]};
+ const shop={userId:id,ready:true,catalog:[],inventory:[
+  {item_id:'avatar_violet'},{item_id:'profile_cosmic'}],equipped:{}};
+ const trades={userId:id,ready:true,screen:'trades',gameItems:[],offers:[],peerId,
+  peerItemsReady:true,peerItems:[],give:['cosmetic:avatar_violet','cosmetic:profile_cosmic'],
+  take:[],search:'',category:'all'};
+ const html=render('#/inventory','uk',false,null,auth,friends,null,null,null,shop,trades).html;
+ for(const fragment of ['class="si-trade-columns"','data-inventory-action="give-all"',
+ 'data-inventory-action="give-clear"','data-inventory-action="send"',
+ 'data-inventory-action="give-toggle"','data-inventory-peer',translations.uk.siGiftTitle,
+ translations.uk.siSendGift,translations.uk.siGiftNotice]){
+  assert.ok(html.includes(fragment),fragment);
+ }
+ assert.ok(!html.includes('name="requested" required'));
+ assert.ok(html.includes('aria-pressed="true"'));
+ const ui=readFileSync(new URL('../assets/inventory-ui.js',import.meta.url),'utf8');
+ for(const part of ["action==='give-all'","m.give=all","requested.length===0",
+  'siGiftConfirm','siAcceptGiftConfirm','createTrade(recipient,offered,requested)']){
+  assert.ok(ui.includes(part),part);
+ }
+ const svc=readFileSync(new URL('../assets/inventory-service.js',import.meta.url),'utf8');
+ assert.ok(svc.includes('aurvex_trade_create_bundle'));
+ assert.ok(!svc.includes("rpc('aurvex_trade_create'"));
+});
+test('Bundle trades are atomic, friend-gated, and never include newly acquired items',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/aurvex_bundle_trades_gifts_20261018.sql',import.meta.url),'utf8');
+ for(const requirement of [
+  'aurvex_trade_create_bundle','offered_items jsonb','requested_items jsonb',
+  "jsonb_array_length(items)>500",'aurvex_trade_are_friends',
+  'aurvex_shop_actor','for update','TRADE_ITEM_NOT_OWNED',
+  "TRADE_ALREADY_OWNED","requested_items,true",'TRADE_BUNDLE_SIZE',
+  "revoke all on function public.aurvex_trade_create_bundle",
+  'coalesce(o.requested_items',
+  'acquired_at=now()'
+ ]){
+  assert.ok(sql.includes(requirement),requirement);
+ }
+ assert.ok(!sql.includes('service_role'));
 });

@@ -48,3 +48,11 @@ Migrations: `supabase/migrations/20261018_aurvex_points_shop_v1.sql`, `supabase/
 - Stars pack previews: 100 Stars / 39 UAH, 350 / 119 UAH, 800 / 249 UAH, 1800 / 499 UAH. No charge or Stars top-up is processed. Payment checkout remains disabled pending an adult merchant and verified payment webhook.
 - Profile UI now offers Overview and Links only. Wishlist visibility is edited independently from Overview. Historical Appearance data is retained in the database for backward compatibility but no longer displayed or edited.
 - SQL migrations `aurvex_inventory_trades_v1_20261018.sql` and `aurvex_trade_peer_catalog_20261018.sql` are applied to AURVEX-ID Supabase; direct table writes are denied for client roles.
+
+## v3.11 — Steam-inspired inventory and bulk gifts
+- Grid with category navigation (All, cosmetics, games, tradable), search, selectable thumbnails and a separate right-side details panel; responsive on mobile.
+- The trade builder shows two inventories side by side. Users can offer multiple items, use **Select all tradable** (up to 500), or request **zero** items in return: gifts.
+- Gift and acceptance require explicit confirmation explaining irreversible transfer. The recipient must accept or decline within 48 hours; the sender may cancel before acceptance.
+- Trading is restricted to accepted friends with AAL2, with server-side reassessment of every item's ownership and tradability. All selected items move atomically; nothing transfers if one item is no longer owned or conflicts with existing recipient ownership.
+- The trade is a **snapshot** of selected items, not a continuous authorization to transfer future acquisitions. "All" means every currently *tradable* owned item, never items flagged nontradable by a game's authority.
+- Money checkout and Stars top-ups remain disabled. No browser code can mint items or bypass server permissions.
