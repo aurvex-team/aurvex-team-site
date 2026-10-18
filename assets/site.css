@@ -2021,3 +2021,71 @@ input,select{color:var(--text)}
  .profile-about-bottom button{width:100%}.profile-about-bottom label{width:100%}
  .profile-about-bottom select{width:100%}.profile-intro-description{max-width:220px}}
 @media(prefers-reduced-motion:reduce){.profile-progress-bar span{transition:none}}
+
+/* 3.15 Sidebar: fixed two-line AURVEX message, no bottom scroll box. */
+.sidebar{padding:14px 12px 12px;overflow-y:hidden}
+.sidebar .side-group{margin-bottom:11px}
+.sidebar .side-label{font-size:9px;margin:0 11px 7px}
+.sidebar .side-link{padding:8px 11px;margin:1px 0;font-size:12px;gap:11px}
+.sidebar .side-space{min-height:6px}
+.sidebar .side-promo{flex-shrink:0;max-height:none;padding:14px 13px;overflow:hidden;touch-action:none;pointer-events:none}
+.sidebar .side-promo strong{margin:0;line-height:1.4}
+.sidebar .side-version,.sidebar .side-promo a{display:none}
+@media(max-height:690px){.sidebar{overflow-y:auto}}
+@media(max-width:800px){.sidebar{padding:16px 12px 17px;overflow-y:auto}}
+
+/* User-set ephemeral custom status: emoji + message + clear time, independent of bio. */
+.profile-custom-status{display:inline-flex;align-items:center;gap:7px;max-width:100%;
+ padding:7px 11px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);
+ border-radius:999px;background:var(--accent-soft);color:var(--text);
+ font-size:11px;font-weight:790;min-width:0;overflow:hidden}
+.profile-custom-emoji{font-size:17px;line-height:1.3;flex-shrink:0}
+.profile-custom-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.profile-intro-row .profile-custom-status{max-width:min(460px,100%)}
+.profile-status-studio{margin:15px 0 18px;padding:clamp(17px,2.5vw,23px);
+ border:1px solid var(--line-strong);border-radius:15px;
+ background:radial-gradient(circle at 90% 0%,#9472f419,transparent 51%),var(--surface-2)}
+.profile-status-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.profile-status-heading .smallcaps{color:var(--accent)}
+.profile-status-heading h3{font-size:18px;margin:5px 0;display:flex;align-items:center;gap:9px}
+.profile-status-heading h3 svg{color:var(--accent)}
+.profile-status-heading p{font-size:11px;color:var(--muted);line-height:1.6;margin:6px 0 12px}
+.profile-status-live{display:flex;align-items:center;gap:8px;max-width:100%}
+.profile-status-empty{font-size:11px;color:var(--muted);border:1px dashed var(--line-strong);
+ border-radius:999px;padding:9px 12px}
+.profile-status-studio .id-form{display:flex;flex-direction:column;gap:11px;margin-top:10px}
+.profile-status-studio .id-form label{font-size:12px;font-weight:780;color:var(--text)}
+.profile-status-input{height:50px;border:1px solid var(--line-strong);border-radius:11px;
+ background:var(--surface);display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0}
+.profile-status-input:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.profile-status-input .profile-status-input-emoji{font-size:22px;flex-shrink:0}
+.profile-status-input input{height:45px;border:0;padding:0;flex:1;min-width:0;
+ background:transparent;box-shadow:none!important;font-size:13px}
+.profile-status-char-count{color:var(--muted);font-size:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.profile-emoji-picker{display:flex;flex-wrap:wrap;gap:5px;max-width:100%}
+.profile-emoji-picker .profile-emoji-option{display:grid;place-items:center;min-width:39px;height:39px;
+ padding:0 7px;border:1px solid var(--line-strong);border-radius:9px;
+ background:var(--surface);font-size:21px;transition:background .15s,border-color .15s,transform .15s}
+.profile-emoji-picker .profile-emoji-option:first-child{color:var(--muted);font-size:27px}
+.profile-emoji-picker .profile-emoji-option:hover{background:var(--accent-soft);
+ border-color:var(--accent);transform:translateY(-1px)}
+.profile-emoji-picker .profile-emoji-option.is-selected{background:var(--accent-soft);
+ border:2px solid var(--accent)}
+.profile-emoji-picker .profile-emoji-option:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.profile-status-footer{display:flex;align-items:flex-end;justify-content:space-between;
+ flex-wrap:wrap;gap:12px;margin-top:5px}
+.profile-status-footer>label{display:flex;flex-direction:column;gap:6px;flex:1 1 165px}
+.profile-status-footer select{min-height:41px;border:1px solid var(--line-strong);
+ border-radius:9px;padding:0 10px;background:var(--surface);color:var(--text);font-size:12px}
+.profile-status-actions{display:flex;flex-wrap:wrap;gap:8px}
+.profile-status-actions>.btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px}
+.public-profile .profile-custom-status{margin-top:9px;max-width:440px}
+@media(max-width:620px){
+ .profile-status-heading{align-items:flex-start}
+ .profile-status-footer>label,.profile-status-footer select{width:100%}
+ .profile-status-actions{width:100%}
+ .profile-status-actions>.btn{flex:1;min-width:0}
+ .profile-custom-status{font-size:10px}
+ .profile-emoji-picker .profile-emoji-option{min-width:37px;height:37px}
+}
+@media(prefers-reduced-motion:reduce){.profile-emoji-picker .profile-emoji-option{transition:none}}
