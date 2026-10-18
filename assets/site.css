@@ -1478,3 +1478,116 @@ input,select{color:var(--text)}
     margin-left:auto;min-height:35px;padding:7px 12px;font-size:10px;
   }
 }
+
+
+/* AURVEX Points Shop 3.9 preview; original CSS-only collectibles. */
+.shop-hero{padding:clamp(24px,4vw,45px);border-radius:19px;
+ background:radial-gradient(ellipse at 95% 20%,#b371f52c,transparent 48%),
+ linear-gradient(115deg,#19152e,#161c32 75%);border:1px solid #5b477e76;
+ color:#f7f4ff;margin-bottom:18px;overflow:hidden}
+.shop-hero .smallcaps{color:#bba5ff}
+.shop-hero h1{font-size:clamp(28px,4vw,46px);line-height:1.1;letter-spacing:-1.1px;margin:10px 0}
+.shop-hero p{font-size:12px;line-height:1.8;max-width:650px;color:#d1cbe2}
+.shop-wallet{display:flex;align-items:center;gap:14px;border-radius:15px;padding:16px 20px;
+ background:var(--surface-2);border:1px solid var(--line);margin-bottom:22px;flex-wrap:wrap}
+.shop-wallet>svg{color:var(--accent)}
+.shop-wallet>div{display:flex;flex-direction:column;gap:4px;flex:1}
+.shop-wallet>div span{color:var(--muted);font-size:10px;font-weight:750}
+.shop-wallet>div strong{font-size:18px;letter-spacing:-.3px}
+.shop-wallet>p{flex:1;color:var(--muted);font-size:12px;line-height:1.6}
+.shop-wallet .btn{font-size:11px}
+.shop-section{margin:24px 0 30px}
+.shop-section h2{display:flex;gap:10px;align-items:center;margin:0 0 15px;font-size:clamp(19px,2.4vw,25px)}
+.shop-section h2 svg{color:var(--accent)}
+.shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.shop-card{border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;
+ background:var(--surface-2);min-width:0;display:flex;flex-direction:column}
+.shop-card-preview{height:162px;display:grid;place-items:center;position:relative;
+ isolation:isolate;overflow:hidden;
+ background:radial-gradient(circle at 45% 35%,var(--shop-light, #ad92ff) 0%,transparent 65%),#0e1020;
+ --shop-light:#a98bff}
+.shop-card-preview[data-shop-card-theme="ruby"]{--shop-light:#df485a}
+.shop-card-preview[data-shop-card-theme="cyan"]{--shop-light:#38cfea}
+.shop-card-preview[data-shop-card-theme="gold"]{--shop-light:#efb750}
+.shop-card-preview[data-shop-card-theme="emerald"]{--shop-light:#3dc59b}
+.shop-card-preview[data-shop-card-theme="cosmic"]{--shop-light:#a675fc}
+.shop-card-preview[data-shop-card-theme="frost"]{--shop-light:#b2dffe}
+.shop-card-preview[data-shop-card-theme="flame"]{--shop-light:#f85d45}
+.shop-art-ring{width:97px;height:97px;border:5px solid var(--shop-light);border-radius:27px;
+ transform:rotate(-4deg);filter:drop-shadow(0 0 12px var(--shop-light));z-index:1}
+.shop-card-preview[data-shop-card-kind="profile"] .shop-art-ring{
+ width:82%;height:79%;border-radius:12px;border-width:3px;transform:rotate(0)}
+.shop-art-core{position:absolute;color:#fff;font-size:48px;font-weight:950;
+ text-shadow:0 0 26px var(--shop-light);z-index:2}
+.shop-art-smallcaps{position:absolute;right:11px;bottom:11px;color:#fff9;
+ letter-spacing:2px;font-size:8px;font-weight:900;z-index:2}
+.shop-card-body{display:flex;flex-direction:column;gap:11px;padding:15px;flex:1}
+.shop-card-body .smallcaps{font-size:9px;color:var(--accent)}
+.shop-card-body h3{margin:0;font-size:16px;line-height:1.3;min-height:21px}
+.shop-prices{display:flex;gap:7px;flex-wrap:wrap}
+.shop-prices>span{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);
+ padding:6px 8px;border-radius:7px;font-size:10px;font-weight:830;color:var(--text)}
+.shop-prices>span:first-child{color:var(--accent)}
+.shop-card-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
+.shop-card-actions .btn{font-size:10px;min-height:35px;padding:8px 10px;
+ justify-content:center;display:inline-flex;gap:5px;align-items:center;flex:1 1 43%}
+.shop-card-actions .shop-money-button{flex:1 1 100%;cursor:not-allowed;opacity:.58}
+.shop-card-actions .btn:disabled{opacity:.52;cursor:not-allowed}
+.shop-tryon{border-top:1px solid var(--line);padding:15px 0 0}
+.shop-tryon-card{width:100%;min-height:85px;border-radius:12px;
+ border:1px solid #75699a;background:linear-gradient(115deg,#21192e,#131625);
+ display:flex;align-items:center;gap:10px;padding:13px;color:white}
+.shop-tryon-avatar{width:52px;height:52px;border:3px solid #baa2fa;border-radius:15px;
+ display:grid;place-items:center;font-size:24px;font-weight:950;flex-shrink:0}
+.shop-tryon-card strong{font-size:12px;overflow-wrap:anywhere}
+.shop-tryon-card small{color:#d0c3e7;font-size:9px;margin-left:auto}
+.shop-explainer{border-top:1px solid var(--line);padding:22px 2px 35px}
+.shop-explainer h2{font-size:21px;margin:0 0 10px}
+.shop-explainer p{font-size:12px;line-height:1.75;color:var(--muted);max-width:790px}
+.shop-feedback{background:var(--accent-soft);border:1px solid var(--accent);
+ color:var(--text);padding:12px 15px;border-radius:12px;font-size:12px}
+.shop-feedback.is-error{border-color:#f87171;color:#e26666;background:#bc4a4a0f}
+.profile-shop-action{display:inline-flex;align-items:center;gap:7px;min-height:39px;
+ padding:9px 12px;font-size:11px;font-weight:800;white-space:nowrap}
+.profile-tab-toolbar .profile-shop-action{margin-left:auto}
+.profile-tab-toolbar .profile-preview-action{margin-left:0}
+
+/* Actual equipped owned cosmetics, applied to personal and public profile. */
+.player-profile[data-shop-avatar="avatar_violet"] .player-avatar-frame,
+.shop-tryon[data-shop-avatar="avatar_violet"] .shop-tryon-avatar{
+ border:5px double #c2a8ff;box-shadow:0 0 23px #9b6cfb9c,0 0 0 2px #6a4bac}
+.player-profile[data-shop-avatar="avatar_ruby"] .player-avatar-frame,
+.shop-tryon[data-shop-avatar="avatar_ruby"] .shop-tryon-avatar{
+ border:5px ridge #e15a70;box-shadow:0 0 28px #ee4a6f9c,0 0 0 2px #5e192f}
+.player-profile[data-shop-avatar="avatar_cyan"] .player-avatar-frame,
+.shop-tryon[data-shop-avatar="avatar_cyan"] .shop-tryon-avatar{
+ border:5px double #67e5f6;box-shadow:0 0 28px #32d4edb0,0 0 0 2px #287e8d}
+.player-profile[data-shop-avatar="avatar_gold"] .player-avatar-frame,
+.shop-tryon[data-shop-avatar="avatar_gold"] .shop-tryon-avatar{
+ border:6px double #f7d27d;box-shadow:0 0 26px #f5b948b3,0 0 0 2px #b2772a}
+.player-profile[data-shop-profile="profile_emerald"],.shop-tryon[data-shop-profile="profile_emerald"] .shop-tryon-card{
+ border:3px solid #3fcaa2;box-shadow:0 0 18px #45dbae73,inset 0 0 18px #38df9e1c}
+.player-profile[data-shop-profile="profile_cosmic"],.shop-tryon[data-shop-profile="profile_cosmic"] .shop-tryon-card{
+ border:3px solid #b18aff;box-shadow:0 0 28px #ae75f78c,inset 0 0 36px #aa76f933}
+.player-profile[data-shop-profile="profile_frost"],.shop-tryon[data-shop-profile="profile_frost"] .shop-tryon-card{
+ border:3px double #93e3f6;box-shadow:0 0 22px #9edbff9c,inset 0 0 20px #c9eefd26}
+.player-profile[data-shop-profile="profile_flame"],.shop-tryon[data-shop-profile="profile_flame"] .shop-tryon-card{
+ border:3px ridge #f17f57;box-shadow:0 0 25px #fa6e3988,inset 0 0 22px #f34b262f}
+@media(max-width:1200px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+ .shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .shop-card-preview{height:120px}
+ .shop-card-preview .shop-art-ring{width:65px;height:65px}
+ .shop-card-preview[data-shop-card-kind="profile"] .shop-art-ring{width:80%;height:70%}
+ .shop-art-core{font-size:32px}
+ .shop-card-body{padding:10px;gap:9px}
+ .shop-card-body h3{font-size:13px}
+ .shop-card-actions .btn{font-size:9px;flex:1 1 100%}
+ .profile-tab-toolbar .profile-shop-action{margin-left:auto}
+}
+@media(max-width:430px){
+ .shop-grid{grid-template-columns:1fr}
+ .shop-card-preview{height:140px}
+ .profile-shop-action{min-height:35px;padding:7px 10px;font-size:10px}
+ .profile-tab-toolbar .profile-shop-action{margin-left:auto}
+}
