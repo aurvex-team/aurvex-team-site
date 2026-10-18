@@ -43,19 +43,33 @@ export async function currentVerifiedUser(){
 }
 // Official team title codes are read-only public metadata. The browser can
 // never assign titles: RLS and table grants permit SELECT only.
+const TEAM_TITLE_CODES=['aurvex_ceo','site_launcher_developer'];
+const validPlayerId=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
 export async function getProfileTitles(userId){
-  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId||''))return [];
+  if(!validPlayerId(userId))return [];
   const client=await idClient();
-  const {data,error}=await client.from('id_profile_titles')
-    .select('title_code').eq('user_id',userId);
+  const {data,error}=await client.rpc('aurvex_visible_titles',{target_player:userId});
   if(error)throw error;
-  return (data||[]).map(entry=>entry.title_code)
-    .filter(code=>code==='aurvex_ceo'||code==='site_launcher_developer');
+  return (Array.isArray(data)?data:[]).filter(code=>TEAM_TITLE_CODES.includes(code));
+}
+export async function getOwnProfileTitles(userId){
+  if(!validPlayerId(userId))return [];
+  const client=await idClient();
+  const {data,error}=await client.from('id_profile_titles').select('title_code').eq('user_id',userId);
+  if(error)throw error;
+  return (data||[]).map(entry=>entry.title_code).filter(code=>TEAM_TITLE_CODES.includes(code));
+}
+export async function getPublicAppearance(userId){
+  if(!validPlayerId(userId))return {};
+  const client=await idClient();
+  const {data,error}=await client.rpc('aurvex_public_appearance',{target_player:userId});
+  if(error)throw error;
+  return data||{};
 }
 export async function ownProfile(userId){
   const client=await idClient();
   const {data,error}=await client.from('id_profiles')
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public').eq('id',userId).maybeSingle();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').eq('id',userId).maybeSingle();
   if(error)throw error;
   return data;
 }
@@ -71,7 +85,7 @@ export async function saveOwnNickname(userId,nickname){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({nickname}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
   return {data,error};
 }
 // Server wishlist is authoritative for signed-in accounts. In particular,
@@ -144,7 +158,7 @@ export async function uploadProfileMedia(userId,kind,file,existingPath){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({[column]:path}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
   if(error){
     await client.storage.from(MEDIA_BUCKET).remove([path]).catch(()=>{});
     throw error;
@@ -163,7 +177,7 @@ export async function removeProfileMedia(userId,kind,existingPath){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({[column]:null}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
   if(error)throw error;
   if(existingPath&&existingPath.startsWith(userId+'/'+kind+'-')){
     await client.storage.from(MEDIA_BUCKET).remove([existingPath]).catch(()=>{});
