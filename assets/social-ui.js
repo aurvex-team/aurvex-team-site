@@ -86,7 +86,8 @@ function readAppearanceDraft(form){
      glow_name:data.has('glow_name'),glow_links:data.has('glow_links'),
      glow_profile:data.has('glow_profile')
    },
-   hidden: ['aurvex_ceo','site_launcher_developer'].filter(code=>!data.has('show_'+code))
+   hidden: (window.AURVEX_ID?.profileTitles||[])
+      .filter(code=>['aurvex_ceo','site_launcher_developer'].includes(code)&&!data.has('show_'+code))
  };
 }
 document.addEventListener('input',event=>{
