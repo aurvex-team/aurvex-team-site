@@ -1,15 +1,15 @@
 // Public-facing AURVEX profiles and family membership are isolated from Google/Auth secrets.
-import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles,getPublicAppearance} from './id-service.js?v=20261018-391';
+import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261018-391';
 import {loadPublicShopEquipped} from './shop-service.js?v=20261018-391';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles,appearance,shopEquipped]=await Promise.all([
+ const [{data,error},titles,shopEquipped]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
-   getProfileTitles(id),getPublicAppearance(id),loadPublicShopEquipped(id)
+   getProfileTitles(id),loadPublicShopEquipped(id)
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
- return p?{...p,profileTitles:titles,profile_appearance:appearance,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
+ return p?{...p,profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
 }
 export async function saveSocialProfile(userId,links,wishlistPublic){
