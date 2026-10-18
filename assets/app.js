@@ -103,7 +103,7 @@ function formatShopMoney(kop){
  if(state.currency==='UAH')return (amount%1===0?amount.toFixed(0):amount.toFixed(2))+' ₴';
  return new Intl.NumberFormat(localeTags[state.language]||'en-US',{
    style:'currency',currency:state.currency,currencyDisplay:'symbol',
-   minimumFractionDigits:0,maximumFractionDigits:2
+   // Use the ISO 4217 currency fraction digits (JPY/KRW/VND render without decimals).
  }).format(amount);
 }
 function preferenceMenu(type){
