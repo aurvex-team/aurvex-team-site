@@ -2,7 +2,7 @@
 // This counts concurrently visible browser tabs, not unique humans or registered users.
 // No email, nickname, user ID, IP address, location, cookies or persistent visitor ID
 // is sent in the Presence payload; the random key exists only for the current tab.
-import {idClient} from './id-service.js?v=20261017-395';
+import {idClient} from './id-service.js?v=20261018-381';
 
 export function countActivePresences(state){
   if(!state||typeof state!=='object'||Array.isArray(state))return 0;
