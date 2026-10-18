@@ -1,6 +1,6 @@
 // AURVEX Social 3.7 controller: opt-in friends-only online status, inbox, blocking.
 import {socialSnapshot,socialShowOnline,socialHeartbeat,socialBlock,
- socialRead,socialFamilyInvite,socialOpenInvite,socialCanInvite} from './social37-service.js?v=20261018-381';
+ socialRead,socialFamilyInvite,socialOpenInvite,socialCanInvite} from './social37-service.js?v=20261018-391';
 
 const model={
  ready:false,busy:false,userId:'',showOnline:false,onlineIds:[],
