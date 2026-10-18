@@ -1,6 +1,6 @@
 // AURVEX ID client, version 3.3: Google identity, profile art, server-owned wishlist.
 // OAuth secrets never appear in the browser. Supabase RLS owns authorization.
-import { translations } from './i18n.js?v=20261018-381';
+import { translations } from './i18n.js?v=20261018-382';
 import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-360';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
