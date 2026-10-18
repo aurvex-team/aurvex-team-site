@@ -1,6 +1,6 @@
 // AURVEX Points Shop client. Only reads public catalog and calls AAL2-gated
 // server RPCs. Never calculates or writes wallets, items, or payment receipts.
-import {idClient} from './id-service.js?v=20261018-390';
+import {idClient} from './id-service.js?v=20261018-391';
 export async function loadShopCatalog(){
  const client=await idClient();
  const {data,error}=await client.from('aurvex_shop_items')
