@@ -616,6 +616,7 @@ function playerProfilePage(auth){
   const profileBio=aboutDraft?.bio??savedBio;
   const selectedStatus=aboutDraft?.status||auth.profile?.profile_status||'building';
   const profileStatus=['building','open','busy','chilling'].includes(selectedStatus)?selectedStatus:'building';
+  const savedStatus=['building','open','busy','chilling'].includes(auth.profile?.profile_status)?auth.profile.profile_status:'building';
   const profileSteps=[
    !!auth.profile?.nickname,!!auth.profile?.avatar_path,!!auth.profile?.banner_path,
    !!savedBio,profileLinks.some(l=>l?.url),auth.mfaVerified===true
@@ -664,7 +665,7 @@ function playerProfilePage(auth){
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           officialProfileBadges(visibleTitles)+
           '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,visibleTitles)+'</p>'+
-          '<div class="profile-intro-row"><span class="profile-mood profile-mood-'+profileStatus+'">'+icon('sparkle',13)+' '+t('profileMood_'+profileStatus)+'</span>'+
+          '<div class="profile-intro-row"><span class="profile-mood profile-mood-'+savedStatus+'">'+icon('sparkle',13)+' '+t('profileMood_'+savedStatus)+'</span>'+
           (savedBio?'<span class="profile-intro-description">'+esc(savedBio)+'</span>':'')+'</div>'+
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
