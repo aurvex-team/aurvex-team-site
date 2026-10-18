@@ -1668,16 +1668,19 @@ test('Profile Studio shows editor, completion dashboard and verified navigation 
  const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},
   mfaVerified:true,mfaFactors:[{id:'verified'}],
   profile:{nickname:'Creator',profile_bio:'Building a scary game',
-    profile_status:'open',avatar_path:'avatar.jpg',banner_path:'banner.jpg',
+    profile_status:'open',profile_status_text:'Building Devive',profile_status_emoji:'💻',
+    profile_status_expires_at:null,avatar_path:'avatar.jpg',banner_path:'banner.jpg',
     public_links:[{title:'GitHub',url:'https://github.com/aurvex-team'}],wishlist_public:false}};
  for(const lang of supportedLanguages){
   const html=render('#/id',lang,false,null,auth).html;
   for(const required of ['class="profile-command-center"','class="profile-progress-bar"',
     'role="progressbar"','aria-valuenow="100"','href="#/inventory"','href="#/shop"',
     'href="#/balance"','id="profile-about-form"','name="bio"','maxlength="240"',
-    'name="status"','profile-mood-open','data-profile-tab="links"',
+    'name="duration"','name="custom_text"','name="custom_emoji"',
+    'id="profile-custom-status-form"','profile-custom-status','data-profile-emoji="💻"',
+    'data-profile-clear-status','data-profile-tab="links"',
     translations[lang].profileCommandTitle,translations[lang].profileAboutTitle,
-    translations[lang].profileMood_open]){
+    translations[lang].profileCustomStatus]){
    assert.ok(html.includes(required),lang+': '+required);
   }
   assert.ok(html.includes('Building a scary game'));
@@ -1688,12 +1691,15 @@ test('Public profile bio is escaped, optional, and contains no private account i
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const model={profileTarget:id,profile:{player_id:id,nickname:'Public creator',
   profile_bio:'Welcome <img src=x onerror=alert(1)> & "hello"',
-  profile_status:'open',joined_at:'2026-10-17T00:00:00Z',
+  profile_status:'open',profile_status_text:'Working on Devive',profile_status_emoji:'🎮',
+  profile_status_expires_at:null,joined_at:'2026-10-17T00:00:00Z',
   public_links:[],wishlist_visible:false,wishlist_products:[]}};
  const html=render('#/player/'+id,'en',false,null,null,null,model).html;
  assert.ok(html.includes('class="public-block profile-about-public"'));
  assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
- assert.ok(html.includes('profile-mood-open'));
+ assert.ok(html.includes('profile-custom-status'));
+ assert.ok(html.includes('Working on Devive'));
+ assert.ok(html.includes('🎮'));
  assert.ok(html.includes(translations.en.profileAboutTitle));
  assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
  assert.ok(!html.includes('name="bio"'));
@@ -1702,19 +1708,20 @@ test('Public profile bio is escaped, optional, and contains no private account i
   {...model,profile:{...model.profile,profile_bio:''}}).html;
  assert.ok(!missing.includes('class="public-block profile-about-public"'));
  const hostile=render('#/player/'+id,'en',false,null,null,null,
-  {...model,profile:{...model.profile,profile_status:'<svg/onload=alert(1)>'}}).html;
- assert.ok(!hostile.includes('class="profile-mood profile-mood-<svg'));
- assert.ok(hostile.includes('profile-mood-building'));
+  {...model,profile:{...model.profile,profile_status_emoji:'<svg/onload=alert(1)>'}}).html;
+ assert.ok(!hostile.includes('<svg/onload=alert(1)>'));
+ assert.ok(hostile.includes('Working on Devive'));
 });
 test('Profile bio edits survive redraws and are not shown for the wrong signed-in account',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const auth={user:{id,email:'example@example.org'},mfaVerified:true,
-  profile:{nickname:'creator',profile_bio:'Saved value',profile_status:'building',public_links:[]}};
+  profile:{nickname:'creator',profile_bio:'Saved value',profile_status:'building',
+    profile_status_text:'Saved status',profile_status_emoji:'💻',public_links:[]}};
  const draft={aboutDraftUser:id,aboutDraft:{bio:'Unsaved editor description',status:'busy'}};
  const html=render('#/id','en',false,null,auth,null,draft).html;
  assert.ok(html.includes('Unsaved editor description'));
- assert.ok(html.includes('profile-mood-building'),'Public badge should reflect saved status, not draft');
- assert.ok(html.includes('value="busy" selected'));
+ assert.ok(html.includes('Saved status'),'Current status stays visible while editing biography');
+ assert.ok(html.includes('value="💻" aria-label="💻" aria-pressed="true"'));
  const stale=render('#/id','en',false,null,auth,null,
   {...draft,aboutDraftUser:'other-user'}).html;
  assert.ok(!stale.includes('Unsaved editor description'));
@@ -1744,4 +1751,82 @@ test('Profile biography storage has AAL2, public field allowlist and server inpu
  assert.ok(ids.includes('profile_bio,profile_status'));
  assert.ok(css.includes('.profile-command-center'));
  assert.ok(css.includes('.profile-about-public p{white-space:pre-wrap'));
+});
+
+test('Sidebar promo is static, shows only AURVEX and message with no legacy roadmap or version',()=>{
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang).html;
+  const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
+  const promo=sidebar.match(/<div class="side-promo"[\s\S]*?<\/div><\/aside>/)?.[0]||'';
+  assert.ok(sidebar.includes('class="side-promo"'));
+  assert.ok(sidebar.includes('<div class="smallcaps">AURVEX</div>'));
+  assert.ok(sidebar.includes(translations[lang].bannerTitle));
+  assert.ok(!sidebar.includes('bannerButton'));
+  assert.ok(!sidebar.includes('PREVIEW 2.1'));
+  assert.ok(!sidebar.includes('href="#/about" class="side-promo"'));
+  assert.ok(!sidebar.includes('side-version'));
+  assert.ok(!sidebar.includes('See our roadmap'));
+ }
+ assert.ok(css.includes('.sidebar{padding:14px 12px 12px;overflow-y:hidden}'));
+ assert.ok(css.includes('.sidebar .side-promo{flex-shrink:0'));
+});
+test('Custom Discord-style profile status: 20 emoji, text, six expiration options and safe public preview',()=>{
+ const uuid='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={user:{id:uuid,email:'private@example.org'},mfaVerified:true,
+   profile:{nickname:'Creator',profile_status_text:'Debugging 🌙',profile_status_emoji:'🛠️',
+     profile_status_expires_at:'2099-10-18T11:00:00Z'}};
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang,false,null,auth).html;
+  for(const k of ['profile-custom-status-form','profile-custom-status-text','data-profile-emoji="',
+    'name="custom_text"','name="custom_emoji"','name="duration"','data-profile-clear-status',
+    'profile-status-char-count','value="1h"','value="4h"','value="1d"','value="7d"',
+    'value="30m"','value="never"','Debugging 🌙','🛠️',
+    translations[lang].profileStatusSave,translations[lang].profileStatusExpirationHint]){
+   assert.ok(html.includes(k),lang+' missing '+k);
+  }
+  assert.equal((html.match(/class="profile-emoji-option/g)||[]).length,21,'20 emojis + no emoji');
+  assert.ok(!html.includes('name="status"'),'Legacy fixed status dropdown removed');
+ }
+ const p={profileTarget:uuid,profile:{player_id:uuid,nickname:'Creator',
+   profile_status_text:'<img src=x onerror=alert(1)>',profile_status_emoji:'💻',
+   profile_status_expires_at:'2099-10-18T11:00:00Z',joined_at:'2026-10-17T00:00:00Z',
+   public_links:[],wishlist_visible:false}};
+ const publicHtml=render('#/player/'+uuid,'en',false,null,null,null,p).html;
+ assert.ok(publicHtml.includes('&lt;img src=x onerror=alert(1)&gt;'));
+ assert.ok(!publicHtml.includes('<img src=x onerror=alert(1)>'));
+ assert.ok(publicHtml.includes('profile-custom-emoji'));
+ const expired=render('#/player/'+uuid,'en',false,null,null,null,
+  {...p,profile:{...p.profile,profile_status_expires_at:'2020-01-01T00:00:00Z'}}).html;
+ assert.ok(!expired.includes('profile-custom-status'));
+ assert.ok(!expired.includes('profile-custom-emoji'));
+ const never=render('#/player/'+uuid,'en',false,null,null,null,
+  {...p,profile:{...p.profile,profile_status_expires_at:null}}).html;
+ assert.ok(never.includes('profile-custom-status'));
+ const ownExpired=render('#/id','en',false,null,{
+   ...auth,profile:{...auth.profile,profile_status_expires_at:'2020-01-01T00:00:00Z'}
+ }).html;
+ assert.ok(ownExpired.includes(translations.en.profileStatusEmpty));
+ assert.ok(!ownExpired.includes('Debugging 🌙'));
+});
+test('Custom status writes require server auth/MFA and server-controlled expiration',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/aurvex_profile_custom_status_v315_20261018.sql',import.meta.url),'utf8');
+ for(const fragment of ['profile_status_text','profile_status_emoji','profile_status_expires_at',
+   'aurvex_status_text_limit','aurvex_profile_set_custom_status',
+   'public.aurvex_shop_actor()','aurvex_public_profile_about',
+   'profile_status_expires_at>now()','when \\'30m\\'','when \\'7d\\'',
+   'grant execute on function public.aurvex_profile_set_custom_status']){
+  assert.ok(sql.includes(fragment),fragment);
+ }
+ const client=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ assert.ok(client.includes("rpc('aurvex_profile_set_custom_status'"));
+ assert.ok(client.includes('profile_status_expires_at:about?.customExpiresAt'));
+ const controller=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
+ for(const check of ['readCustomStatusDraft(form)','profile-custom-status-form',
+    "m.customDraftUser=originalUser","saveCustomProfileStatus('','','never')",
+    "message('profileStatusSaved')","message('profileStatusCleared')",
+    "form.querySelectorAll('[data-profile-emoji]')"]){
+   assert.ok(controller.includes(check),check);
+ }
+ const profile=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+ assert.ok(profile.includes('profile_status_text,profile_status_emoji,profile_status_expires_at'));
 });
