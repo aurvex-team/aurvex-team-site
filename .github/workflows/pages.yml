@@ -38,6 +38,9 @@ jobs:
           node --check assets/social-ui.js
           node --check assets/shop-service.js
           node --check assets/shop-ui.js
+          node --check assets/inventory-service.js
+          node --check assets/inventory-ui.js
+          node --check assets/payment-ui.js
           node --check assets/social-links.js
           node --check assets/social37-service.js
           node --check assets/social37-ui.js
