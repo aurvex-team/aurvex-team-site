@@ -11,6 +11,20 @@ const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
 window.AURVEX_SOCIAL=m;
 let profileSeq=0,familySeq=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:social-state'));
+let customStatusExpirationTimer=0;
+function scheduleCustomStatusExpiration(){
+ clearTimeout(customStatusExpirationTimer);
+ const now=Date.now();
+ const profiles=[window.AURVEX_ID?.profile,m.profile];
+ const deadlines=profiles.map(p=>p?.profile_status_expires_at)
+   .filter(Boolean).map(s=>Date.parse(s)).filter(ms=>Number.isFinite(ms)&&ms>now);
+ if(!deadlines.length)return;
+ const delay=Math.min(...deadlines)-now+80;
+ customStatusExpirationTimer=setTimeout(()=>{
+   // Re-render using currentCustomStatus(), which hides elapsed statuses immediately.
+   fire();scheduleCustomStatusExpiration();
+ },Math.max(30,delay));
+}
 const isSecure=()=>!!(window.AURVEX_ID?.user?.id&&window.AURVEX_ID?.mfaVerified);
 const owner=()=>isSecure()?window.AURVEX_ID.user.id:'';
 function message(key,error=false){m.message=key;m.error=error;m.busy=false;fire()}
@@ -20,7 +34,7 @@ async function showProfile(id){
  try{
    const p=await loadPlayerProfile(id);
    if(run!==profileSeq)return;
-   m.profile=p;m.profileError=!p;m.profileLoading=false;fire();
+   m.profile=p;m.profileError=!p;m.profileLoading=false;scheduleCustomStatusExpiration();fire();
  }catch(e){
    if(run!==profileSeq)return;
    m.profileLoading=false;m.profileError=true;fire();
@@ -50,11 +64,13 @@ function onRoute(){
 }
 window.addEventListener('hashchange',onRoute);
 window.addEventListener('aurvex:id-state',()=>{
+ scheduleCustomStatusExpiration();
  const current=owner();
  if(!current){
-   if(m.userId||m.draftUserId){m.userId='';m.family=null;m.familyLibrary=[];
+   if(m.userId||m.draftUserId||m.aboutDraftUser||m.customDraftUser){m.userId='';m.family=null;m.familyLibrary=[];
      m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';fire();}
- }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)){
+ }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)||
+    (m.aboutDraftUser&&m.aboutDraftUser!==current)||(m.customDraftUser&&m.customDraftUser!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
    m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';
    if(location.hash.startsWith('#/family'))void refreshFamily();
