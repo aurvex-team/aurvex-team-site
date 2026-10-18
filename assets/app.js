@@ -10,7 +10,7 @@ const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
   theme:getStored(STORAGE.theme)==='light'?'light':'dark',
   wished:getStored(STORAGE.wish)==='1',
-  query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:''
+  query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview'
 };
 let toastTimer=0;
 const pathIcons={
@@ -504,6 +504,19 @@ function playerProfilePage(auth){
   const hiddenTitles=appearanceDraft?.hidden||auth.profile?.hidden_title_codes||[];
   const visibleTitles=(auth.profileTitles||[]).filter(code=>!hiddenTitles.includes(code));
   const profileLinks=auth.profile?.public_links||[];
+  const activeTab=['overview','links','appearance'].includes(state.profileTab)?state.profileTab:'overview';
+  const tabData=[
+    ['overview','user','profileTabOverview'],
+    ['links','globe','profileTabLinks'],
+    ['appearance','sparkle','profileTabAppearance']
+  ];
+  const tabNav='<nav class="profile-tabs" role="tablist" aria-label="'+t('profileTabsLabel')+'">'+
+    tabData.map(([tab,iconName,textKey])=>
+      '<button type="button" id="profile-tab-'+tab+'" class="profile-tab'+(activeTab===tab?' is-active':'')+'" role="tab"'+
+        ' aria-selected="'+(activeTab===tab)+'" aria-controls="profile-panel-'+tab+'" tabindex="'+(activeTab===tab?'0':'-1')+'" data-profile-tab="'+tab+'">'+
+        icon(iconName,17)+'<span>'+t(textKey)+'</span></button>').join('')+'</nav>';
+  const panelStart=tab=>'<div id="profile-panel-'+tab+'" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-'+tab+'"'+
+    (activeTab===tab?'':' hidden')+'>';
   const statusText=(auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'')+
     (window.AURVEX_SOCIAL?.message?'<div class="player-flash'+(window.AURVEX_SOCIAL.error?' player-flash-error':'')+
       '" role="status">'+t(window.AURVEX_SOCIAL.message)+'</div>':'');
@@ -530,7 +543,9 @@ function playerProfilePage(auth){
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
-      '<div class="player-content"><section class="player-main">'+
+      tabNav+
+      '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
+        panelStart('overview')+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
           '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
         '<div class="player-edit-layout">'+
@@ -547,6 +562,9 @@ function playerProfilePage(auth){
               '<div><strong>'+t('profileBannerUpload')+'</strong><p>'+t('profileBannerHint')+'</p></div>'+
               '<div class="player-media-buttons"><label for="id-banner-upload" class="btn btn-outline'+(auth.busy?' is-disabled':'')+'">'+icon('upload',15)+' '+t('profileBannerUpload')+'</label></div></div>'+
           '</div></div>'+
+        renderProfileLinks(profileLinks,'main')+
+        '</div>'+
+        panelStart('links')+
         '<section class="player-social-settings"><div class="smallcaps">'+t('socialSettings')+'</div>'+
           '<h2>'+t('socialSettings')+'</h2><p>'+t('socialSettingsDesc')+'</p>'+
           '<div class="player-social-actions"><a class="btn btn-accent" href="#/player/'+esc(auth.user.id)+'">'+icon('user',17)+' '+t('viewAsOthers')+'</a>'+
@@ -570,6 +588,8 @@ function playerProfilePage(auth){
              '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
                '<span><strong>'+t('socialWishlistPublic')+'</strong><small>'+t('socialWishlistPrivate')+'</small></span></label>'+
              '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('socialSave')+'</button></form></section>'+
+        '</div>'+
+        panelStart('appearance')+
         '<section class="profile-custom-editor"><div class="smallcaps">'+t('customStudio')+'</div>'+
          '<h2>'+icon('sparkle',21)+' '+t('customStudio')+'</h2><p>'+t('customIntro')+'</p>'+
          '<form id="profile-appearance-form" class="id-form">'+
@@ -603,7 +623,7 @@ function playerProfilePage(auth){
              '<span>'+t(code==='aurvex_ceo'?'profileTitleCeo':'profileTitleDeveloper')+'</span></label>').join('')+'</div>':'')+
          '<button class="btn btn-primary" type="submit"'+(window.AURVEX_SOCIAL?.busy?' disabled':'')+'>'+
           icon('check',17)+' '+t('customSave')+'</button></form></section>'+
-        renderProfileLinks(profileLinks,'main')+
+        '</div>'+
         statusText+
         '<div class="player-privacy">'+icon('shield',20)+'<span>'+t('profileArtworkPublic')+'</span></div>'+
       '</section>'+
@@ -993,6 +1013,25 @@ function setMenu(open){
   if(toggle)toggle.setAttribute('aria-expanded',String(open));
 }
 document.addEventListener('click',function(event){
+  const profileTab=event.target.closest('button[data-profile-tab]');
+  if(profileTab){
+    const next=profileTab.dataset.profileTab;
+    if(!['overview','links','appearance'].includes(next))return;
+    state.profileTab=next;
+    const workspace=document.querySelector('[data-profile-workspace]');
+    if(workspace)workspace.dataset.activeProfileTab=next;
+    document.querySelectorAll('button[data-profile-tab]').forEach(button=>{
+      const active=button.dataset.profileTab===next;
+      button.classList.toggle('is-active',active);
+      button.setAttribute('aria-selected',String(active));
+      button.tabIndex=active?0:-1;
+    });
+    document.querySelectorAll('.profile-tab-panel').forEach(panel=>{
+      panel.hidden=panel.id!=='profile-panel-'+next;
+    });
+    return;
+  }
+
   if(event.target.closest('.sidebar a,.mobile-bottom a'))setMenu(false);
   const dropdown=event.target.closest('details.filter-dropdown');
   if(!dropdown)closeFilterMenus();
@@ -1123,6 +1162,19 @@ window.addEventListener('aurvex:sync-wishlist',function(event){
 });
 window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
 window.addEventListener('keydown',function(event){
+  const tab=event.target.closest?.('button[data-profile-tab]');
+  if(tab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
+    const buttons=[...document.querySelectorAll('button[data-profile-tab]')];
+    const current=buttons.indexOf(tab);
+    if(current>=0){
+      event.preventDefault();
+      const next=event.key==='Home'?0:event.key==='End'?buttons.length-1:
+        (current+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+      buttons[next].click();
+      buttons[next].focus();
+      return;
+    }
+  }
   if(event.key==='Escape'){closeFilterMenus();setMenu(false);return}
   if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest('input,textarea,select,[contenteditable]')){
     const target=document.querySelector('#catalog-search')||document.querySelector('.top-search input');
