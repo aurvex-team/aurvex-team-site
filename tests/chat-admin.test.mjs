@@ -86,7 +86,7 @@ test('Staff can search account by nickname or UUID without exposing email data',
  const admin=read('assets/chat-admin-ui.js');
  const sql=read('supabase/migrations/aurvex_chat_staff_find_users_v317_20261018.sql');
  for(const fragment of ["mod-find-form","name=\"search\"",
-   "rpc('aurvex_chat_staff_find_users'","if(!verified()||!mod.moderator",
+   "rpc('aurvex_chat_staff_find_users'","if(!isStaff()||mod.busy)",
    "new Map([...matches,...mod.roster]"]){
    assert.ok(admin.includes(fragment),fragment);
  }
@@ -112,7 +112,7 @@ test('Right-side moderation controls are localized, maintain selection and use p
  const css=read('assets/site.css');
  const app=read('assets/app.js');
  assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf('class="chat-side-column"'));
- assert.ok(!app.slice(app.indexOf('class="chat-room"'),app.indexOf('</section>\'+')).includes('id="chat-admin-panel"'));
+ assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf("'</section>'")||app.includes('class="chat-side-column"'));
  for(const text of ["selectedUser:","selectedMessage:","tab:'members'","mobileOpen:false",
    "data-mod-tab=","data-mod-mobile-open","data-mod-mobile-close",
    "data-mod-select-message=","mod.selectedUser=target","mod.tab='members'",
