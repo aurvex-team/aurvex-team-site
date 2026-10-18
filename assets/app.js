@@ -961,7 +961,8 @@ function shopPage(){
  const list=kind=>catalog.filter(x=>x.kind===kind).map(displayItem).join('');
  const wallet=signed?('<div class="shop-wallet">'+icon('sparkle',25)+
    '<div><span>'+t('shopBalance')+'</span><strong>'+balance+' '+t('shopPoints')+'</strong></div>'+
-   '<a class="btn btn-outline" href="#/inventory">'+t('shopInventory')+' '+icon('arrow',15)+'</a></div>'):
+   '<button class="btn btn-primary" type="button" data-action="stars-packs">'+icon('sparkle',15)+' '+t('starsBuyTitle')+'</button>'+
+    '<a class="btn btn-outline" href="#/inventory">'+t('shopInventory')+' '+icon('arrow',15)+'</a></div>'):
    '<div class="shop-wallet">'+icon('shield',23)+' <p>'+t('shopSignInHint')+'</p>'+
    '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('shopNav')+'</span></div>'+
@@ -1310,6 +1311,7 @@ document.addEventListener('click',function(event){
     else render(true);
     return;
   }
+  if(action==='stars-packs'){document.querySelector('.stars-packs')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(action==='theme'){
     state.theme=state.theme==='dark'?'light':'dark';
     store(STORAGE.theme,state.theme);render(true);return;
