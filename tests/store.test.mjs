@@ -10,7 +10,7 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null,shop=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
@@ -24,7 +24,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors,AURVEX_SHOP:shop};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -1311,4 +1311,118 @@ test('Preview remains separate from editor controls, and public profile has no p
  }).html;
  assert.ok(!publicView.includes('profile-preview-action'));
  assert.ok(!publicView.includes('profile-tab-toolbar'));
+});
+
+
+test('AURVEX Points Shop is a first-party navigable screen with eight collectible designs and UAH prices',()=>{
+ const catalog=[
+  {id:'avatar_violet',kind:'avatar',theme:'violet',price_points:150,price_uah_kop:4900},
+  {id:'avatar_ruby',kind:'avatar',theme:'ruby',price_points:200,price_uah_kop:5900},
+  {id:'avatar_cyan',kind:'avatar',theme:'cyan',price_points:250,price_uah_kop:6900},
+  {id:'avatar_gold',kind:'avatar',theme:'gold',price_points:350,price_uah_kop:9900},
+  {id:'profile_emerald',kind:'profile',theme:'emerald',price_points:225,price_uah_kop:6900},
+  {id:'profile_cosmic',kind:'profile',theme:'cosmic',price_points:325,price_uah_kop:9900},
+  {id:'profile_frost',kind:'profile',theme:'frost',price_points:275,price_uah_kop:7900},
+  {id:'profile_flame',kind:'profile',theme:'flame',price_points:400,price_uah_kop:11900}
+ ];
+ for(const lang of supportedLanguages){
+  const html=render('#/shop',lang,false,null,null,null,null,null,null,{
+   catalog,catalogReady:true,catalogError:false}).html;
+  assert.ok(html.includes(translations[lang].shopTitle));
+  assert.ok(html.includes('href="#/shop"'));
+  for(const item of catalog){
+   assert.ok(html.includes(translations[lang]['shopItem_'+item.id]),item.id);
+   assert.ok(html.includes('data-item-id="'+item.id+'"'),item.id);
+  }
+  assert.ok(html.includes('49 ₴'));
+  assert.equal((html.match(/data-shop-card-kind="/g)||[]).length,8);
+  assert.equal((html.match(/class="btn btn-outline shop-money-button" type="button" disabled/g)||[]).length,8);
+  assert.ok(html.includes(translations[lang].shopMoneyPending));
+  assert.ok(html.includes('data-shop-action="preview"'));
+  assert.ok(html.includes('data-shop-action="buy-points"'));
+ }
+});
+
+test('Points wallet inventory equipping and try-on are visible only to signed-in verified users',()=>{
+ const user='b08b4ee1-49e4-4d2b-b166-56b4a6e35112';
+ const item={id:'avatar_ruby',kind:'avatar',theme:'ruby',price_points:200,price_uah_kop:5900};
+ const auth={user:{id:user},mfaVerified:true,profile:{nickname:'demo'}};
+ const state={
+  catalog:[item],catalogReady:true,userId:user,ready:true,balance:300,
+  inventory:[{item_id:item.id,obtained_by:'points'}],
+  equipped:{avatar:item.id,profile:null},history:[{reason:'welcome',points_delta:500,id:1}],
+  previewId:item.id
+ };
+ const html=render('#/shop','en',false,null,auth,null,null,null,null,state).html;
+ assert.ok(html.includes('300 Points'));
+ assert.ok(html.includes('data-shop-action="unequip"'));
+ assert.ok(html.includes('data-shop-action="preview"'));
+ assert.ok(!html.includes('data-shop-action="buy-points"'));
+ assert.ok(html.includes('data-shop-avatar="avatar_ruby"'));
+ assert.ok(html.includes('Your collection'));
+ assert.ok(html.includes('500'));
+ const loggedOut=render('#/shop','en',false,null,null,null,null,null,null,state).html;
+ assert.ok(loggedOut.includes(translations.en.shopSignInHint));
+ assert.ok(!loggedOut.includes('Your collection'));
+ assert.ok(loggedOut.includes('data-shop-action="buy-points"'));
+ assert.ok(loggedOut.includes('disabled'));
+});
+
+test('Equipped cosmetics decorate own and public profile without exposing wallet or inventory',()=>{
+ const user='b08b4ee1-49e4-4d2b-b166-56b4a6e35112';
+ const privateProfile=render('#/id','en',false,null,
+  {user:{id:user},mfaVerified:true,profile:{nickname:'tester'},profileTitles:[]},
+  null,null,null,null,{userId:user,equipped:{avatar:'avatar_cyan',profile:'profile_cosmic'}}
+ ).html;
+ assert.ok(privateProfile.includes('data-shop-avatar="avatar_cyan"'));
+ assert.ok(privateProfile.includes('data-shop-profile="profile_cosmic"'));
+ const pub=render('#/player/'+user,'en',false,null,null,null,{
+  profileTarget:user,profile:{nickname:'tester',profileTitles:[],wishlist_visible:false,
+   shop_equipped:{avatar:'avatar_gold',profile:'profile_frost'},public_links:[]}
+ }).html;
+ assert.ok(pub.includes('data-shop-avatar="avatar_gold"'));
+ assert.ok(pub.includes('data-shop-profile="profile_frost"'));
+ const faked=render('#/player/'+user,'en',false,null,null,null,{
+  profileTarget:user,profile:{nickname:'tester',profileTitles:[],wishlist_visible:false,
+   shop_equipped:{avatar:'evil"} onclick="hack()',profile:'javascript:evil'},public_links:[]}
+ }).html;
+ assert.ok(faked.includes('data-shop-avatar="none"'));
+ assert.ok(faked.includes('data-shop-profile="none"'));
+ assert.ok(!faked.includes('onclick="hack()"'));
+ assert.ok(css.includes('.player-profile[data-shop-avatar="avatar_cyan"]'));
+ assert.ok(css.includes('.player-profile[data-shop-profile="profile_cosmic"]'));
+});
+
+test('Shop server security: MFA, wallet row locking, one-time Points grant, price authority, and no fake UAH charges',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20261018_aurvex_points_shop_v1.sql',import.meta.url),'utf8');
+ const perms=readFileSync(new URL('../supabase/migrations/20261018_aurvex_points_shop_permissions.sql',import.meta.url),'utf8');
+ const svc=readFileSync(new URL('../assets/shop-service.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../assets/shop-ui.js',import.meta.url),'utf8');
+ for(const clause of [
+  "auth.jwt()->>'aal'","is distinct from 'aal2'","on conflict(user_id) do nothing",
+  "values(who,500,'welcome')","from public.aurvex_shop_wallets w",
+  'where w.user_id=who for update','ITEM_ALREADY_OWNED','INSUFFICIENT_POINTS',
+  'balance=balance-item.price_points','aurvex_shop_inventory',
+  'aurvex_shop_ledger','public.aurvex_shop_public_equipped',
+  'create policy aurvex_shop_active_catalog',
+  'revoke all on function public.aurvex_shop_buy_points(text) from public,anon'
+ ])assert.ok(sql.includes(clause),clause);
+ assert.ok(perms.includes('grant select on public.aurvex_shop_items to anon,authenticated'));
+ assert.ok(!svc.includes("from('aurvex_shop_wallets')"));
+ assert.ok(!svc.includes("from('aurvex_shop_inventory')"));
+ assert.ok(svc.includes("rpc('aurvex_shop_buy_points'"));
+ assert.ok(svc.includes("rpc('aurvex_shop_equip'"));
+ assert.ok(svc.includes("rpc('aurvex_shop_public_equipped'"));
+ assert.ok(ui.includes('window.confirm('));
+ assert.ok(!ui.includes('stripe'));
+ assert.ok(!ui.includes('createCheckout'));
+ const html=render('#/shop','en',false,null,null,null,null,null,null,{
+  catalog:[{id:'avatar_gold',kind:'avatar',theme:'gold',price_points:350,price_uah_kop:9900}],
+  catalogReady:true}).html;
+ assert.ok(html.includes('shop-money-button" type="button" disabled'));
+ assert.ok(html.includes('99 ₴'));
+ const workflow=readFileSync(new URL('../.github/workflows/pages.yml',import.meta.url),'utf8');
+ assert.ok(workflow.includes('node --check assets/shop-service.js'));
+ assert.ok(workflow.includes('node --check assets/shop-ui.js'));
+ assert.ok(index.includes('assets/shop-ui.js?v='));
 });
