@@ -1,5 +1,5 @@
 // Official AURVEX Desktop pairing page. Runs only at aurvex-team.github.io.
-// Session tokens go directly to a randomly authenticated loopback connection.
+// Only a short-lived access token goes to a randomly authenticated loopback connection; refresh tokens stay in the website.
 import {idClient} from './id-service.js?v=20261018-391';
 const params=new URLSearchParams(location.hash.slice(1));
 const port=Number(params.get('port'));
@@ -31,7 +31,7 @@ button.addEventListener('click',async()=>{
   let res;
   try{res=await fetch('http://127.0.0.1:'+port+'/connect',{method:'POST',mode:'cors',cache:'no-store',
     headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce,
-     access_token:session.access_token,refresh_token:session.refresh_token}),signal:controller.signal});}
+     access_token:session.access_token}),signal:controller.signal});}
   finally{clearTimeout(timeout)}
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok!==true)throw Error(String(data.error||'Connection failed.'));
