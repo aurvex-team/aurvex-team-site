@@ -15,14 +15,16 @@ Deno.serve(async(req:Request)=>{
  let payload:Record<string,unknown>;
  try{payload=await req.json()}catch{return json(req,{error:'INVALID_JSON'},400)}
  const kind=payload.kind,sku=payload.sku,currency=payload.currency,idempotency=payload.idempotency;
- if(!['stars','cosmetic'].includes(String(kind))||typeof sku!=='string'||!/^[-a-z0-9_]{3,64}$/.test(sku)||
+ if(!['stars','cosmetic','wallet'].includes(String(kind))||typeof sku!=='string'||!/^[-a-z0-9_]{3,64}$/.test(sku)||
   typeof currency!=='string'||!/^[A-Z]{3}$/.test(currency)||
   typeof idempotency!=='string'||!/^[a-f0-9-]{36}$/i.test(idempotency))
     return json(req,{error:'INVALID_CHECKOUT_SELECTION'},400);
  try{
-  const quote=await postRpc('aurvex_payment_prepare',{
-   requested_kind:kind,requested_sku:sku,display_currency:currency,request_id:idempotency
-  },anon,auth);
+  const quote=kind==='wallet'
+   ?await postRpc('aurvex_payment_prepare_wallet',{
+      requested_sku:sku,display_currency:currency,request_id:idempotency},anon,auth)
+   :await postRpc('aurvex_payment_prepare',{
+      requested_kind:kind,requested_sku:sku,display_currency:currency,request_id:idempotency},anon,auth);
   const chargedCurrency=String(quote.currency),amount=Number(quote.amountMinor);
   if(!gatewayCurrencies().has(chargedCurrency)||!Number.isSafeInteger(amount)||amount<1)
     return json(req,{error:'CURRENCY_NOT_ENABLED_AT_GATEWAY',chargedCurrency},422);
