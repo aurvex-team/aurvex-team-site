@@ -1,4 +1,4 @@
-# AURVEX Points Shop — v0.1 (2026-10-18)
+# Stars — AURVEX Points Shop (2026-10-18)
 
 ## Status
 - First-party, original CSS-only avatar/profile cosmetics catalog: 8 items.
@@ -24,7 +24,7 @@
 - `aurvex_shop_actor()`: requires verified user and `aal2` JWT.
 
 ## UI
-- `#/shop` for catalog, wallet, collection, server ledger preview and CSS try-ons. Links in header/sidebar/mobile nav and user Profile Studio.
+- Stars (`#/shop`) for catalog, wallet, collection, server ledger preview and CSS try-ons. Links in header/sidebar/mobile nav and user Profile Studio.
 - Both AURVEX Points and illustrative UAH price; latter clearly disabled until payment setup.
 - After purchase/equip, state is refetched from the server, not trusted from localStorage.
 - Check own and public profile with two independent browsers; ensure only owned equipment appears.

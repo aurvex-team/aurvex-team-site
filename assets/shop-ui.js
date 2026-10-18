@@ -1,8 +1,8 @@
 // AURVEX Points Shop client UI controller. Server authorizes ALL spend/equip.
 // UAH payments are NOT enabled here: no client can mint entitlements.
 import {loadShopCatalog,loadShopState,buyShopItemPoints,equipShopItem}
- from './shop-service.js?v=20261018-391';
-import {translations} from './i18n.js?v=20261018-391';
+ from './shop-service.js?v=20261018-401';
+import {translations} from './i18n.js?v=20261018-401';
 
 const model={catalog:[],catalogReady:false,catalogError:false,
   balance:null,inventory:[],equipped:{avatar:null,profile:null},history:[],

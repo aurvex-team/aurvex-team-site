@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261018-400';
+import { translations, supportedLanguages } from './i18n.js?v=20261018-401';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -965,7 +965,7 @@ function shopPage(){
    '<div class="shop-wallet">'+icon('shield',23)+' <p>'+t('shopSignInHint')+'</p>'+
    '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('shopNav')+'</span></div>'+
-   '<header class="shop-hero"><div class="smallcaps">NEBULA VAULT · '+t('shopPoints')+'</div>'+
+   '<header class="shop-hero"><div class="smallcaps">STARS · '+t('shopPoints')+'</div>'+
    '<h1>'+t('shopTitle')+'</h1><p>'+t('shopIntro')+'</p></header>'+
    wallet+
    '<p class="shop-currency-notice">'+t('currencyEstimate')+' · '+state.currency+(state.currency!=='UAH'&&currencyRate()===null?' · '+t('currencyUnavailable'):'')+'</p>'+ 
