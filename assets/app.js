@@ -590,7 +590,7 @@ function playerProfilePage(auth){
   const saving=auth.busy?' disabled aria-disabled="true"':'';
   const socialDraft=window.AURVEX_SOCIAL?.draftUserId===auth.user?.id?window.AURVEX_SOCIAL?.socialDraft:null;
   const shownLinks=socialDraft?.links||auth.profile?.public_links||[];
-  const shownWishlist=socialDraft?socialDraft.wishlistPublic:!!auth.profile?.wishlist_public;
+  const shownWishlist=!!auth.profile?.wishlist_public;
   const visibleTitles=auth.profileTitles||[];
   const profileLinks=auth.profile?.public_links||[];
   const activeTab=['overview','links'].includes(state.profileTab)?state.profileTab:'overview';
