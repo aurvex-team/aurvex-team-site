@@ -965,7 +965,7 @@ function shopPage(){
    '<div class="shop-wallet">'+icon('shield',23)+' <p>'+t('shopSignInHint')+'</p>'+
    '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('shopNav')+'</span></div>'+
-   '<header class="shop-hero"><div class="smallcaps">AURVEX · STARS+'</div>'+
+   '<header class="shop-hero"><div class="smallcaps">AURVEX · STARS</div>'+
    '<h1>'+t('shopTitle')+'</h1><p>'+t('shopIntro')+'</p></header>'+
    wallet+
    '<p class="shop-currency-notice">'+t('currencyEstimate')+' · '+state.currency+(state.currency!=='UAH'&&currencyRate()===null?' · '+t('currencyUnavailable'):'')+'</p>'+ 
