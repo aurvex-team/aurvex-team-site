@@ -897,6 +897,7 @@ function communityChatPage(){
  '<span class="chat-presence-dot"></span><strong># '+t('chatGeneral')+'</strong><small id="chat-message-count"></small></div>'+
  '<div class="chat-header-buttons"><button type="button" data-chat-action="refresh" aria-label="'+esc(t('chatRefresh'))+'">'+icon('refresh',17)+'</button>'+
  '<button type="button" data-chat-action="show-hidden" aria-label="'+esc(t('chatShowHidden'))+'">'+icon('eye',17)+'</button></div></div>'+
+ '<div id="chat-admin-panel" class="chat-admin-slot"></div>'+ 
  '<div id="chat-message-feed" class="chat-message-feed" role="log" aria-label="'+esc(t('chatGeneral'))+'" aria-live="off">'+
  '<div class="chat-empty">'+icon('message',27)+'<p>'+t('chatLoading')+'</p></div></div>'+
  '<div id="chat-notice" class="chat-notice" role="status"></div>'+
@@ -1437,7 +1438,7 @@ function render(keepScroll=false){
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
   document.body.classList.remove('menu-open');
-  if(route.path==='/chat')window.AURVEX_CHAT_MOUNT?.();
+  if(route.path==='/chat'){window.AURVEX_CHAT_MOUNT?.();window.AURVEX_CHAT_ADMIN_MOUNT?.();}
   if(keepScroll)window.scrollTo(0,pos);
 }
 function syncCatalogUrl(){
