@@ -39,3 +39,22 @@ select public.aurvex_chat_moderate_user('<abusive-auth-user-uuid>','mute_1d');
 \`\`\`
 
 **Reminder:** This is a community chat, not an end-to-end encrypted private messenger. Do not post sensitive personal information.
+
+
+## v3.17 — moderation, suspension and trusted staff tools
+
+An AAL2-verified, database-authorized moderator sees a collapsible **Moderation Center** above the public feed at \`#/chat\`. Actions are also accessible on individual messages.
+
+- **Message actions:** remove a visible post or restore a held post.
+- **Member actions:** mute 1 hour/1 day, suspend chat access for 1/7/30 days or approximately 100 years, and lift a chat ban. Chat bans automatically remove that author's currently visible messages.
+- **Full AURVEX ban:** site administrators can suspend/restore a user across AURVEX and Supabase Auth. There is a separate confirmation, 2FA enforcement, server-side site-admin allowlist, audit log, and protected-account check. Chat moderators who are not site admins cannot run it.
+- **Account search:** moderators can find a member by public nickname (at least three characters) or exact player UUID. Only public nickname and ID are returned; email and hidden account details are not exposed. The recent participant list also includes previously removed authors.
+- **Report review:** private queue of held/reported messages visible only to designated staff. Moderation permissions are checked again on every server request.
+
+Tables: \`aurvex_site_admins\`, \`aurvex_site_bans\`, \`aurvex_site_ban_audit\` all deny direct browser table access. The central \`aurvex_shop_actor()\` now refuses privileged application actions from suspended users. The Auth administrator operation runs only in \`aurvex-chat-admin\` Edge Function, using Supabase server secrets; these keys are never sent to the frontend.
+
+**Important:** Auth session tokens issued before a suspension may stay valid until token expiration. Database-level bans protect the guarded application actions immediately; administrators must not rely on client-side button visibility alone. Other independent services/domains need their own enforcement and cannot be assumed suspended automatically.
+
+**Incident handling:** Review message IDs and server author IDs, not nickname alone. Hide/remove abuse from the public feed without deleting the retained moderation evidence. Do not publish identifiers or sensitive account information. After a site ban, verify the Auth ban and the AURVEX suspension record both exist. An appeal can be reviewed by the operator, with an authorised unban if warranted.
+
+The initial site administrator and moderator were assigned by a privileged, one-off database operation after validating the account through its own chat messages. Never promote staff based on client-editable metadata or a user-supplied nickname.
