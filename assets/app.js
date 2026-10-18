@@ -10,7 +10,7 @@ const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
   theme:getStored(STORAGE.theme)==='light'?'light':'dark',
   wished:getStored(STORAGE.wish)==='1',
-  query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview'
+  query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview',profileNicknameDraft:null,profileNicknameOwner:''
 };
 let toastTimer=0;
 const pathIcons={
@@ -495,6 +495,12 @@ function playerProfilePage(auth){
       joined=date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{month:'long',year:'numeric'});
     }
   }
+  if(state.profileNicknameOwner===auth.user?.id&&
+     state.profileNicknameDraft===auth.profile?.nickname){
+    state.profileNicknameDraft=null;state.profileNicknameOwner='';
+  }
+  const inputNickname=state.profileNicknameOwner===auth.user?.id&&state.profileNicknameDraft!==null
+    ?state.profileNicknameDraft:(auth.profile?.nickname||'');
   const saving=auth.busy?' disabled aria-disabled="true"':'';
   const socialDraft=window.AURVEX_SOCIAL?.draftUserId===auth.user?.id?window.AURVEX_SOCIAL?.socialDraft:null;
   const shownLinks=socialDraft?.links||auth.profile?.public_links||[];
@@ -551,7 +557,7 @@ function playerProfilePage(auth){
         '<div class="player-edit-layout">'+
           '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
             '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
-              '<input id="id-nickname" name="nickname" type="text" inputmode="text" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="nickname" value="'+esc(auth.profile?.nickname||'')+'" placeholder="'+esc(t('idProfileNamePlaceholder'))+'">'+
+              '<input id="id-nickname" name="nickname" type="text" inputmode="text" spellcheck="false" required minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" autocomplete="nickname" value="'+esc(inputNickname)+'" placeholder="'+esc(t('idProfileNamePlaceholder'))+'">'+
               '<p class="id-field-hint">3–24 · A–Z · 0–9 · _</p>'+
               '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('idProfileSave')+'</button></form></div>'+
           '<div class="player-edit-card"><h3>'+icon('image',20)+' '+t('profileProfileArt')+'</h3>'+
@@ -1131,6 +1137,11 @@ document.addEventListener('change',function(event){
   }
 });
 document.addEventListener('input',function(event){
+  if(event.target.id==='id-nickname'&&window.AURVEX_ID?.user?.id){
+    state.profileNicknameOwner=window.AURVEX_ID.user.id;
+    state.profileNicknameDraft=event.target.value;
+    return;
+  }
   if(event.target.id==='genre-lookup'){
     const query=event.target.value.trim().toLocaleLowerCase(state.language);
     document.querySelectorAll('[data-genre-row]').forEach(function(row){row.hidden=!!query&&!row.dataset.genreName.includes(query)});
