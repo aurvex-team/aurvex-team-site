@@ -6,7 +6,7 @@ import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,
- getMfaState,beginMfaEnrollment,verifyMfaCode,getProfileTitles
+ getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
 } from './id-service.js?v=20261017-395';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
@@ -96,7 +96,7 @@ async function reload(){
     // Verified aal2 session: private account data is now readable under RLS.
     // Server is authoritative: never re-upload an old local wishlist snapshot.
     const [profile,wished,titles]=await Promise.all([
-      ownProfile(user.id),getOwnWishlist(user.id),getProfileTitles(user.id)
+      ownProfile(user.id),getOwnWishlist(user.id),getOwnProfileTitles(user.id)
     ]);
     if(revision!==profileReloadToken||model.user?.id!==user.id)return;
     updateProfile(profile);
