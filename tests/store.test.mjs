@@ -1211,3 +1211,65 @@ test('Public and own official titles respect hidden preferences while database g
  assert.ok(ui.includes("normalizeHiddenTitles"));
  assert.ok(ui.includes("m.appearanceDraft=null"));
 });
+
+
+test('Compact Profile Studio has three localized accessible editor tabs instead of a tall form stack',()=>{
+ const account={
+  user:{id:'11111111-2222-4333-8444-555555555555'},
+  mfaVerified:true,profile:{nickname:'tester',public_links:[]},profileTitles:[]
+ };
+ for(const lang of supportedLanguages){
+  const {html}=render('#/id',lang,false,null,account);
+  assert.ok(html.includes('class="profile-tabs" role="tablist"'),lang);
+  assert.ok(html.includes('aria-label="'+translations[lang].profileTabsLabel+'"'),lang);
+  for(const [name,key] of [['overview','profileTabOverview'],['links','profileTabLinks'],['appearance','profileTabAppearance']]){
+   assert.ok(html.includes('id="profile-tab-'+name+'"'),name);
+   assert.ok(html.includes('aria-controls="profile-panel-'+name+'"'),name);
+   assert.ok(html.includes('id="profile-panel-'+name+'" class="profile-tab-panel" role="tabpanel"'),name);
+   assert.ok(html.includes(translations[lang][key]),lang+':'+key);
+  }
+  assert.ok(html.includes('data-active-profile-tab="overview"'));
+  assert.ok(html.includes('id="profile-panel-links" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-links" hidden'));
+  assert.ok(html.includes('id="profile-panel-appearance" class="profile-tab-panel" role="tabpanel" aria-labelledby="profile-tab-appearance" hidden'));
+  // Hidden panels stay mounted, so their in-progress FormData and event handlers survive tab switches.
+  assert.ok(html.includes('id="id-nickname-form"'));
+  assert.ok(html.includes('id="social-profile-form"'));
+  assert.ok(html.includes('id="profile-appearance-form"'));
+  assert.ok(html.includes('id="id-avatar-upload"'));
+  assert.ok(html.includes('id="id-banner-upload"'));
+ }
+});
+
+test('Tabbed profile switch preserves live forms and supports keyboard navigation',()=>{
+ for(const statement of [
+  "state.profileTab=next;",
+  "panel.hidden=panel.id!=='profile-panel-'+next",
+  "button.setAttribute('aria-selected',String(active))",
+  'const next=event.key===',
+  "buttons[next].click()",
+  "profileNicknameDraft",
+  "state.profileNicknameOwner=window.AURVEX_ID.user.id"
+ ])assert.ok(appCode.includes(statement),statement);
+ assert.ok(css.includes('.profile-tab-panel[hidden]{display:none!important}'));
+ assert.ok(css.includes('.profile-tabs .profile-tab.is-active'));
+ assert.ok(css.includes('.profile-workspace #social-profile-form'));
+ assert.ok(css.includes('.profile-workspace .custom-select-grid'));
+ assert.ok(css.includes('.player-profile:not(.public-profile) .player-cover'));
+ const open=appCode.indexOf("const profileTab=event.target.closest('button[data-profile-tab]')");
+ const close=appCode.indexOf("const removable=event.target.closest('[data-remove-filter]')",open);
+ assert.ok(open>0&&close>open);
+ const switcher=appCode.slice(open,close);
+ assert.ok(!switcher.includes('render(true)'),'Tabs must not rerender/recreate the editor forms');
+});
+
+test('Public profiles keep full banner and display-only layout, not private editing tabs',()=>{
+ const player='11111111-2222-4333-8444-555555555555';
+ const page=render('#/player/'+player,'en',false,null,null,null,{
+  profileTarget:player,profile:{nickname:'tester',wishlist_visible:false,profileTitles:[],public_links:[]}
+ }).html;
+ assert.ok(page.includes('class="player-profile public-profile"'));
+ assert.ok(!page.includes('data-profile-workspace'));
+ assert.ok(!page.includes('id="profile-appearance-form"'));
+ assert.ok(!page.includes('data-profile-tab'));
+ assert.ok(page.includes('class="player-cover"'));
+});
