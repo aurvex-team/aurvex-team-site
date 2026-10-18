@@ -55,9 +55,9 @@ export async function getProfileTitles(userId){
 export async function getOwnProfileTitles(userId){
   if(!validPlayerId(userId))return [];
   const client=await idClient();
-  const {data,error}=await client.from('id_profile_titles').select('title_code').eq('user_id',userId);
+  const {data,error}=await client.rpc('aurvex_own_titles');
   if(error)throw error;
-  return (data||[]).map(entry=>entry.title_code).filter(code=>TEAM_TITLE_CODES.includes(code));
+  return (Array.isArray(data)?data:[]).filter(code=>TEAM_TITLE_CODES.includes(code));
 }
 export async function getPublicAppearance(userId){
   if(!validPlayerId(userId))return {};
