@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { translations, supportedLanguages } from '../assets/i18n.js';
 import { normalizePublicLinks } from '../assets/social-links.js';
+import { normalizeAppearance,normalizeHiddenTitles,visibleTeamTitles } from '../assets/profile-customization.js';
 
 const appCode=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
 const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'');
@@ -1051,7 +1052,7 @@ test('Official team title metadata is publicly readable but has no user write pr
  ])assert.ok(sql.includes(clause),clause);
  assert.ok(!sql.includes('grant insert'));
  assert.ok(!sql.includes('grant update'));
- assert.ok(idService.includes("from('id_profile_titles')"));
+ assert.ok(idService.includes('aurvex_own_titles'));
  assert.ok(idUi.includes('getProfileTitles(user.id)'));
  assert.ok(socialService.includes('getProfileTitles(id)'));
 });
@@ -1090,4 +1091,123 @@ test('Other players keep real membership dates even when using founder-like nick
  }).html;
  assert.ok(publicHtml.includes('Member since October 2026'));
  assert.ok(!publicHtml.includes(translations.en.profileFounderSince));
+});
+
+
+test('Profile Studio offers safe font presets, avatar/profile frames and five glow zones in every language',()=>{
+ const id='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const account={user:{id,created_at:'2026-10-17T10:00:00Z'},
+  profile:{nickname:'fleki',profile_appearance:{font:'mono',avatar_frame:'gold',
+   profile_frame:'red',glow_color:'cyan',glow_avatar:true,glow_banner:true,glow_name:true,
+   glow_links:true,glow_profile:true},hidden_title_codes:['aurvex_ceo'],public_links:[]},
+  profileTitles:['aurvex_ceo','site_launcher_developer'],mfaVerified:true};
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang,false,null,account).html;
+  assert.ok(html.includes('id="profile-appearance-form"'),lang);
+  assert.ok(html.includes('name="font"'),lang);
+  assert.ok(html.includes('name="avatar_frame"'),lang);
+  assert.ok(html.includes('name="profile_frame"'),lang);
+  assert.ok(html.includes('name="glow_color"'),lang);
+  for(const zone of ['avatar','banner','name','links','profile']){
+   assert.ok(html.includes('name="glow_'+zone+'" checked'),zone);
+   assert.ok(html.includes('data-pf-glow-'+zone+'="on"'),zone);
+  }
+  assert.ok(html.includes('data-pf-font="mono"'));
+  assert.ok(html.includes('data-pf-avatar="gold"'));
+  assert.ok(html.includes('data-pf-frame="red"'));
+  assert.ok(html.includes('data-pf-color="cyan"'));
+  assert.ok(html.includes('name="show_aurvex_ceo"'));
+  assert.ok(!html.includes('official-profile-title-aurvex_ceo'));
+  assert.ok(html.includes('official-profile-title-site_launcher_developer'));
+  assert.ok(html.includes(translations[lang].customStudio));
+ }
+});
+
+test('Profile removes redundant Friends, Family and Notifications sidebar cards without losing navigation',()=>{
+ const id='33333333-3333-4333-8333-333333333333';
+ const account={user:{id},profile:{nickname:'player'},profileTitles:[],mfaVerified:true};
+ const html=render('#/id','en',false,null,account).html;
+ assert.ok(html.includes('id="profile-appearance-form"'));
+ assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.friendsNav));
+ assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.familyNav));
+ assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.social37Nav));
+ assert.ok(html.includes('href="#/friends"'));
+ assert.ok(html.includes('href="#/family"'));
+ assert.ok(html.includes('href="#/notifications"'));
+ assert.ok(html.includes('name="font"'));
+ assert.ok(!html.includes('name="show_aurvex_ceo"'),'Regular accounts have no founder badges');
+});
+
+test('Each social link can be ordered and placed at header, center profile or bottom',()=>{
+ const id='33333333-3333-4333-8333-333333333333';
+ const links=[
+  {title:'TikTok',url:'https://tiktok.com/@x',slot:'header',align:'right'},
+  {title:'GitHub',url:'https://github.com/test',slot:'main',align:'center'},
+  {title:'Website',url:'https://example.org/',slot:'footer',align:'left'}
+ ];
+ const normalized=normalizePublicLinks(links);
+ assert.deepEqual(normalized,links);
+ const own={user:{id},profile:{nickname:'tester',public_links:links},profileTitles:[],mfaVerified:true};
+ const html=render('#/id','en',false,null,own).html;
+ for(const index of [1,2,3]) {
+  assert.ok(html.includes('name="slot'+index+'"'));
+  assert.ok(html.includes('name="align'+index+'"'));
+  assert.ok(html.includes('data-social-action="move-link-down"'));
+ }
+ const publicModel={profileTarget:id,profile:{
+  player_id:id,nickname:'tester',public_links:links,
+  wishlist_visible:false,profileTitles:[],
+  profile_appearance:{font:'rounded',glow_name:true,glow_color:'red'}
+ }};
+ const view=render('#/player/'+id,'en',false,null,null,null,publicModel).html;
+ for(const section of ['header','main','footer'])assert.ok(view.includes('profile-placed-'+section),section);
+ for(const side of ['left','center','right'])assert.ok(view.includes('profile-align-'+side),side);
+ assert.ok(view.includes('data-pf-font="rounded"'));
+ assert.ok(view.includes('data-pf-glow-name="on"'));
+ assert.ok(view.includes('https://github.com/test'));
+ assert.ok(view.includes('https://tiktok.com/@x'));
+});
+
+test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
+ const input={font:'mono',glow_name:true,avatar_frame:'gold'};
+ const result=normalizeAppearance(input);
+ assert.equal(result.font,'mono');
+ assert.equal(result.glow_name,true);
+ assert.equal(result.glow_banner,false);
+ assert.deepEqual(visibleTeamTitles(['aurvex_ceo','site_launcher_developer'],['aurvex_ceo']),['site_launcher_developer']);
+ assert.deepEqual(normalizeHiddenTitles(['aurvex_ceo','aurvex_ceo'],['aurvex_ceo']),['aurvex_ceo']);
+ for(const value of [
+  {font:'url(https://example.org/css)'},{font:'<script>alert(1)</script>'},
+  {glow_name:'yes'},{profile_frame:'gold;position:absolute'},
+  {glow_color:'#ff00cc'},{__proto__:null,customStyle:'display:none'}
+ ])assert.throws(()=>normalizeAppearance(value));
+ assert.throws(()=>normalizeHiddenTitles(['aurvex_ceo'],[]));
+ const id='33333333-3333-4333-8333-333333333333';
+ const view=render('#/player/'+id,'en',false,null,null,null,{profileTarget:id,profile:{
+  nickname:'tester',public_links:[],wishlist_visible:false,profileTitles:[],
+  profile_appearance:{font:'<script>bad</script>',glow_color:'url(x)'}
+ }}).html;
+ assert.ok(!view.includes('<script>bad</script>'));
+ assert.ok(view.includes('data-pf-font="system"'));
+});
+
+test('Public and own official titles respect hidden preferences while database grants remain server-only',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/20261018_profile_customization.sql',import.meta.url),'utf8');
+ const privateSql=readFileSync(new URL('../supabase/migrations/20261018_profile_titles_private.sql',import.meta.url),'utf8');
+ const srv=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ const ui=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
+ for(const key of ['id_profiles_appearance_valid','id_profiles_hidden_titles_valid',
+  'aurvex_visible_titles','aurvex_public_appearance','aurvex_valid_links',
+  "'header','main','footer'","'left','center','right'"]){
+  assert.ok(sql.includes(key),key);
+ }
+ assert.ok(privateSql.includes('revoke all on public.id_profile_titles'));
+ assert.ok(privateSql.includes('aurvex_own_titles'));
+ assert.ok(srv.includes('saveProfileAppearance'));
+ assert.ok(srv.includes('getPublicAppearance'));
+ assert.ok(ui.includes("profile-appearance-form"));
+ assert.ok(ui.includes("appearanceDraft"));
+ assert.ok(ui.includes("readAppearanceDraft"));
+ assert.ok(ui.includes("normalizeHiddenTitles"));
+ assert.ok(ui.includes("m.appearanceDraft=null"));
 });
