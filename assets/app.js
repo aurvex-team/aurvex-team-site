@@ -1,13 +1,14 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261018-391';
+import { translations, supportedLanguages } from './i18n.js?v=20261018-400';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
 const galleryUrls=[sceneUrl,'./assets/devive-interior.svg','./assets/devive-hallway.svg'];
-const STORAGE={locale:'aurvex.locale',theme:'aurvex.theme',wish:'aurvex.wishlist.devive'};
+const STORAGE={locale:'aurvex.locale',currency:'aurvex.currency',fx:'aurvex.fx.v1',theme:'aurvex.theme',wish:'aurvex.wishlist.devive'};
 function getStored(k){try{return localStorage.getItem(k)}catch{return null}}
 function store(k,v){try{localStorage.setItem(k,v)}catch{/* Browsing still works without storage */}}
 const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
+  currency:['UAH','USD','EUR','GBP','PLN','CHF','CAD','AUD','JPY','CNY','KRW','SEK','NOK','DKK','CZK','HUF','RON','TRY','INR','BRL','MXN','AED','SAR','ILS','ZAR','SGD','HKD','NZD','THB','IDR','MYR','PHP','VND','KZT','GEL','MDL','AZN'].includes(getStored(STORAGE.currency))?getStored(STORAGE.currency):'UAH',
   theme:getStored(STORAGE.theme)==='light'?'light':'dark',
   wished:getStored(STORAGE.wish)==='1',
   query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview',profileNicknameDraft:null,profileNicknameOwner:''
@@ -59,6 +60,95 @@ const pathIcons={
 function icon(name,size=19){return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(pathIcons[name]||pathIcons.sparkle)+'</svg>'}
 function t(key){return translations[state.language]?.[key]||translations.en[key]||key}
 function esc(str){return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')}
+
+/* Display-currency preferences never affect the server's UAH prices or Points ledger. */
+const currencyList=[
+ ['UAH','🇺🇦','Ukrainian hryvnia'],['USD','🇺🇸','US dollar'],['EUR','🇪🇺','Euro'],
+ ['GBP','🇬🇧','British pound'],['PLN','🇵🇱','Polish złoty'],['CHF','🇨🇭','Swiss franc'],
+ ['CAD','🇨🇦','Canadian dollar'],['AUD','🇦🇺','Australian dollar'],['JPY','🇯🇵','Japanese yen'],
+ ['CNY','🇨🇳','Chinese yuan'],['KRW','🇰🇷','South Korean won'],['SEK','🇸🇪','Swedish krona'],
+ ['NOK','🇳🇴','Norwegian krone'],['DKK','🇩🇰','Danish krone'],['CZK','🇨🇿','Czech koruna'],
+ ['HUF','🇭🇺','Hungarian forint'],['RON','🇷🇴','Romanian leu'],['TRY','🇹🇷','Turkish lira'],
+ ['INR','🇮🇳','Indian rupee'],['BRL','🇧🇷','Brazilian real'],['MXN','🇲🇽','Mexican peso'],
+ ['AED','🇦🇪','UAE dirham'],['SAR','🇸🇦','Saudi riyal'],['ILS','🇮🇱','Israeli shekel'],
+ ['ZAR','🇿🇦','South African rand'],['SGD','🇸🇬','Singapore dollar'],['HKD','🇭🇰','Hong Kong dollar'],
+ ['NZD','🇳🇿','New Zealand dollar'],['THB','🇹🇭','Thai baht'],['IDR','🇮🇩','Indonesian rupiah'],
+ ['MYR','🇲🇾','Malaysian ringgit'],['PHP','🇵🇭','Philippine peso'],['VND','🇻🇳','Vietnamese đồng'],
+ ['KZT','🇰🇿','Kazakhstani tenge'],['GEL','🇬🇪','Georgian lari'],['MDL','🇲🇩','Moldovan leu'],
+ ['AZN','🇦🇿','Azerbaijani manat']
+];
+const currencyCodes=new Set(currencyList.map(x=>x[0]));
+const localeTags={en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'};
+const fxState={rates:{UAH:1},time:0,status:'loading'};
+try{
+ const cached=JSON.parse(getStored(STORAGE.fx)||'null');
+ if(cached&&Number.isFinite(cached.time)&&Date.now()-cached.time<48*3600*1000&&cached.rates&&cached.rates.UAH===1){
+   fxState.rates=cached.rates;fxState.time=cached.time;fxState.status='ready';
+ }
+}catch{/* Corrupt local data must not affect prices */ }
+function currencyRate(){
+ if(state.currency==='UAH')return 1;
+ const rate=fxState.rates[state.currency];
+ return Number.isFinite(rate)&&rate>0?rate:null;
+}
+function convertUah(amount){
+ if(!Number.isFinite(amount)||amount<0)return null;
+ const rate=currencyRate();return rate===null?null:amount*rate;
+}
+function formatShopMoney(kop){
+ if(!Number.isSafeInteger(kop)||kop<0)return '—';
+ const amount=convertUah(kop/100);
+ if(amount===null)return '— '+state.currency;
+ if(state.currency==='UAH')return (amount%1===0?amount.toFixed(0):amount.toFixed(2))+' ₴';
+ return new Intl.NumberFormat(localeTags[state.language]||'en-US',{
+   style:'currency',currency:state.currency,currencyDisplay:'symbol',
+   minimumFractionDigits:0,maximumFractionDigits:2
+ }).format(amount);
+}
+function preferenceMenu(type){
+ const language=type==='language';
+ const current=language?state.language:state.currency;
+ const label=t(language?'language':'currency');
+ const entries=language?supportedLanguages.map(code=>[code,({en:'🇬🇧',uk:'🇺🇦',pl:'🇵🇱',de:'🇩🇪'})[code],translations[code].langName]):currencyList;
+ const indicator=language?state.language.toUpperCase():state.currency;
+ return '<details class="pref-dropdown '+(language?'pref-language':'pref-currency')+'">'+
+   '<summary class="pref-trigger" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+
+     icon(language?'globe':'layers',16)+'<span>'+esc(indicator)+'</span>'+icon('chevron',13)+'</summary>'+
+   '<div class="pref-panel" role="group" aria-label="'+esc(label)+'">'+
+     '<div class="pref-panel-heading"><strong>'+esc(label)+'</strong><span>'+esc(indicator)+'</span></div>'+
+     (!language?'<label class="pref-search">'+icon('search',15)+'<input type="search" data-pref-search placeholder="'+esc(t('currencySearch'))+'" aria-label="'+esc(t('currencySearch'))+'" autocomplete="off"></label>':'')+
+     '<div class="pref-options">'+entries.map(([code,flag,name])=>
+        '<button type="button" class="pref-option'+(current===code?' is-selected':'')+'" data-pref-'+(language?'lang':'currency')+'="'+esc(code)+'" data-pref-name="'+esc((code+' '+name).toLowerCase())+'" aria-pressed="'+String(current===code)+'">'+
+          '<span class="pref-flag" aria-hidden="true">'+flag+'</span><span class="pref-option-text"><strong>'+esc(language?name:code)+'</strong>'+
+            (!language?'<small>'+esc(name)+'</small>':'<small>'+esc(code.toUpperCase())+'</small>')+'</span>'+
+          (current===code?icon('check',16):'')+'</button>').join('')+'</div>'+
+     (!language?'<div class="pref-footnote">'+esc(t(fxState.status==='ready'?'currencyRatesUpdated':'currencyRatesLoading'))+
+       (fxState.time&&fxState.status==='ready'?' · '+new Date(fxState.time).toLocaleDateString(localeTags[state.language]):'')+'</div>':'')+
+   '</div></details>';
+}
+async function refreshCurrencyRates(){
+ if(typeof window.fetch!=='function')return;
+ if(fxState.status==='ready'&&Date.now()-fxState.time<23*3600*1000)return;
+ try{
+   const response=await window.fetch('https://open.er-api.com/v6/latest/UAH',{cache:'no-store'});
+   if(!response.ok)throw new Error('FX_HTTP');
+   const data=await response.json();
+   if(data.result!=='success'||data.base_code!=='UAH'||data.rates?.UAH!==1)throw new Error('FX_SCHEMA');
+   const rates={UAH:1};
+   for(const code of currencyCodes){
+     if(code==='UAH')continue;
+     const v=data.rates[code];
+     if(Number.isFinite(v)&&v>0)rates[code]=v;
+   }
+   if(!rates.USD||!rates.EUR)throw new Error('FX_MISSING_RATES');
+   fxState.rates=rates;fxState.time=Date.now();fxState.status='ready';
+   store(STORAGE.fx,JSON.stringify({time:fxState.time,rates}));
+ }catch{
+   if(fxState.status!=='ready')fxState.status='unavailable';
+ }
+ render(true);
+}
+
 function href(route){return '#'+route}
 function routeInfo(){
   const raw=(location.hash||'#/').slice(1);
@@ -81,7 +171,6 @@ function header(path){
   const profileAvatar=id?.user&&id?.avatarUrl?
     '<img class="top-account-avatar" src="'+esc(id.avatarUrl)+'" alt="">':icon('user',17);
   const profileLabel=id?.user?(id.profile?.nickname||t('idAccount')):t('idSignIn');
-  const langOptions=supportedLanguages.map(function(code){return '<option value="'+code+'"'+(state.language===code?' selected':'')+'>'+code.toUpperCase()+'</option>'}).join('');
   const live=window.AURVEX_VISITORS||{status:'connecting',count:null};
   const liveCount=Number.isSafeInteger(live.count)&&live.count>=0?String(live.count):'—';
   const liveState=['live','connecting','unavailable'].includes(live.status)?live.status:'connecting';
@@ -104,7 +193,7 @@ function header(path){
     '<a href="#/shop" class="'+(path==='/shop'?'active':'')+'">'+t('shopNav')+'</a>'+
     '<a href="#/about" class="'+(path==='/about'?'active':'')+'">'+t('about')+'</a></nav>'+
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
-    '<div class="top-actions">'+liveBadge+'<label class="language-control" aria-label="'+t('language')+'">'+icon('globe',16)+'<select id="language-select" aria-label="'+t('language')+'">'+langOptions+'</select></label>'+
+    '<div class="top-actions">'+liveBadge+preferenceMenu('language')+preferenceMenu('currency')+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
     '<a class="icon-btn social-bell'+(path==='/notifications'?' active':'')+'" href="#/notifications" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'">'+
@@ -115,7 +204,7 @@ function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
       navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
-      navLink('/rewards','free','gift',path)+navLink('/shop','shopNav','sparkle',path)+'</div>'+
+      navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+
       navLink('/friends','friendsNav','users',path,
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
@@ -222,8 +311,10 @@ function catalogMatches(route){
     if(route.path==='/games'&&product.kind!=='game')return false;
     if(kind!=='all'&&product.kind!==kind)return false;
     if(genres.length&&!genres.some(function(genre){return product.genres.includes(genre)}))return false;
-    if(min!==null&&(!Number.isFinite(min)||min<0||product.price<min))return false;
-    if(max!==null&&(!Number.isFinite(max)||max<0||product.price>max))return false;
+    const chosenPrice=convertUah(product.price);
+    if((min!==null||max!==null)&&chosenPrice===null)return false;
+    if(min!==null&&(!Number.isFinite(min)||min<0||chosenPrice<min))return false;
+    if(max!==null&&(!Number.isFinite(max)||max<0||chosenPrice>max))return false;
     if(min!==null&&max!==null&&min>max)return false;
     if(year!==null&&(!Number.isInteger(year)||product.releaseYear!==year))return false;
     if(q){
@@ -273,8 +364,8 @@ function activeFilters(){
   const list=[];
   if(state.kind!=='all')list.push(['kind',state.kind,t(state.kind==='game'?'games':'apps')]);
   selectedGenres().forEach(function(g){const entry=gameGenres.find(function(x){return x[0]===g});if(entry)list.push(['genre',g,t(entry[1])]);});
-  if(state.minPrice!=='')list.push(['min','',t('minPriceUah')+': '+state.minPrice]);
-  if(state.maxPrice!=='')list.push(['max','',t('maxPriceUah')+': '+state.maxPrice]);
+  if(state.minPrice!=='')list.push(['min','',t('filterMinPrice')+' ('+state.currency+'): '+state.minPrice]);
+  if(state.maxPrice!=='')list.push(['max','',t('filterMaxPrice')+' ('+state.currency+'): '+state.maxPrice]);
   if(state.releaseYear!=='')list.push(['year','',t('releaseYear')+': '+state.releaseYear]);
   return list.length?'<div class="active-filter-chips" aria-label="'+t('activeFilters')+'">'+
     '<span class="active-filter-label">'+t('activeFilters')+'</span>'+
@@ -312,11 +403,11 @@ function catalog(route){
       '<div class="filter-fields">'+
         customChoice('filter-kind',t('productType'),typeList,state.kind,'kind')+
         customGenres()+
-        '<label class="filter-field"><span>'+t('minPriceUah')+'</span><input id="filter-min-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="0" value="'+esc(state.minPrice)+'"></label>'+
-        '<label class="filter-field"><span>'+t('maxPriceUah')+'</span><input id="filter-max-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="'+t('anyPrice')+'" value="'+esc(state.maxPrice)+'"></label>'+
+        '<label class="filter-field"><span>'+t('filterMinPrice')+' ('+state.currency+')</span><input id="filter-min-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="0" value="'+esc(state.minPrice)+'"></label>'+
+        '<label class="filter-field"><span>'+t('filterMaxPrice')+' ('+state.currency+')</span><input id="filter-max-price" type="number" min="0" max="9999999" step="1" inputmode="numeric" placeholder="'+t('anyPrice')+'" value="'+esc(state.maxPrice)+'"></label>'+
         customChoice('filter-year',t('releaseYear'),yearList,state.releaseYear,'year','year-dropdown')+
       '</div>'+
-      '<p class="filter-note">'+icon('info',15)+' '+t('filtersNote')+'</p>'+
+      '<p class="filter-note">'+icon('info',15)+' '+t('currencyFilterNote')+'</p>'+
     '</div>'+
     '<div id="active-filters">'+activeFilters()+'</div>'+ 
     '<div class="catalog-tools"><strong id="catalog-count">'+count+' '+t(count===1?'oneResult':'results')+'</strong>'+
@@ -845,14 +936,14 @@ function shopPage(){
    const isOwned=owned.has(item.id),isEquipped=equipped[kind]===item.id;
    const preview=m.previewId===item.id;
    const pts=Number.isSafeInteger(item.price_points)?item.price_points:0;
-   const hryvnia=Number.isSafeInteger(item.price_uah_kop)?(item.price_uah_kop/100).toFixed(0):'—';
+   const money=formatShopMoney(item.price_uah_kop);
    return '<article class="shop-card">'+
      '<div class="shop-card-preview" data-shop-card-theme="'+esc(item.theme)+'" data-shop-card-kind="'+kind+'">'+
        '<span class="shop-art-ring"></span><span class="shop-art-core">A</span>'+
        '<span class="shop-art-smallcaps">AURVEX</span></div>'+
      '<div class="shop-card-body"><span class="smallcaps">'+t(kind==='avatar'?'shopAvatar':'shopProfile')+'</span>'+
      '<h3>'+esc(title)+'</h3><div class="shop-prices">'+
-       '<span>'+icon('sparkle',15)+' '+pts+' '+t('shopPoints')+'</span><span>'+hryvnia+' ₴</span></div>'+
+       '<span>'+icon('sparkle',15)+' '+pts+' '+t('shopPoints')+'</span><span>'+esc(money)+'</span></div>'+
      '<div class="shop-card-actions"><button class="btn btn-outline" type="button" data-shop-action="preview" data-item-id="'+esc(item.id)+'">'+
        icon('eye',15)+' '+t(preview?'shopHidePreview':'shopPreview')+'</button>'+
      (isOwned?'<button class="btn btn-primary" type="button" data-shop-action="'+(isEquipped?'unequip':'equip')+'" data-kind="'+kind+'" data-item-id="'+esc(item.id)+'"'+(m.busy?' disabled':'')+'>'+
@@ -860,7 +951,7 @@ function shopPage(){
        '<button class="btn btn-primary" type="button" data-shop-action="buy-points" data-item-id="'+esc(item.id)+'"'+
        (!signed||!m.ready||m.busy||m.balance<pts?' disabled':'')+'>'+t('shopBuyPoints')+'</button>')+
      '<button class="btn btn-outline shop-money-button" type="button" disabled title="'+esc(t('shopMoneyPending'))+'">'+
-       hryvnia+' ₴ · '+t('shopComingSoon')+'</button></div>'+
+       esc(money)+' · '+t('shopComingSoon')+'</button></div>'+
      (preview?'<div class="shop-tryon"'+shopStyleAttrs(kind==='avatar'?{avatar:item.id}:{profile:item.id})+'>'+
        '<div class="shop-tryon-card"><div class="shop-tryon-avatar">A</div><strong>'+esc(auth.profile?.nickname||'AURVEX PLAYER')+'</strong>'+
        '<small>'+t('shopPreviewOnly')+'</small></div></div>':'')+
@@ -874,9 +965,10 @@ function shopPage(){
    '<div class="shop-wallet">'+icon('shield',23)+' <p>'+t('shopSignInHint')+'</p>'+
    '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('shopNav')+'</span></div>'+
-   '<header class="shop-hero"><div class="smallcaps">AURVEX · POINTS SHOP</div>'+
+   '<header class="shop-hero"><div class="smallcaps">NEBULA VAULT · '+t('shopPoints')+'</div>'+
    '<h1>'+t('shopTitle')+'</h1><p>'+t('shopIntro')+'</p></header>'+
    wallet+
+   '<p class="shop-currency-notice">'+t('currencyEstimate')+' · '+state.currency+(state.currency!=='UAH'&&currencyRate()===null?' · '+t('currencyUnavailable'):'')+'</p>'+ 
    (m.messageKey?'<p class="shop-feedback'+(m.error?' is-error':'')+'" role="status">'+t(m.messageKey)+'</p>':'')+
    (!m.catalogReady?'<div class="friends-empty">'+t('shopLoading')+'</div>':
      m.catalogError?'<div class="friends-empty">'+t('shopLoadError')+
@@ -1016,7 +1108,7 @@ function footer(){
     '<p>'+t('footerTag')+'</p></div><div class="footer-links"><a href="#/browse">'+t('footerExplore')+'</a>'+
     '<a href="#/games">'+t('games')+'</a><a href="#/apps">'+t('apps')+'</a>'+
     '<a href="#/about">'+t('about')+'</a><a href="#/team">'+t('team')+'</a><a href="#/support">'+t('supportTeam')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
-    '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span></div></footer>';
+    '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a></div></footer>';
 }
 function render(keepScroll=false){
   const pos=window.scrollY;
@@ -1120,6 +1212,23 @@ document.addEventListener('click',function(event){
     return;
   }
 
+  const langChoice=event.target.closest('[data-pref-lang]');
+  if(langChoice){
+    const lang=langChoice.dataset.prefLang;
+    if(supportedLanguages.includes(lang)){state.language=lang;store(STORAGE.locale,lang);render(true)}
+    return;
+  }
+  const currencyChoice=event.target.closest('[data-pref-currency]');
+  if(currencyChoice){
+    const code=currencyChoice.dataset.prefCurrency;
+    if(currencyCodes.has(code)){
+      state.currency=code;store(STORAGE.currency,code);
+      state.minPrice='';state.maxPrice='';syncCatalogUrl();render(true);
+      if(currencyRate()===null)refreshCurrencyRates();
+    }
+    return;
+  }
+  if(!event.target.closest('details.pref-dropdown'))document.querySelectorAll('details.pref-dropdown[open]').forEach(x=>{x.open=false});
   if(event.target.closest('.sidebar a,.mobile-bottom a'))setMenu(false);
   const dropdown=event.target.closest('details.filter-dropdown');
   if(!dropdown)closeFilterMenus();
@@ -1206,11 +1315,7 @@ document.addEventListener('click',function(event){
   }
 });
 document.addEventListener('change',function(event){
-  if(event.target.id==='language-select'){
-    const lang=event.target.value;
-    if(!supportedLanguages.includes(lang))return;
-    state.language=lang;store(STORAGE.locale,lang);render(true);
-  }else if(event.target.matches('[data-genre-option]')){
+  if(event.target.matches('[data-genre-option]')){
     const selected=new Set(selectedGenres());
     if(event.target.checked)selected.add(event.target.value);
     else selected.delete(event.target.value);
@@ -1219,6 +1324,12 @@ document.addEventListener('change',function(event){
   }
 });
 document.addEventListener('input',function(event){
+  if(event.target.matches('[data-pref-search]')){
+    const phrase=event.target.value.trim().toLowerCase();
+    const panel=event.target.closest('.pref-panel');
+    panel?.querySelectorAll('.pref-option').forEach(opt=>{opt.hidden=!opt.dataset.prefName.includes(phrase)});
+    return;
+  }
   if(event.target.id==='id-nickname'&&window.AURVEX_ID?.user?.id){
     state.profileNicknameOwner=window.AURVEX_ID.user.id;
     state.profileNicknameDraft=event.target.value;
@@ -1269,10 +1380,14 @@ window.addEventListener('keydown',function(event){
       return;
     }
   }
-  if(event.key==='Escape'){closeFilterMenus();setMenu(false);return}
+  if(event.key==='Escape'){
+    document.querySelectorAll('details.pref-dropdown[open]').forEach(x=>{x.open=false});
+    closeFilterMenus();setMenu(false);return;
+  }
   if(event.key==='/'&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.target.closest('input,textarea,select,[contenteditable]')){
     const target=document.querySelector('#catalog-search')||document.querySelector('.top-search input');
     if(target){event.preventDefault();target.focus()}
   }
 });
 render();
+refreshCurrencyRates();
