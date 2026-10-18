@@ -2237,3 +2237,5 @@ input,select{color:var(--text)}
 @media(max-width:800px){#mod-account-form{grid-template-columns:1fr}
  .mod-panel{margin:10px}.mod-panel-head{align-items:flex-start}.mod-panel-head button{white-space:normal}
  .mod-review-item span{display:block;margin:4px 0 0}}
+
+.mod-find{display:flex;gap:9px;margin:10px 0 14px}.mod-find input{flex:1;min-width:0;background:var(--surface-2);color:var(--text);border:1px solid var(--line-strong);border-radius:9px;padding:11px;font:inherit;font-size:11px}.mod-find button{border-radius:9px;padding:9px 13px;border:1px solid var(--accent);color:var(--accent);font-weight:800;font-size:11px}@media(max-width:460px){.mod-find{flex-wrap:wrap}.mod-find button{width:100%}}
