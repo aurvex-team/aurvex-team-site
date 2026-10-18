@@ -50,7 +50,7 @@ export async function digest(hexType:'SHA-1'|'SHA-256',value:string){
 export async function fondySignature(obj:Record<string,unknown>,secret:string){
  const pairs=Object.entries(obj).filter(([k,v])=>k!=='signature'&&k!=='response_signature_string'
   &&v!==null&&v!==undefined&&v!==''&&typeof v!=='object');
- pairs.sort(([a],[b])=>a.localeCompare(b,'en'));
+ pairs.sort(([a],[b])=>a<b?-1:a>b?1:0);
  return digest('SHA-1',secret+'|'+pairs.map(([,v])=>String(v)).join('|'));
 }
 export function safeEqual(a:string,b:string){

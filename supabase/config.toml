@@ -5,3 +5,6 @@ verify_jwt = true
 verify_jwt = false
 [functions.aurvex-payment-status]
 verify_jwt = false
+
+[functions.aurvex-payment-fx-sync]
+verify_jwt = false
