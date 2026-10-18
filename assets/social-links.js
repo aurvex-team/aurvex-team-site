@@ -33,7 +33,10 @@ export function normalizePublicLinks(fields){
       throw new Error('LINK_INVALID_TITLE');
     }
     if(result.some(link=>link.url===url))throw new Error('LINK_DUPLICATE');
-    result.push({title,url});
+    const slot=field?.slot,align=field?.align;
+    if(slot!==undefined&&!['header','main','footer'].includes(slot))throw new Error('LINK_INVALID_POSITION');
+    if(align!==undefined&&!['left','center','right'].includes(align))throw new Error('LINK_INVALID_POSITION');
+    result.push({...{title,url},...(slot!==undefined?{slot}:{}),...(align!==undefined?{align}:{})});
   }
   return result;
 }
