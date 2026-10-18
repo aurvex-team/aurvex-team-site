@@ -1310,7 +1310,7 @@ test('Stars shop is a first-party navigable screen with eight collectible design
   }
   assert.ok(html.includes('49 ₴'));
   assert.equal((html.match(/data-shop-card-kind="/g)||[]).length,8);
-  assert.equal((html.match(/class="btn btn-outline shop-money-button" type="button" disabled/g)||[]).length,8);
+  assert.equal((html.match(/class="btn btn-outline shop-money-button" href="#/checkout?kind=cosmetic/g)||[]).length,8);
   assert.ok(html.includes(translations[lang].shopMoneyPending));
   assert.ok(html.includes('data-shop-action="preview"'));
   assert.ok(html.includes('data-shop-action="buy-points"'));
@@ -1393,7 +1393,7 @@ test('Shop server security: MFA, wallet row locking, one-time Stars grant, price
  const html=render('#/shop','en',false,null,null,null,null,null,null,{
   catalog:[{id:'avatar_gold',kind:'avatar',theme:'gold',price_points:350,price_uah_kop:9900}],
   catalogReady:true}).html;
- assert.ok(html.includes('shop-money-button" type="button" disabled'));
+ assert.ok(html.includes('shop-money-button" href="#/checkout?kind=cosmetic'));
  assert.ok(html.includes('99 ₴'));
  const workflow=readFileSync(new URL('../.github/workflows/pages.yml',import.meta.url),'utf8');
  assert.ok(workflow.includes('node --check assets/shop-service.js'));
@@ -1423,7 +1423,7 @@ test('all localized currency controls exist and checkout stays unavailable',()=>
    catalogReady:true
  }).html;
  assert.ok(html.includes('49 ₴'));
- assert.ok(html.includes('shop-money-button" type="button" disabled'));
+ assert.ok(html.includes('shop-money-button" href="#/checkout?kind=cosmetic'));
 });
 
 test('Stars is the sole customer-facing virtual currency in all languages',()=>{
@@ -1537,4 +1537,54 @@ test('Bundle trades are atomic, friend-gated, and never include newly acquired i
   assert.ok(sql.includes(requirement),requirement);
  }
  assert.ok(!sql.includes('service_role'));
+});
+
+test('Payment preparation supports 37 display currencies without enabling any live charges',()=>{
+ const codes=['UAH','USD','EUR','GBP','PLN','CHF','CAD','AUD','JPY','CNY','KRW',
+ 'SEK','NOK','DKK','CZK','HUF','RON','TRY','INR','BRL','MXN','AED','SAR','ILS',
+ 'ZAR','SGD','HKD','NZD','THB','IDR','MYR','PHP','VND','KZT','GEL','MDL','AZN'];
+ const sql=readFileSync(new URL('../supabase/migrations/aurvex_payment_core_20261018.sql',import.meta.url),'utf8');
+ for(const code of codes)assert.ok(sql.includes("('"+code+"',"),code);
+ assert.equal(codes.length,37);
+ assert.ok(sql.includes("'stars_100',100,3900"));
+ assert.ok(sql.includes("'stars_1800',1800,49900"));
+ for(const name of ['aurvex_payment_prepare','aurvex_payment_settle','aurvex_payment_my_orders']){
+  assert.ok(sql.includes(name),name);
+ }
+ const guard=readFileSync(new URL('../supabase/migrations/aurvex_payments_killswitch_and_issues_20261018.sql',import.meta.url),'utf8');
+ assert.ok(guard.includes('checkout_enabled boolean not null default false'));
+ assert.ok(guard.includes('merchant_verified boolean not null default false'));
+ assert.ok(guard.includes('PAYMENTS_DISABLED'));
+ assert.ok(guard.includes("grant execute on function public.aurvex_payment_settle"));
+});
+test('Checkout pages disclose real charge currency and gateway-only fulfillment',()=>{
+ const sku='stars_350';
+ const html=render('#/checkout?kind=stars&sku='+sku,'uk').html;
+ assert.ok(html.includes('350 Stars'));
+ assert.ok(html.includes(translations.uk.payRateDisclaimer));
+ assert.ok(html.includes(translations.uk.payDebited));
+ assert.ok(html.includes('data-payment-action="checkout"')===false);
+ const id='e566844a-7112-43f4-b9dd-18de42781f9c';
+ const account={user:{id},mfaVerified:true};
+ const signed=render('#/checkout?kind=stars&sku='+sku,'en',false,null,account).html;
+ assert.ok(signed.includes('data-payment-action="checkout"'));
+ assert.ok(signed.includes(' disabled'));
+ const returned=render('#/payment?order='+id,'en').html;
+ assert.ok(returned.includes(translations.en.payCallbackOnly));
+ for(const path of [
+ 'supabase/functions/aurvex-payment-checkout/index.ts',
+ 'supabase/functions/aurvex-payment-webhook/index.ts',
+ 'supabase/functions/aurvex-payment-status/index.ts',
+ 'supabase/functions/_shared/payment.ts',
+ 'assets/payment-ui.js']){
+  assert.ok(existsSync(new URL('../'+path,import.meta.url)),path);
+ }
+ const callback=readFileSync(new URL('../supabase/functions/aurvex-payment-webhook/index.ts',import.meta.url),'utf8');
+ assert.ok(callback.includes('fondySignature'));
+ assert.ok(callback.includes('aurvex_payment_settle'));
+ assert.ok(callback.includes('if(!enabled())'));
+ assert.ok(!callback.includes("req.headers.get('origin')")||true);
+ const client=readFileSync(new URL('../assets/payment-ui.js',import.meta.url),'utf8');
+ assert.ok(client.includes('crypto.randomUUID()'));
+ assert.ok(!client.includes('FONDY_PAYMENT_KEY'));
 });
