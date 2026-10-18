@@ -434,6 +434,36 @@ function mfaGatePage(auth){
         '<button type="button" data-id-action="signout" class="btn btn-outline">'+t('mfaLogout')+'</button>'+
       '</section></div>';
 }
+
+function profileVisualAttrs(raw){
+ const v=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
+ const safe=(key,valid,fallback)=>valid.includes(v[key])?v[key]:fallback;
+ const parts=[
+  ['font',safe('font',['system','modern','rounded','mono','serif'],'system')],
+  ['avatar',safe('avatar_frame',['none','violet','red','cyan','emerald','gold'],'violet')],
+  ['frame',safe('profile_frame',['none','violet','red','cyan','emerald','gold'],'none')],
+  ['color',safe('glow_color',['violet','red','cyan','emerald','gold'],'violet')]
+ ];
+ for(const zone of ['avatar','banner','name','links','profile']){
+   parts.push(['glow-'+zone,v['glow_'+zone]===true?'on':'off']);
+ }
+ return parts.map(([key,val])=>' data-pf-'+key+'="'+val+'"').join('');
+}
+function renderProfileLinks(links,slot){
+ const chosen=(Array.isArray(links)?links:[]).filter(l=>
+  (['header','main','footer'].includes(l?.slot)?l.slot:'main')===slot);
+ if(!chosen.length)return '';
+ return '<div class="profile-placed-links profile-placed-'+slot+'">'+chosen.map(l=>{
+   const align=['left','center','right'].includes(l.align)?l.align:'left';
+   const safeUrl=String(l.url||'');
+   if(!/^https:\/\//i.test(safeUrl))return '';
+   return '<div class="profile-placed-link profile-align-'+align+'"><a href="'+esc(safeUrl)+
+     '" target="_blank" rel="noopener noreferrer nofollow">'+icon('arrowUp',15)+' '+esc(l.title||'')+'</a></div>';
+ }).join('')+'</div>';
+}
+function appearanceOptions(items,current){
+ return items.map(([value,label])=>'<option value="'+value+'"'+(current===value?' selected':'')+'>'+t(label)+'</option>').join('');
+}
 function officialProfileBadges(titles){
   const items=Array.isArray(titles)?titles:[];
   const known=[
@@ -469,6 +499,11 @@ function playerProfilePage(auth){
   const socialDraft=window.AURVEX_SOCIAL?.draftUserId===auth.user?.id?window.AURVEX_SOCIAL?.socialDraft:null;
   const shownLinks=socialDraft?.links||auth.profile?.public_links||[];
   const shownWishlist=socialDraft?socialDraft.wishlistPublic:!!auth.profile?.wishlist_public;
+  const appearanceDraft=window.AURVEX_SOCIAL?.appearanceUserId===auth.user?.id?window.AURVEX_SOCIAL?.appearanceDraft:null;
+  const appearance=appearanceDraft?.appearance||auth.profile?.profile_appearance||{};
+  const hiddenTitles=appearanceDraft?.hidden||auth.profile?.hidden_title_codes||[];
+  const visibleTitles=(auth.profileTitles||[]).filter(code=>!hiddenTitles.includes(code));
+  const profileLinks=auth.profile?.public_links||[];
   const statusText=(auth.statusKey?'<div class="player-flash'+(auth.statusError?' player-flash-error':'')+'" role="status">'+t(auth.statusKey)+'</div>':'')+
     (window.AURVEX_SOCIAL?.message?'<div class="player-flash'+(window.AURVEX_SOCIAL.error?' player-flash-error':'')+
       '" role="status">'+t(window.AURVEX_SOCIAL.message)+'</div>':'');
@@ -477,7 +512,7 @@ function playerProfilePage(auth){
   const bannerRemove=auth.profile?.banner_path?
     '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
-    '<div class="player-profile">'+
+    '<div class="player-profile"'+profileVisualAttrs(appearance)+'>'+
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
@@ -490,8 +525,9 @@ function playerProfilePage(auth){
       '<div class="player-identity">'+
         '<div class="player-avatar-frame">'+avatar+'<label class="player-avatar-edit'+(auth.busy?' is-disabled':'')+'" for="id-avatar-upload" title="'+esc(t('profileAvatarUpload'))+'" aria-label="'+esc(t('profileAvatarUpload'))+'">'+icon('pencil',15)+'</label></div>'+
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
-          officialProfileBadges(auth.profileTitles)+
-          '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,auth.profileTitles)+'</p></div>'+
+          officialProfileBadges(visibleTitles)+
+          '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,auth.profileTitles)+'</p>'+
+          renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
       '<div class="player-content"><section class="player-main">'+
@@ -520,10 +556,53 @@ function playerProfilePage(auth){
              '<p class="social-link-tip">'+t('socialLinkTip')+'</p>'+
              [1,2,3].map(i=>{const l=shownLinks[i-1]||{};return '<div class="social-link-fields">'+
               '<label>'+t('socialLinkTitle')+' '+i+'<input name="title'+i+'" type="text" maxlength="40" value="'+esc(l.title||'')+'" placeholder="TikTok, Discord, GitHub" autocomplete="off"></label>'+
-              '<label>'+t('socialLinkUrl')+' '+i+'<input name="url'+i+'" type="text" inputmode="url" spellcheck="false" autocapitalize="none" autocomplete="url" maxlength="220" value="'+esc(l.url||'')+'" placeholder="https://github.com/username"></label></div>'}).join('')+
+              '<label>'+t('socialLinkUrl')+' '+i+'<input name="url'+i+'" type="text" inputmode="url" spellcheck="false" autocapitalize="none" autocomplete="url" maxlength="220" value="'+esc(l.url||'')+'" placeholder="https://github.com/username"></label>'+
+              '<div class="social-link-layout"><label>'+t('customLinkArea')+
+              '<select name="slot'+i+'">'+appearanceOptions([
+                ['header','customAreaHeader'],['main','customAreaMain'],['footer','customAreaFooter']
+              ],l.slot||'main')+'</select></label>'+
+              '<label>'+t('customLinkAlign')+
+              '<select name="align'+i+'">'+appearanceOptions([
+                ['left','customAlignLeft'],['center','customAlignCenter'],['right','customAlignRight']
+              ],l.align||'left')+'</select></label>'+
+              '<div class="social-link-move"><button type="button" data-social-action="move-link-up" data-index="'+i+'" aria-label="'+t('customMoveUp')+'"'+(i===1?' disabled':'')+'>↑</button>'+
+              '<button type="button" data-social-action="move-link-down" data-index="'+i+'" aria-label="'+t('customMoveDown')+'"'+(i===3?' disabled':'')+'>↓</button></div></div></div>'}).join('')+
              '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
                '<span><strong>'+t('socialWishlistPublic')+'</strong><small>'+t('socialWishlistPrivate')+'</small></span></label>'+
              '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',17)+' '+t('socialSave')+'</button></form></section>'+
+        '<section class="profile-custom-editor"><div class="smallcaps">'+t('customStudio')+'</div>'+
+         '<h2>'+icon('sparkle',21)+' '+t('customStudio')+'</h2><p>'+t('customIntro')+'</p>'+
+         '<form id="profile-appearance-form" class="id-form">'+
+         '<div class="custom-select-grid">'+
+         '<label>'+t('customFont')+'<select name="font">'+appearanceOptions([
+           ['system','customFontSystem'],['modern','customFontModern'],['rounded','customFontRounded'],
+           ['mono','customFontMono'],['serif','customFontSerif']
+         ],appearance.font||'system')+'</select></label>'+
+         '<label>'+t('customAvatarFrame')+'<select name="avatar_frame">'+appearanceOptions([
+           ['none','customNone'],['violet','customViolet'],['red','customRed'],
+           ['cyan','customCyan'],['emerald','customEmerald'],['gold','customGold']
+         ],appearance.avatar_frame||'violet')+'</select></label>'+
+         '<label>'+t('customProfileFrame')+'<select name="profile_frame">'+appearanceOptions([
+           ['none','customNone'],['violet','customViolet'],['red','customRed'],
+           ['cyan','customCyan'],['emerald','customEmerald'],['gold','customGold']
+         ],appearance.profile_frame||'none')+'</select></label>'+
+         '<label>'+t('customGlowColor')+'<select name="glow_color">'+appearanceOptions([
+           ['violet','customViolet'],['red','customRed'],['cyan','customCyan'],
+           ['emerald','customEmerald'],['gold','customGold']
+         ],appearance.glow_color||'violet')+'</select></label></div>'+
+         '<h3>'+icon('sparkle',17)+' '+t('customGlowZones')+'</h3>'+
+         '<div class="custom-switch-grid">'+
+         [['avatar','customGlowAvatar'],['banner','customGlowBanner'],
+          ['name','customGlowName'],['links','customGlowLinks'],['profile','customGlowProfile']]
+           .map(([key,label])=>'<label class="custom-switch"><input type="checkbox" name="glow_'+key+'"'+(appearance['glow_'+key]?' checked':'')+'>'+
+           '<span>'+t(label)+'</span></label>').join('')+'</div>'+
+         ((auth.profileTitles||[]).length?
+           '<h3>'+icon('shield',17)+' '+t('customTitles')+'</h3><p>'+t('customTitlesHelp')+'</p>'+
+           '<div class="custom-switch-grid">'+(auth.profileTitles||[]).map(code=>
+             '<label class="custom-switch"><input type="checkbox" name="show_'+code+'"'+(!hiddenTitles.includes(code)?' checked':'')+'>'+
+             '<span>'+t(code==='aurvex_ceo'?'profileTitleCeo':'profileTitleDeveloper')+'</span></label>').join('')+'</div>':'')+
+         '<button class="btn btn-primary" type="submit"'+(window.AURVEX_SOCIAL?.busy?' disabled':'')+'>'+
+          icon('check',17)+' '+t('customSave')+'</button></form></section>'+
         statusText+
         '<div class="player-privacy">'+icon('shield',20)+'<span>'+t('profileArtworkPublic')+'</span></div>'+
       '</section>'+
@@ -533,23 +612,16 @@ function playerProfilePage(auth){
         '<h3>'+t('aurvexId')+'</h3><p class="player-private-email">'+esc(auth.user?.email||'')+'</p>'+
         '<span class="player-account-badge">'+icon('shield',14)+' '+t('mfaVerifiedLabel')+'</span>'+
         '<button type="button" class="btn btn-outline player-signout" data-id-action="signout"'+saving+'>'+icon('back',15)+' '+t('idSignOut')+'</button></div>'+
-      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
+      renderProfileLinks(profileLinks,'main')+
+            '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('profileWishlist')+'</div>'+
         '<h3>'+icon('heart',20)+' '+t('profileWishlist')+'</h3>'+
         '<p>'+t('idWishlistSync')+'</p><a class="btn btn-outline" href="#/saved">'+t('profileWishlistView')+' '+icon('arrow',16)+'</a></div>'+
-      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('friendsNav')+'</div>'+
-        '<h3>'+icon('users',20)+' '+t('friendsMyFriends')+'</h3>'+
-        '<p>'+t('friendsLead')+'</p><a class="btn btn-outline" href="#/friends">'+t('friendsNav')+' '+icon('arrow',16)+'</a></div>'+
-      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('familyNav')+'</div>'+
-        '<h3>'+icon('home',20)+' '+t('familyTitle')+'</h3>'+
-        '<p>'+t('familyLead')+'</p><a class="btn btn-outline" href="#/family">'+t('familyNav')+' '+icon('arrow',16)+'</a></div>'+
-      '<div class="player-aside-card player-wish-card"><div class="smallcaps">'+t('social37Nav')+'</div>'+
-        '<h3>'+icon('bell',20)+' '+t('social37Title')+'</h3>'+
-        '<p>'+t('social37Lead')+'</p><a class="btn btn-outline" href="#/notifications">'+t('social37Nav')+' '+icon('arrow',16)+'</a></div>'+
       '<div class="player-aside-card player-mfa-card"><div class="smallcaps">'+t('mfaSecurity')+'</div>'+
         '<h3>'+icon('shield',21)+' '+t('mfaProfileShield')+'</h3><p>'+t('mfaSecurityNote')+'</p>'+
         '<p>'+t('mfaFactors')+': '+(auth.mfaFactors?.length||1)+'</p>'+
         (auth.mfaFactors?.length<2?'<button class="btn btn-outline" type="button" data-id-action="mfa-backup">'+icon('shield',16)+' '+t('mfaAddBackup')+'</button>':'')+
-        '<p class="mfa-backup-hint">'+t('mfaBackupDesc')+'</p></div></aside></div>'+
+        '<p class="mfa-backup-hint">'+t('mfaBackupDesc')+'</p></div>'+
+      renderProfileLinks(profileLinks,'footer')+'</aside></div>'+
       '<input class="profile-file-input" id="id-avatar-upload" type="file" accept="image/jpeg,image/png,image/webp" aria-label="'+esc(t('profileAvatarUpload'))+'"'+saving+'>'+
       '<input class="profile-file-input" id="id-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" aria-label="'+esc(t('profileBannerUpload'))+'"'+saving+'>'+
     '</div>';
@@ -697,12 +769,13 @@ function publicPlayerPage(path){
  const date=new Date(p.joined_at);
  const joined=Number.isFinite(date.getTime())?date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{year:'numeric',month:'long'}):'';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
-  '<div class="player-profile public-profile">'+
+  '<div class="player-profile public-profile"'+profileVisualAttrs(p.profile_appearance)+'>'+
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
      officialProfileBadges(p.profileTitles)+
-     '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,p.profileTitles)+'</p></div></div>'+
+     '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,p.profileTitles)+'</p>'+
+     renderProfileLinks(links,'header')+'</div></div>'+
    '<div class="public-profile-body">'+
      (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?
       '<div class="public-profile-actions"><button class="btn btn-outline" type="button" data-social37-action="'+
@@ -710,14 +783,15 @@ function publicPlayerPage(path){
         '" data-player-id="'+esc(id)+'">'+icon('ban',16)+' '+t((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'social37Unblock':'social37Block')+'</button></div>':'')+
     (auth.user?.id===id?'<div class="public-preview-note">'+icon('info',16)+' '+t('socialPreviewHint')+
      ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
-    '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
-     (links.length?'<div class="public-links">'+links.map(l=>'<a href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer nofollow">'+
-       icon('arrowUp',15)+' '+esc(l.title)+'</a>').join('')+'</div>':'<p class="social-muted">'+t('socialNoLinks')+'</p>')+'</section>'+
+    (links.some(l=>(l.slot||'main')==='main')?
+      '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
+      renderProfileLinks(links,'main')+'</section>':'')+
     '<section class="public-block"><h2>'+t('profileWishlist')+'</h2>'+
      (!p.wishlist_visible?'<div class="friends-empty">'+icon('shield',20)+' '+t('socialWishHidden')+'</div>':
       games.length?'<div class="public-links">'+games.map(g=>g==='devive'?
        '<a href="#/game/devive">'+icon('gamepad',17)+' Devive</a>':'<span>'+icon('gamepad',17)+' '+esc(g)+'</span>').join('')+'</div>':
-       '<div class="friends-empty">'+t('socialWishEmpty')+'</div>')+'</section></div></div>';
+       '<div class="friends-empty">'+t('socialWishEmpty')+'</div>')+'</section>'+
+       renderProfileLinks(links,'footer')+'</div></div>';
 }
 
 function familyPage(route){
