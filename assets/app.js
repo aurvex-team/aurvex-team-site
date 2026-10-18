@@ -611,6 +611,18 @@ function playerProfilePage(auth){
   const shownWishlist=!!auth.profile?.wishlist_public;
   const visibleTitles=auth.profileTitles||[];
   const profileLinks=auth.profile?.public_links||[];
+  const aboutDraft=window.AURVEX_SOCIAL?.aboutDraftUser===auth.user?.id?window.AURVEX_SOCIAL?.aboutDraft:null;
+  const savedBio=auth.profile?.profile_bio||'';
+  const profileBio=aboutDraft?.bio??savedBio;
+  const selectedStatus=aboutDraft?.status||auth.profile?.profile_status||'building';
+  const profileStatus=['building','open','busy','chilling'].includes(selectedStatus)?selectedStatus:'building';
+  const profileSteps=[
+   !!auth.profile?.nickname,!!auth.profile?.avatar_path,!!auth.profile?.banner_path,
+   !!savedBio,profileLinks.some(l=>l?.url),auth.mfaVerified===true
+  ];
+  const complete=profileSteps.filter(Boolean).length;
+  const completePercent=Math.round(100*complete/profileSteps.length);
+  const statusOptions=[['building','profileMoodBuilding'],['open','profileMoodOpen'],['busy','profileMoodBusy'],['chilling','profileMoodChilling']];
   const activeTab=['overview','links'].includes(state.profileTab)?state.profileTab:'overview';
   const tabData=[
     ['overview','user','profileTabOverview'],
@@ -652,12 +664,26 @@ function playerProfilePage(auth){
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           officialProfileBadges(visibleTitles)+
           '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,visibleTitles)+'</p>'+
+          '<div class="profile-intro-row"><span class="profile-mood profile-mood-'+profileStatus+'">'+icon('sparkle',13)+' '+t('profileMood_'+profileStatus)+'</span>'+
+          (savedBio?'<span class="profile-intro-description">'+esc(savedBio)+'</span>':'')+'</div>'+
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
       '</div>'+
       tabToolbar+
       '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
         panelStart('overview')+
+        '<section class="profile-command-center"><div class="profile-command-head"><div>'+
+          '<span class="smallcaps">AURVEX / PROFILE STUDIO</span><h2>'+t('profileCommandTitle')+'</h2>'+
+          '<p>'+t('profileCommandDescription')+'</p></div>'+
+          '<div class="profile-completion"><strong>'+completePercent+'%</strong><span>'+t('profileComplete')+'</span></div></div>'+
+          '<div class="profile-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+completePercent+
+            '" aria-label="'+esc(t('profileComplete'))+'"><span style="width:'+completePercent+'%"></span></div>'+
+          '<div class="profile-command-links">'+
+            '<a href="#/inventory">'+icon('layers',18)+'<span>'+t('inventoryNav')+'</span>'+icon('arrow',15)+'</a>'+
+            '<a href="#/shop">'+icon('sparkle',18)+'<span>'+t('shopNav')+'</span>'+icon('arrow',15)+'</a>'+
+            '<a href="#/balance">'+icon('wallet',18)+'<span>'+t('balanceNav')+'</span>'+icon('arrow',15)+'</a>'+
+            '<button type="button" data-profile-tab="links">'+icon('globe',18)+'<span>'+t('profileTabLinks')+'</span>'+icon('arrow',15)+'</button>'+
+          '</div><p class="profile-progress-hint">'+t('profileProgressHint')+'</p></section>'+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
           '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
         '<div class="player-edit-layout">'+
@@ -674,6 +700,15 @@ function playerProfilePage(auth){
               '<div><strong>'+t('profileBannerUpload')+'</strong><p>'+t('profileBannerHint')+'</p></div>'+
               '<div class="player-media-buttons"><label for="id-banner-upload" class="btn btn-outline'+(auth.busy?' is-disabled':'')+'">'+icon('upload',15)+' '+t('profileBannerUpload')+'</label></div></div>'+
           '</div></div>'+
+        '<section class="player-edit-card profile-about-editor"><div class="profile-about-heading"><h3>'+icon('pencil',19)+' '+t('profileAboutTitle')+'</h3>'+
+          '<span class="profile-about-count">'+profileBio.length+' / 240</span></div>'+
+         '<form id="profile-about-form" class="id-form">'+
+          '<label for="profile-about-text">'+t('profileAboutLabel')+'</label>'+
+          '<textarea id="profile-about-text" name="bio" maxlength="240" rows="3" placeholder="'+esc(t('profileAboutPlaceholder'))+'">'+esc(profileBio)+'</textarea>'+
+          '<div class="profile-about-bottom"><label>'+t('profileMoodLabel')+
+           '<select name="status">'+statusOptions.map(([code,label])=>'<option value="'+code+'"'+(profileStatus===code?' selected':'')+'>'+t(label)+'</option>').join('')+'</select></label>'+
+           '<button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileAboutSave')+'</button></div>'+
+         '</form><p class="profile-about-note">'+icon('info',14)+' '+t('profileAboutPublic')+'</p></section>'+
         renderProfileLinks(profileLinks,'main')+
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
           '<form id="wishlist-privacy-form" class="id-form">'+
@@ -874,6 +909,8 @@ function publicPlayerPage(path){
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
      officialProfileBadges(p.profileTitles)+
      '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,p.profileTitles)+'</p>'+
+     '<span class="profile-mood profile-mood-'+(['building','open','busy','chilling'].includes(p.profile_status)?p.profile_status:'building')+'">'+
+       icon('sparkle',13)+' '+t('profileMood_'+(['building','open','busy','chilling'].includes(p.profile_status)?p.profile_status:'building'))+'</span>'+
      renderProfileLinks(links,'header')+'</div></div>'+
    '<div class="public-profile-body">'+
      (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?
@@ -882,6 +919,8 @@ function publicPlayerPage(path){
         '" data-player-id="'+esc(id)+'">'+icon('ban',16)+' '+t((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'social37Unblock':'social37Block')+'</button></div>':'')+
     (auth.user?.id===id?'<div class="public-preview-note">'+icon('info',16)+' '+t('socialPreviewHint')+
      ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
+    (p.profile_bio?'<section class="public-block profile-about-public"><div class="smallcaps">AURVEX PLAYER</div>'+
+       '<h2>'+t('profileAboutTitle')+'</h2><p>'+esc(p.profile_bio)+'</p></section>':'')+
     (links.some(l=>(l.slot||'main')==='main')?
       '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
       renderProfileLinks(links,'main')+'</section>':'')+

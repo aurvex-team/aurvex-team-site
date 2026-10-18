@@ -3,28 +3,36 @@ import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-s
 import {loadPublicShopEquipped} from './shop-service.js?v=20261018-391';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles,shopEquipped]=await Promise.all([
+ const [{data,error},titles,shopEquipped,about]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
-   getProfileTitles(id),loadPublicShopEquipped(id)
+   getProfileTitles(id),loadPublicShopEquipped(id),
+   client.rpc('aurvex_public_profile_about',{target_player:id}).then(({data})=>data||{}).catch(()=>({}))
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
- return p?{...p,profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
+ return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),
+    profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
+}
+export async function saveProfileAbout(bio,status){
+ const client=await idClient();
+ const {data,error}=await client.rpc('aurvex_profile_save_about',{new_bio:bio,new_status:status});
+ if(error)throw error;
+ return data;
 }
 export async function saveSocialProfile(userId,links,wishlistPublic){
  const client=await idClient();
  await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles')
    .update({public_links:links,wishlist_public:!!wishlistPublic}).eq('id',userId)
-   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
+   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;
  return data;
 }
 export async function saveWishlistVisibility(userId,visible){
  const client=await idClient();await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles').update({wishlist_public:!!visible}).eq('id',userId)
-  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes').single();
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;return data;
 }
 export async function getFamilyOverview(){

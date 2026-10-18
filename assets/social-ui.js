@@ -1,5 +1,5 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
-import {loadPlayerProfile,saveSocialProfile,saveWishlistVisibility,getFamilyOverview,createFamily,
+import {loadPlayerProfile,saveProfileAbout,saveSocialProfile,saveWishlistVisibility,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
  from './social-service.js?v=20261018-410';
 import {normalizePublicLinks} from './social-links.js?v=20261018-410';
@@ -7,7 +7,7 @@ import {normalizePublicLinks} from './social-links.js?v=20261018-410';
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
  family:null,familyLibrary:[],familyReady:false,familyLoading:false,
  inviteUrl:'',busy:false,message:'',error:false,userId:'',
- socialDraft:null,draftUserId:''};
+ socialDraft:null,draftUserId:'',aboutDraft:null,aboutDraftUser:''};
 window.AURVEX_SOCIAL=m;
 let profileSeq=0,familySeq=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:social-state'));
@@ -53,10 +53,10 @@ window.addEventListener('aurvex:id-state',()=>{
  const current=owner();
  if(!current){
    if(m.userId||m.draftUserId){m.userId='';m.family=null;m.familyLibrary=[];
-     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';fire();}
+     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';fire();}
  }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
-   m.socialDraft=null;m.draftUserId='';
+   m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';
    if(location.hash.startsWith('#/family'))void refreshFamily();
  }
 });
@@ -73,6 +73,19 @@ function readSocialDraft(form){
    wishlistPublic:!!window.AURVEX_ID?.profile?.wishlist_public
  };
 }
+function readAboutDraft(form){
+ const data=new FormData(form);
+ return {bio:String(data.get('bio')||''),status:String(data.get('status')||'building')};
+}
+function captureAbout(event){
+ const form=event.target?.closest?.('#profile-about-form');
+ if(!form||!isSecure())return;
+ m.aboutDraft=readAboutDraft(form);m.aboutDraftUser=owner();
+ const indicator=form.querySelector('.profile-about-count');
+ if(indicator)indicator.textContent=m.aboutDraft.bio.length+' / 240';
+}
+document.addEventListener('input',captureAbout);
+document.addEventListener('change',captureAbout);
 document.addEventListener('input',event=>{
  const form=event.target?.closest?.('#social-profile-form');
  if(!form||!isSecure())return;
@@ -85,12 +98,36 @@ document.addEventListener('change',event=>{
 });
 document.addEventListener('submit',event=>{
  const form=event.target;
- if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form'].includes(form.id))return;
+ if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form','profile-about-form'].includes(form.id))return;
  event.preventDefault();if(!isSecure()||m.busy)return;
  // Read data before any notification could rerender and detach this form.
  const originalUser=owner();
  const data=new FormData(form);
- if(form.id==='social-profile-form'){
+ if(form.id==='profile-about-form'){
+   m.aboutDraft=readAboutDraft(form);m.aboutDraftUser=originalUser;
+   const bio=m.aboutDraft.bio.trim(),status=m.aboutDraft.status;
+   if(bio.length>240||!['building','open','busy','chilling'].includes(status)){
+     message('profileAboutInvalid',true);return;
+   }
+   m.busy=true;
+   const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
+   void(async()=>{
+     try{
+       const updated=await saveProfileAbout(bio,status);
+       if(owner()!==originalUser)return;
+       window.AURVEX_ID.profile={...(window.AURVEX_ID.profile||{}),
+         profile_bio:updated.bio,profile_status:updated.status};
+       m.aboutDraft=null;m.aboutDraftUser='';
+       window.dispatchEvent(new CustomEvent('aurvex:id-state'));
+       message('profileAboutSaved');
+     }catch(error){
+       if(owner()===originalUser){
+        console.warn('AURVEX profile about update:',error?.code||'error');
+        message('profileAboutFailed',true);
+       }
+     }finally{if(m.busy){m.busy=false;fire()}}
+   })();
+ }else if(form.id==='social-profile-form'){
    m.socialDraft=readSocialDraft(form);m.draftUserId=originalUser;
    m.busy=true;
    const button=form.querySelector('[type="submit"]');

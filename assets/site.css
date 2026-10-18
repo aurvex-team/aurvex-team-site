@@ -1959,3 +1959,65 @@ input,select{color:var(--text)}
  .topbar{gap:7px;padding:0 9px}
  .top-actions{gap:5px}
 }
+
+
+/* AURVEX Profile Studio 3.14 — compact command center, biography and manually-set status. */
+.profile-intro-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:7px 0}
+.profile-intro-description{min-width:0;max-width:480px;color:var(--muted);font-size:11px;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.profile-mood{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;
+ border:1px solid var(--line-strong);border-radius:999px;padding:5px 9px;background:var(--accent-soft);
+ color:var(--accent);font-size:10px;font-weight:790}
+.profile-mood-open{border-color:#3ea67e61;color:var(--success);background:#29997719}
+.profile-mood-busy{border-color:#d7a86862;color:#d2a467;background:#bb8a3a15}
+.profile-mood-chilling{border-color:#5caaec62;color:#75afe4;background:#398ccd14}
+.profile-command-center{border:1px solid var(--line-strong);border-radius:15px;
+ padding:clamp(15px,2vw,21px);margin-bottom:20px;
+ background:radial-gradient(ellipse at 94% -20%,#9f82fc2a,transparent 60%),var(--surface-2)}
+.profile-command-head{display:flex;align-items:center;justify-content:space-between;gap:13px}
+.profile-command-head .smallcaps{color:var(--accent);letter-spacing:1.5px}
+.profile-command-head h2{font-size:19px;margin:5px 0 4px}
+.profile-command-head p{color:var(--muted);font-size:11px;line-height:1.5;margin:0}
+.profile-completion{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.profile-completion strong{font-size:24px;color:var(--accent);font-weight:920;font-variant-numeric:tabular-nums}
+.profile-completion span{font-size:10px;color:var(--muted)}
+.profile-progress-bar{height:6px;border-radius:9px;background:var(--line-strong);overflow:hidden;margin:16px 0}
+.profile-progress-bar span{display:block;height:100%;border-radius:9px;
+ background:linear-gradient(90deg,#6554cf,#c4a3ff);transition:width .25s}
+.profile-command-links{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.profile-command-links>a,.profile-command-links>button{display:flex;align-items:center;gap:8px;
+ min-height:42px;padding:10px;border:1px solid var(--line-strong);border-radius:10px;
+ background:var(--surface);color:var(--text);font-size:11px;font-weight:780;text-align:left}
+.profile-command-links>a svg:first-child,.profile-command-links>button svg:first-child{color:var(--accent);flex-shrink:0}
+.profile-command-links>a svg:last-child,.profile-command-links>button svg:last-child{margin-left:auto;flex-shrink:0;color:var(--muted)}
+.profile-command-links>a:hover,.profile-command-links>button:hover{background:var(--accent-soft);border-color:var(--accent)}
+.profile-progress-hint{font-size:10px;color:var(--muted);line-height:1.5;margin:11px 0 0}
+.profile-about-editor{margin:15px 0 16px;padding:18px;background:var(--surface-2);border-radius:13px;border:1px solid var(--line)}
+.profile-about-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.profile-about-heading h3{margin:0 0 13px;font-size:14px;display:flex;align-items:center;gap:8px}
+.profile-about-heading h3 svg{color:var(--accent)}
+.profile-about-count{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.profile-about-editor .id-form{gap:8px}
+.profile-about-editor textarea{box-sizing:border-box;width:100%;min-height:85px;resize:vertical;
+ border:1px solid var(--line-strong);border-radius:10px;padding:11px 12px;
+ color:var(--text);background:var(--surface);font:inherit;font-size:12px;line-height:1.6}
+.profile-about-editor textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.profile-about-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.profile-about-bottom label{display:flex;flex-direction:column;gap:6px;font-size:11px;font-weight:780}
+.profile-about-bottom select{background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;
+ color:var(--text);font-size:12px;padding:10px 12px;min-width:170px}
+.profile-about-bottom button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px}
+.profile-about-note{margin:9px 0 0;display:flex;align-items:flex-start;gap:6px;
+ font-size:10px;line-height:1.55;color:var(--muted)}
+.profile-about-note svg{flex-shrink:0;color:var(--accent)}
+.profile-about-public{margin-bottom:15px;max-width:900px}
+.profile-about-public .smallcaps{color:var(--accent)}
+.profile-about-public p{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
+.public-profile .profile-mood{margin-top:9px}
+@media(max-width:950px){.profile-command-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.profile-command-head{align-items:flex-start}
+ .profile-command-head h2{font-size:17px}.profile-completion strong{font-size:20px}
+ .profile-command-links{gap:6px}.profile-command-links>a,.profile-command-links>button{padding:8px;font-size:10px}
+ .profile-about-bottom button{width:100%}.profile-about-bottom label{width:100%}
+ .profile-about-bottom select{width:100%}.profile-intro-description{max-width:220px}}
+@media(prefers-reduced-motion:reduce){.profile-progress-bar span{transition:none}}
