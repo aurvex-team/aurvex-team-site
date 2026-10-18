@@ -6,7 +6,8 @@ async function call(name,args){
 }
 export const inventoryState=()=>call('aurvex_inventory_state');
 export const peerItems=target_player=>call('aurvex_trade_peer_items',{target_player});
-export const createTrade=(target_player,offered,requested)=>call('aurvex_trade_create',{
- target_player,offered_kind:offered.kind,offered_ref:offered.ref,requested_kind:requested.kind,requested_ref:requested.ref
+// All selected items are passed as an immutable snapshot; an empty request means a gift.
+export const createTrade=(target_player,offered_items,requested_items)=>call('aurvex_trade_create_bundle',{
+ target_player,offered_items,requested_items
 });
 export const tradeAction=(offer_id,decision)=>call('aurvex_trade_action',{offer_id,decision});
