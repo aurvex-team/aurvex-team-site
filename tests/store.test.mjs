@@ -1661,3 +1661,87 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
   assert.ok(sql.includes(fragment),fragment);
  }
 });
+
+
+test('Profile Studio shows editor, completion dashboard and verified navigation in all locales',()=>{
+ const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},
+  mfaVerified:true,mfaFactors:[{id:'verified'}],
+  profile:{nickname:'Creator',profile_bio:'Building a scary game',
+    profile_status:'open',avatar_path:'avatar.jpg',banner_path:'banner.jpg',
+    public_links:[{title:'GitHub',url:'https://github.com/aurvex-team'}],wishlist_public:false}};
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang,false,null,auth).html;
+  for(const required of ['class="profile-command-center"','class="profile-progress-bar"',
+    'role="progressbar"','aria-valuenow="100"','href="#/inventory"','href="#/shop"',
+    'href="#/balance"','id="profile-about-form"','name="bio"','maxlength="240"',
+    'name="status"','profile-mood-open','data-profile-tab="links"',
+    translations[lang].profileCommandTitle,translations[lang].profileAboutTitle,
+    translations[lang].profileMood_open]){
+   assert.ok(html.includes(required),lang+': '+required);
+  }
+  assert.ok(html.includes('Building a scary game'));
+  assert.ok(!html.includes('id="profile-appearance-form"'));
+ }
+});
+test('Public profile bio is escaped, optional, and contains no private account information',()=>{
+ const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const model={profileTarget:id,profile:{player_id:id,nickname:'Public creator',
+  profile_bio:'Welcome <img src=x onerror=alert(1)> & "hello"',
+  profile_status:'open',joined_at:'2026-10-17T00:00:00Z',
+  public_links:[],wishlist_visible:false,wishlist_products:[]}};
+ const html=render('#/player/'+id,'en',false,null,null,null,model).html;
+ assert.ok(html.includes('class="public-block profile-about-public"'));
+ assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
+ assert.ok(html.includes('profile-mood-open'));
+ assert.ok(html.includes(translations.en.profileAboutTitle));
+ assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
+ assert.ok(!html.includes('name="bio"'));
+ assert.ok(!html.includes('private@example.org'));
+ const missing=render('#/player/'+id,'en',false,null,null,null,
+  {...model,profile:{...model.profile,profile_bio:''}}).html;
+ assert.ok(!missing.includes('class="public-block profile-about-public"'));
+ const hostile=render('#/player/'+id,'en',false,null,null,null,
+  {...model,profile:{...model.profile,profile_status:'<svg/onload=alert(1)>'}}).html;
+ assert.ok(!hostile.includes('class="profile-mood profile-mood-<svg'));
+ assert.ok(hostile.includes('profile-mood-building'));
+});
+test('Profile bio edits survive redraws and are not shown for the wrong signed-in account',()=>{
+ const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={user:{id,email:'example@example.org'},mfaVerified:true,
+  profile:{nickname:'creator',profile_bio:'Saved value',profile_status:'building',public_links:[]}};
+ const draft={aboutDraftUser:id,aboutDraft:{bio:'Unsaved editor description',status:'busy'}};
+ const html=render('#/id','en',false,null,auth,null,draft).html;
+ assert.ok(html.includes('Unsaved editor description'));
+ assert.ok(html.includes('profile-mood-building'),'Public badge should reflect saved status, not draft');
+ assert.ok(html.includes('value="busy" selected'));
+ const stale=render('#/id','en',false,null,auth,null,
+  {...draft,aboutDraftUser:'other-user'}).html;
+ assert.ok(!stale.includes('Unsaved editor description'));
+ assert.ok(stale.includes('Saved value'));
+ const svc=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ assert.ok(svc.includes("rpc('aurvex_public_profile_about'"));
+ assert.ok(svc.includes("rpc('aurvex_profile_save_about'"));
+ const handler=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
+ for(const check of ["'profile-about-form'","readAboutDraft(form)",
+  "m.aboutDraftUser=originalUser","m.aboutDraft=null;m.aboutDraftUser=''",
+  "message('profileAboutSaved')","form.closest('.profile-about-editor')"]){
+  assert.ok(handler.includes(check),check);
+ }
+});
+test('Profile biography storage has AAL2, public field allowlist and server input checks',()=>{
+ const sql=readFileSync(new URL('../supabase/migrations/aurvex_profile_studio_about_v314_20261018.sql',import.meta.url),'utf8');
+ for(const check of ["char_length(profile_bio)<=240","profile_bio=trim(profile_bio)",
+  "'building','open','busy','chilling'","aurvex_public_profile_about",
+  "jsonb_build_object('bio',p.profile_bio,'status',p.profile_status)",
+  "aurvex_profile_save_about","public.aurvex_shop_actor()",
+  'new_status','revoke all on function public.aurvex_profile_save_about',
+  'grant execute on function public.aurvex_profile_save_about']){
+  assert.ok(sql.includes(check),check);
+ }
+ assert.ok(!sql.includes('auth.users'));
+ const ids=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
+ assert.ok(ids.includes('profile_bio,profile_status'));
+ assert.ok(css.includes('.profile-command-center'));
+ assert.ok(css.includes('.profile-about-public p{white-space:pre-wrap'));
+});
