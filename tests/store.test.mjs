@@ -1273,3 +1273,42 @@ test('Public profiles keep full banner and display-only layout, not private edit
  assert.ok(!page.includes('data-profile-tab'));
  assert.ok(page.includes('class="player-cover"'));
 });
+
+
+test('View as others is always available outside Profile Studio tabs, never trapped inside Links',()=>{
+ const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[]},profileTitles:[]};
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang,false,null,auth).html;
+  const toolbar=html.indexOf('class="profile-tab-toolbar"');
+  const preview=html.indexOf('class="btn btn-accent profile-preview-action"');
+  const firstPanel=html.indexOf('id="profile-panel-overview"');
+  const linksPanel=html.indexOf('id="profile-panel-links"');
+  const text=translations[lang].viewAsOthers;
+  assert.ok(toolbar>=0&&preview>toolbar&&preview<firstPanel,lang);
+  assert.ok(firstPanel<linksPanel,lang);
+  assert.equal(html.split('class="btn btn-accent profile-preview-action"').length-1,1,lang);
+  assert.ok(html.includes('href="#/player/'+user+'" aria-label="'+text+'"'));
+  assert.ok(html.includes('>'+text+'</span></a>'));
+  const linksSection=html.slice(linksPanel,html.indexOf('id="profile-panel-appearance"'));
+  assert.ok(!linksSection.includes('profile-preview-action'),'Link panel must not contain the only preview button');
+ }
+ assert.ok(css.includes('.profile-tab-toolbar .profile-tabs'));
+ assert.ok(css.includes('.profile-preview-action:focus-visible'));
+ assert.ok(css.includes('@media(max-width:550px)'));
+});
+
+test('Preview remains separate from editor controls, and public profile has no preview shortcut',()=>{
+ const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const mine=render('#/id','en',false,null,
+  {user:{id:user},mfaVerified:true,profile:{nickname:'fleki'},profileTitles:[]}).html;
+ assert.ok(mine.includes('class="profile-tab-toolbar"'));
+ assert.ok(mine.includes('id="social-profile-form"'));
+ assert.ok(mine.includes('id="profile-appearance-form"'));
+ assert.ok(mine.includes('data-social-action="copy-profile"'));
+ const publicView=render('#/player/'+user,'en',false,null,null,null,{
+  profileTarget:user,profile:{nickname:'fleki',public_links:[],wishlist_visible:false,profileTitles:[]}
+ }).html;
+ assert.ok(!publicView.includes('profile-preview-action'));
+ assert.ok(!publicView.includes('profile-tab-toolbar'));
+});
