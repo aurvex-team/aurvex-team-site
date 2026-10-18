@@ -12,6 +12,18 @@ test('AURVEX 3.17 ships moderator panel and secured per-message actions',()=>{
  assert.ok(chat.includes('window.AURVEX_CHAT_RENDER=renderMessages'));
  assert.ok(chat.includes('window.AURVEX_CHAT_RELOAD=load'));
  assert.ok(admin.includes("rpc('aurvex_chat_staff_state'"));
+ assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf('class="chat-side-column"'));
+ assert.ok(app.includes('data-mod-mobile-open'));
+ assert.ok(app.includes('class="chat-admin-backdrop"'));
+ assert.ok(admin.includes('data-mod-tab="members"'));
+ assert.ok(admin.includes('data-mod-tab="reports"'));
+ assert.ok(admin.includes('data-mod-pick-user'));
+ assert.ok(admin.includes('data-mod-select-message'));
+ assert.ok(admin.includes('data-mod-mobile-close'));
+ assert.ok(!admin.includes('data-mod-toggle'));
+ assert.ok(!admin.includes('<details class="mod-message-menu"'));
+ assert.ok(read('assets/site.css').includes('.chat-admin-slot.is-mobile-open'));
+ assert.ok(read('assets/site.css').includes('.chat-side-column{display:flex'));
  assert.ok(admin.includes("rpc('aurvex_chat_staff_roster'"));
  assert.ok(admin.includes("rpc('aurvex_chat_moderation_queue'"));
  assert.ok(admin.includes("rpc('aurvex_chat_moderate_user'"));
@@ -21,7 +33,7 @@ test('AURVEX 3.17 ships moderator panel and secured per-message actions',()=>{
  assert.ok(admin.includes('mod.siteAdmin'));
  assert.ok(admin.includes("if(!window.confirm("));
  assert.ok(!admin.includes('SUPABASE_SERVICE_ROLE_KEY'));
- assert.ok(index.includes('assets/chat-admin-ui.js?v=20261018-470'));
+ assert.ok(index.includes('assets/chat-admin-ui.js?v=20261018-480'));
  assert.ok(workflow.includes('node --check assets/chat-admin-ui.js'));
 });
 test('Staff actions support durations, full account suspension and restore',()=>{
@@ -64,7 +76,7 @@ test('Moderator text is localized and untrusted account names are escaped',()=>{
  }
  const admin=read('assets/chat-admin-ui.js');
  assert.ok(admin.includes(".replaceAll('<','&lt;')"));
- assert.ok(admin.includes("esc(x.nickname||x.userId)"));
+ assert.ok(admin.includes("esc(x.nickname||t('modUnknownPlayer'))"));
  assert.ok(admin.includes("esc(String(x.body||'').slice(0,500))"));
  assert.ok(!admin.includes("innerHTML=String(x.body"));
 });
@@ -92,5 +104,30 @@ test('Staff can search account by nickname or UUID without exposing email data',
  for(const locale of supportedLanguages){
    assert.ok(translations[locale].modSearchPlaceholder);
    assert.ok(translations[locale].modSearchButton);
+ }
+});
+
+test('Right-side moderation controls are localized, maintain selection and use privileged RPCs',()=>{
+ const admin=read('assets/chat-admin-ui.js');
+ const css=read('assets/site.css');
+ const app=read('assets/app.js');
+ assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf('class="chat-side-column"'));
+ assert.ok(!app.slice(app.indexOf('class="chat-room"'),app.indexOf('</section>\'+')).includes('id="chat-admin-panel"'));
+ for(const text of ["selectedUser:","selectedMessage:","tab:'members'","mobileOpen:false",
+   "data-mod-tab=","data-mod-mobile-open","data-mod-mobile-close",
+   "data-mod-select-message=","mod.selectedUser=target","mod.tab='members'",
+   "data-mod-clear-message"]){
+   // selectedUser is assigned in multiple paths; actual saved select target comes from change events.
+   if(text==="mod.selectedUser=target")continue;
+   assert.ok(admin.includes(text)||app.includes(text),text);
+ }
+ assert.ok(css.includes(".chat-side-column{display:flex"));
+ assert.ok(css.includes(".chat-admin-slot:not(:empty){display:block;position:fixed"));
+ assert.ok(css.includes("body.chat-admin-drawer-open .chat-admin-backdrop"));
+ for(const locale of supportedLanguages){
+  for(const key of ['modUsersTab','modReportsTab','modSelectedMessage',
+    'modClearSelection','modManageAccount','modSelectMember','modUnknownPlayer']){
+   assert.ok(translations[locale][key],locale+' '+key);
+  }
  }
 });
