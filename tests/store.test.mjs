@@ -1310,7 +1310,7 @@ test('Stars shop is a first-party navigable screen with eight collectible design
   }
   assert.ok(html.includes('49 ₴'));
   assert.equal((html.match(/data-shop-card-kind="/g)||[]).length,8);
-  assert.equal((html.match(/class="btn btn-outline shop-money-button" href="#/checkout?kind=cosmetic/g)||[]).length,8);
+  assert.equal((html.match(/class="btn btn-outline shop-money-button" href="#\/checkout\?kind=cosmetic/g)||[]).length,8);
   assert.ok(html.includes(translations[lang].shopMoneyPending));
   assert.ok(html.includes('data-shop-action="preview"'));
   assert.ok(html.includes('data-shop-action="buy-points"'));
@@ -1555,7 +1555,7 @@ test('Payment preparation supports 37 display currencies without enabling any li
  assert.ok(guard.includes('checkout_enabled boolean not null default false'));
  assert.ok(guard.includes('merchant_verified boolean not null default false'));
  assert.ok(guard.includes('PAYMENTS_DISABLED'));
- assert.ok(guard.includes("grant execute on function public.aurvex_payment_settle"));
+ assert.ok(sql.includes("grant execute on function public.aurvex_payment_settle"));
 });
 test('Checkout pages disclose real charge currency and gateway-only fulfillment',()=>{
  const sku='stars_350';
