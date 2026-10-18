@@ -1,8 +1,8 @@
-// AURVEX Points Shop client UI controller. Server authorizes ALL spend/equip.
+// AURVEX Stars shop client UI controller. Server authorizes ALL spend/equip.
 // UAH payments are NOT enabled here: no client can mint entitlements.
 import {loadShopCatalog,loadShopState,buyShopItemPoints,equipShopItem}
- from './shop-service.js?v=20261018-401';
-import {translations} from './i18n.js?v=20261018-401';
+ from './shop-service.js?v=20261018-402';
+import {translations} from './i18n.js?v=20261018-402';
 
 const model={catalog:[],catalogReady:false,catalogError:false,
   balance:null,inventory:[],equipped:{avatar:null,profile:null},history:[],
@@ -19,7 +19,7 @@ async function catalog(){
  try{
   model.catalog=await loadShopCatalog();model.catalogReady=true;model.catalogError=false;
  }catch(err){
-  console.warn('AURVEX Points Shop catalog error',err?.code||'unavailable');
+  console.warn('AURVEX Stars shop catalog error',err?.code||'unavailable');
   model.catalogError=true;model.catalogReady=true;
  }finally{catalogLoading=false;fire()}
 }

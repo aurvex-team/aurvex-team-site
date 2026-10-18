@@ -1,15 +1,17 @@
-# Stars — AURVEX Points Shop (2026-10-18)
+# Stars — AURVEX virtual currency and cosmetics shop (2026-10-18)
 
 ## Status
 - First-party, original CSS-only avatar/profile cosmetics catalog: 8 items.
-- Points purchases ARE server-authorized and irreversible; wallet, ledger, inventory and equip use Supabase PostgreSQL SECURITY DEFINER RPCs guarded by `auth.uid()` and JWT `aal2`.
-- First 2FA-verified shop visit grants **500 welcome AURVEX Points once per account**. No points top-ups, gift transfers, payment-to-points conversion or ways to earn further points are enabled yet.
+- Stars purchases ARE server-authorized and irreversible; wallet, ledger, inventory and equip use Supabase PostgreSQL SECURITY DEFINER RPCs guarded by `auth.uid()` and JWT `aal2`.
+- First 2FA-verified shop visit grants **500 welcome Stars once per account**. No Stars top-ups, gift transfers, payment-to-Stars conversion or ways to earn more Stars are enabled yet.
 - UAH prices appear as **preview/catalog prices only**. **Money checkout is disabled**. Users are never charged; price buttons are disabled and no items can be granted in exchange for fake browser payment notifications.
 - Live UAH payments will require a merchant account controlled by a legally eligible adult, settlement/tax arrangements, provider SDK or hosted checkout, server-created orders with price snapshots and unique order IDs, verified signature/webhook, idempotent fulfillment, disputes/refunds and consumer policies. Never grant entitlements based only on a client redirect or the user's claim of payment. Deploy merchant keys **only in secrets**, never to GitHub Pages.
 - Bought frames permanently remain in `aurvex_shop_inventory` as non-transferable cosmetics; equipped items are read publicly through a **narrow safe RPC**, never wallet or transaction history. Future account deletion can remove wallet and inventory via CASCADE.
 
+The customer-facing currency is **Stars**, including welcome bonuses, balances, purchase confirmations and transaction history. Existing database columns and RPC identifiers containing `points` are kept for backward compatibility so previously earned balances and purchased frames remain valid.
+
 ## Tables
-- `aurvex_shop_items`: canonical active catalog and POINTS/UAH listing prices.
+- `aurvex_shop_items`: canonical active catalog and Stars/UAH listing prices (legacy database column `price_points`).
 - `aurvex_shop_wallets`: integer nonnegative server-controlled balances.
 - `aurvex_shop_ledger`: immutable welcome and purchase events, private.
 - `aurvex_shop_inventory`: owned items, private.
@@ -25,7 +27,7 @@
 
 ## UI
 - Stars (`#/shop`) for catalog, wallet, collection, server ledger preview and CSS try-ons. Links in header/sidebar/mobile nav and user Profile Studio.
-- Both AURVEX Points and illustrative UAH price; latter clearly disabled until payment setup.
+- Both Stars and illustrative UAH price; latter clearly disabled until payment setup.
 - After purchase/equip, state is refetched from the server, not trusted from localStorage.
 - Check own and public profile with two independent browsers; ensure only owned equipment appears.
 

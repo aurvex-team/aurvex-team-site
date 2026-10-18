@@ -1314,7 +1314,7 @@ test('Preview remains separate from editor controls, and public profile has no p
 });
 
 
-test('AURVEX Points Shop is a first-party navigable screen with eight collectible designs and UAH prices',()=>{
+test('Stars shop is a first-party navigable screen with eight collectible designs and UAH prices',()=>{
  const catalog=[
   {id:'avatar_violet',kind:'avatar',theme:'violet',price_points:150,price_uah_kop:4900},
   {id:'avatar_ruby',kind:'avatar',theme:'ruby',price_points:200,price_uah_kop:5900},
@@ -1343,7 +1343,7 @@ test('AURVEX Points Shop is a first-party navigable screen with eight collectibl
  }
 });
 
-test('Points wallet inventory equipping and try-on are visible only to signed-in verified users',()=>{
+test('Stars wallet inventory equipping and try-on are visible only to signed-in verified users',()=>{
  const user='b08b4ee1-49e4-4d2b-b166-56b4a6e35112';
  const item={id:'avatar_ruby',kind:'avatar',theme:'ruby',price_points:200,price_uah_kop:5900};
  const auth={user:{id:user},mfaVerified:true,profile:{nickname:'demo'}};
@@ -1354,7 +1354,7 @@ test('Points wallet inventory equipping and try-on are visible only to signed-in
   previewId:item.id
  };
  const html=render('#/shop','en',false,null,auth,null,null,null,null,state).html;
- assert.ok(html.includes('300 Points'));
+ assert.ok(html.includes('300 Stars'));
  assert.ok(html.includes('data-shop-action="unequip"'));
  assert.ok(html.includes('data-shop-action="preview"'));
  assert.ok(!html.includes('data-shop-action="buy-points"'));
@@ -1393,7 +1393,7 @@ test('Equipped cosmetics decorate own and public profile without exposing wallet
  assert.ok(css.includes('.player-profile[data-shop-profile="profile_cosmic"]'));
 });
 
-test('Shop server security: MFA, wallet row locking, one-time Points grant, price authority, and no fake UAH charges',()=>{
+test('Shop server security: MFA, wallet row locking, one-time Stars grant, price authority, and no fake UAH charges',()=>{
  const sql=readFileSync(new URL('../supabase/migrations/20261018_aurvex_points_shop_v1.sql',import.meta.url),'utf8');
  const perms=readFileSync(new URL('../supabase/migrations/20261018_aurvex_points_shop_permissions.sql',import.meta.url),'utf8');
  const svc=readFileSync(new URL('../assets/shop-service.js',import.meta.url),'utf8');
@@ -1450,4 +1450,25 @@ test('all localized currency controls exist and checkout stays unavailable',()=>
  }).html;
  assert.ok(html.includes('49 ₴'));
  assert.ok(html.includes('shop-money-button" type="button" disabled'));
+});
+
+test('Stars is the sole customer-facing virtual currency in all languages',()=>{
+ for(const lang of supportedLanguages){
+   const s=translations[lang];
+   assert.equal(s.shopNav,'Stars');
+   assert.equal(s.shopPoints,'Stars');
+   assert.ok(s.shopWelcomeNote.includes('500 Stars'),lang);
+   assert.ok(s.shopBuyPoints.includes('Stars'),lang);
+   assert.ok(s.shopConfirmBuy.includes('{price} Stars'),lang);
+   for(const key of ['shopHistory','shopIntro','shopSignInHint','shopNotEnough','shopPointsDisclaimer']){
+     assert.ok(s[key].includes('Stars'),lang+' '+key);
+   }
+ }
+ const html=render('#/shop','uk',false,null,
+   {user:{id:'85fabdb8-4681-4af1-946d-4a03d867109b'},mfaVerified:true},
+   null,null,null,null,
+   {userId:'85fabdb8-4681-4af1-946d-4a03d867109b',ready:true,catalogReady:true,inventory:[],balance:500,history:[{reason:'welcome',points_delta:500,id:1}],catalog:[]}).html;
+ assert.ok(html.includes('500 Stars'));
+ assert.ok(html.includes('+500 Stars'));
+ assert.ok(!html.includes('500 Points'));
 });

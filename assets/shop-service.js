@@ -1,4 +1,4 @@
-// AURVEX Points Shop client. Only reads public catalog and calls AAL2-gated
+// AURVEX Stars shop client. Legacy Points RPC names are preserved. Only reads public catalog and calls AAL2-gated
 // server RPCs. Never calculates or writes wallets, items, or payment receipts.
 import {idClient} from './id-service.js?v=20261018-391';
 export async function loadShopCatalog(){
