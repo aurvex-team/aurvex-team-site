@@ -1094,47 +1094,33 @@ test('Other players keep real membership dates even when using founder-like nick
 });
 
 
-test('Profile Studio offers safe font presets, avatar/profile frames and five glow zones in every language',()=>{
- const id='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
- const account={user:{id,created_at:'2026-10-17T10:00:00Z'},
-  profile:{nickname:'fleki',profile_appearance:{font:'mono',avatar_frame:'gold',
-   profile_frame:'red',glow_color:'cyan',glow_avatar:true,glow_banner:true,glow_name:true,
-   glow_links:true,glow_profile:true},hidden_title_codes:['aurvex_ceo'],public_links:[]},
-  profileTitles:['aurvex_ceo','site_launcher_developer'],mfaVerified:true};
+test('Profile has Overview and Links, Wishlist visibility in Overview, no Appearance editor',()=>{
+ const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[],wishlist_public:true},profileTitles:['aurvex_ceo']};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,account).html;
-  assert.ok(html.includes('id="profile-appearance-form"'),lang);
-  assert.ok(html.includes('name="font"'),lang);
-  assert.ok(html.includes('name="avatar_frame"'),lang);
-  assert.ok(html.includes('name="profile_frame"'),lang);
-  assert.ok(html.includes('name="glow_color"'),lang);
-  for(const zone of ['avatar','banner','name','links','profile']){
-   assert.ok(html.includes('name="glow_'+zone+'" checked'),zone);
-   assert.ok(html.includes('data-pf-glow-'+zone+'="on"'),zone);
-  }
-  assert.ok(html.includes('data-pf-font="mono"'));
-  assert.ok(html.includes('data-pf-avatar="gold"'));
-  assert.ok(html.includes('data-pf-frame="red"'));
-  assert.ok(html.includes('data-pf-color="cyan"'));
-  assert.ok(html.includes('name="show_aurvex_ceo"'));
-  assert.ok(!html.includes('official-profile-title-aurvex_ceo'));
-  assert.ok(html.includes('official-profile-title-site_launcher_developer'));
-  assert.ok(html.includes(translations[lang].customStudio));
+  const html=render('#/id',lang,false,null,auth).html;
+  assert.ok(!html.includes('profile-appearance-form'));
+  assert.ok(!html.includes('profile-tab-appearance'));
+  assert.ok(!html.includes('data-pf-'));
+  assert.ok(html.includes('official-profile-title-aurvex_ceo'));
+  const start=html.indexOf('id="profile-panel-overview"'),end=html.indexOf('id="profile-panel-links"');
+  assert.ok(start>=0&&end>start);
+  assert.ok(html.slice(start,end).includes('id="wishlist-privacy-form"'));
+  assert.ok(!html.slice(end).includes('name="wishlist_public"'));
  }
 });
-
 test('Profile removes redundant Friends, Family and Notifications sidebar cards without losing navigation',()=>{
  const id='33333333-3333-4333-8333-333333333333';
  const account={user:{id},profile:{nickname:'player'},profileTitles:[],mfaVerified:true};
  const html=render('#/id','en',false,null,account).html;
- assert.ok(html.includes('id="profile-appearance-form"'));
+ assert.ok(!html.includes('id="profile-appearance-form"'));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.friendsNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.familyNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.social37Nav));
  assert.ok(html.includes('href="#/friends"'));
  assert.ok(html.includes('href="#/family"'));
  assert.ok(html.includes('href="#/notifications"'));
- assert.ok(html.includes('name="font"'));
+ assert.ok(!html.includes('name="font"'));
  assert.ok(!html.includes('name="show_aurvex_ceo"'),'Regular accounts have no founder badges');
 });
 
@@ -1162,8 +1148,8 @@ test('Each social link can be ordered and placed at header, center profile or bo
  const view=render('#/player/'+id,'en',false,null,null,null,publicModel).html;
  for(const section of ['header','main','footer'])assert.ok(view.includes('profile-placed-'+section),section);
  for(const side of ['left','center','right'])assert.ok(view.includes('profile-align-'+side),side);
- assert.ok(view.includes('data-pf-font="rounded"'));
- assert.ok(view.includes('data-pf-glow-name="on"'));
+ assert.ok(!view.includes('data-pf-font='));
+ assert.ok(!view.includes('data-pf-glow-name='));
  assert.ok(view.includes('https://github.com/test'));
  assert.ok(view.includes('https://tiktok.com/@x'));
 });
@@ -1188,32 +1174,19 @@ test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
   profile_appearance:{font:'<script>bad</script>',glow_color:'url(x)'}
  }}).html;
  assert.ok(!view.includes('<script>bad</script>'));
- assert.ok(view.includes('data-pf-font="system"'));
+ assert.ok(!view.includes('data-pf-font='));
 });
 
-test('Public and own official titles respect hidden preferences while database grants remain server-only',()=>{
- const sql=readFileSync(new URL('../supabase/migrations/20261018_profile_customization.sql',import.meta.url),'utf8');
- const privateSql=readFileSync(new URL('../supabase/migrations/20261018_profile_titles_private.sql',import.meta.url),'utf8');
- const srv=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+test('Appearance saving is removed while Wishlist privacy keeps protected saving',()=>{
  const ui=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
- for(const key of ['id_profiles_appearance_valid','id_profiles_hidden_titles_valid',
-  'aurvex_visible_titles','aurvex_public_appearance','aurvex_valid_links',
-  "'header','main','footer'","'left','center','right'"]){
-  assert.ok(sql.includes(key),key);
- }
- assert.ok(privateSql.includes('revoke all on public.id_profile_titles'));
- assert.ok(privateSql.includes('aurvex_own_titles'));
- assert.ok(srv.includes('saveProfileAppearance'));
- assert.ok(srv.includes('getPublicAppearance'));
- assert.ok(ui.includes("profile-appearance-form"));
- assert.ok(ui.includes("appearanceDraft"));
- assert.ok(ui.includes("readAppearanceDraft"));
- assert.ok(ui.includes("normalizeHiddenTitles"));
- assert.ok(ui.includes("m.appearanceDraft=null"));
+ const service=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ assert.ok(!ui.includes('readAppearanceDraft'));
+ assert.ok(!ui.includes('profile-appearance-form'));
+ assert.ok(ui.includes('wishlist-privacy-form'));
+ assert.ok(ui.includes('saveWishlistVisibility'));
+ assert.ok(service.includes('saveWishlistVisibility'));
 });
-
-
-test('Compact Profile Studio has three localized accessible editor tabs instead of a tall form stack',()=>{
+test('Compact Profile Studio has two localized accessible editor tabs instead of a tall form stack',()=>{
  const account={
   user:{id:'11111111-2222-4333-8444-555555555555'},
   mfaVerified:true,profile:{nickname:'tester',public_links:[]},profileTitles:[]
@@ -1222,7 +1195,7 @@ test('Compact Profile Studio has three localized accessible editor tabs instead 
   const {html}=render('#/id',lang,false,null,account);
   assert.ok(html.includes('class="profile-tabs" role="tablist"'),lang);
   assert.ok(html.includes('aria-label="'+translations[lang].profileTabsLabel+'"'),lang);
-  for(const [name,key] of [['overview','profileTabOverview'],['links','profileTabLinks'],['appearance','profileTabAppearance']]){
+  for(const [name,key] of [['overview','profileTabOverview'],['links','profileTabLinks']]){
    assert.ok(html.includes('id="profile-tab-'+name+'"'),name);
    assert.ok(html.includes('aria-controls="profile-panel-'+name+'"'),name);
    assert.ok(html.includes('id="profile-panel-'+name+'" class="profile-tab-panel" role="tabpanel"'),name);
@@ -1234,7 +1207,7 @@ test('Compact Profile Studio has three localized accessible editor tabs instead 
   // Hidden panels stay mounted, so their in-progress FormData and event handlers survive tab switches.
   assert.ok(html.includes('id="id-nickname-form"'));
   assert.ok(html.includes('id="social-profile-form"'));
-  assert.ok(html.includes('id="profile-appearance-form"'));
+  assert.ok(!html.includes('id="profile-appearance-form"'));
   assert.ok(html.includes('id="id-avatar-upload"'));
   assert.ok(html.includes('id="id-banner-upload"'));
  }
@@ -1253,7 +1226,7 @@ test('Tabbed profile switch preserves live forms and supports keyboard navigatio
  assert.ok(css.includes('.profile-tab-panel[hidden]{display:none!important}'));
  assert.ok(css.includes('.profile-tabs .profile-tab.is-active'));
  assert.ok(css.includes('.profile-workspace #social-profile-form'));
- assert.ok(css.includes('.profile-workspace .custom-select-grid'));
+ assert.ok(css.includes('.profile-workspace #social-profile-form'));
  assert.ok(css.includes('.player-profile:not(.public-profile) .player-cover'));
  const open=appCode.indexOf("const profileTab=event.target.closest('button[data-profile-tab]')");
  const close=appCode.indexOf("const removable=event.target.closest('[data-remove-filter]')",open);
@@ -1290,7 +1263,7 @@ test('View as others is always available outside Profile Studio tabs, never trap
   assert.equal(html.split('class="btn btn-accent profile-preview-action"').length-1,1,lang);
   assert.ok(html.includes('href="#/player/'+user+'" aria-label="'+text+'"'));
   assert.ok(html.includes('>'+text+'</span></a>'));
-  const linksSection=html.slice(linksPanel,html.indexOf('id="profile-panel-appearance"'));
+  const linksSection=html.slice(linksPanel,html.indexOf('class="player-privacy"'));
   assert.ok(!linksSection.includes('profile-preview-action'),'Link panel must not contain the only preview button');
  }
  assert.ok(css.includes('.profile-tab-toolbar .profile-tabs'));
@@ -1304,7 +1277,7 @@ test('Preview remains separate from editor controls, and public profile has no p
   {user:{id:user},mfaVerified:true,profile:{nickname:'fleki'},profileTitles:[]}).html;
  assert.ok(mine.includes('class="profile-tab-toolbar"'));
  assert.ok(mine.includes('id="social-profile-form"'));
- assert.ok(mine.includes('id="profile-appearance-form"'));
+ assert.ok(!mine.includes('id="profile-appearance-form"'));
  assert.ok(mine.includes('data-social-action="copy-profile"'));
  const publicView=render('#/player/'+user,'en',false,null,null,null,{
   profileTarget:user,profile:{nickname:'fleki',public_links:[],wishlist_visible:false,profileTitles:[]}
@@ -1471,4 +1444,33 @@ test('Stars is the sole customer-facing virtual currency in all languages',()=>{
  assert.ok(html.includes('500 Stars'));
  assert.ok(html.includes('+500 Stars'));
  assert.ok(!html.includes('500 Points'));
+});
+
+
+test('Inventory route, price packs, trade RPC adapter and translations are present',()=>{
+ for(const lang of supportedLanguages){
+  const html=render('#/inventory',lang).html;
+  assert.ok(html.includes('href="#/inventory"'));
+  assert.ok(html.includes(translations[lang].invTitle));
+  assert.ok(html.includes(translations[lang].invLogin));
+  const s=translations[lang];for(const key of ['invTrades','invGames','starsBuyTitle','invConfirm'])assert.ok(s[key]);
+ }
+ const owner='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
+ const auth={user:{id:owner},mfaVerified:true};
+ const shop={userId:owner,ready:true,catalogReady:true,catalog:[
+  {id:'avatar_violet',kind:'avatar',theme:'violet',price_points:150,price_uah_kop:4900}],
+  inventory:[{item_id:'avatar_violet'}],equipped:{}};
+ const inventory=render('#/inventory','uk',false,null,auth,null,null,null,null,shop).html;
+ assert.ok(inventory.includes('avatar_violet'));
+ assert.ok(inventory.includes(translations.uk.invNoGames));
+ const html=render('#/shop','en',false,null,auth,null,null,null,null,shop).html;
+ for(const stars of [100,350,800,1800])assert.ok(html.includes(stars+' Stars'));
+ assert.ok(html.includes('stars-packs'));
+ const svc=readFileSync(new URL('../assets/inventory-service.js',import.meta.url),'utf8');
+ for(const rpc of ['aurvex_inventory_state','aurvex_trade_create','aurvex_trade_action','aurvex_trade_peer_items']){
+  assert.ok(svc.includes(rpc));
+ }
+ const ui=readFileSync(new URL('../assets/inventory-ui.js',import.meta.url),'utf8');
+ assert.ok(ui.includes('window.confirm'));
+ assert.ok(!ui.includes(".insert("));
 });
