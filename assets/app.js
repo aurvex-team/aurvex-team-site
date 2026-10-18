@@ -546,7 +546,7 @@ function playerProfilePage(auth){
   const bannerRemove=auth.profile?.banner_path?
     '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
-    '<div class="player-profile"'+profileVisualAttrs(appearance)+shopStyleAttrs(window.AURVEX_SHOP?.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+'>'+
+    '<div class="player-profile"'+profileVisualAttrs(appearance)+shopStyleAttrs(window.AURVEX_SHOP?.userId&&window.AURVEX_SHOP.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+'>'+
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
