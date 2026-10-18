@@ -1430,7 +1430,7 @@ test('Shop server security: MFA, wallet row locking, one-time Stars grant, price
 test('Stars precedes Free and language / currency have custom menus',()=>{
  const html=render('#/shop','uk').html;
  assert.ok(html.includes('Stars'));
- assert.ok(html.includes('STARS · '));
+ assert.ok(html.includes('AURVEX · STARS'));
  for(const lang of supportedLanguages)assert.equal(translations[lang].shopNav,'Stars');
  assert.ok(html.indexOf('href="#/shop"')<html.indexOf('href="#/rewards"'));
  assert.ok(html.includes('data-pref-lang="uk"'));
