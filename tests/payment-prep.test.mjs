@@ -53,3 +53,24 @@ test('All display currencies exist as server catalog and none are assumed live',
  assert.ok(docs.includes('NO LIVE PAYMENTS'));
  assert.ok(docs.includes('37 display currencies'));
 });
+
+test('Money balance and deposit are only server-authoritative and not spendable unconfirmed credit',()=>{
+ const sql=read('supabase/migrations/aurvex_money_wallet_and_topups_20261018.sql');
+ for(const token of ['create table if not exists public.aurvex_money_wallets',
+  'create table if not exists public.aurvex_money_ledger',
+  'create or replace function public.aurvex_money_wallet_state',
+  'revoke all on public.aurvex_money_wallets,public.aurvex_money_ledger',
+  "kind in ('stars','cosmetic','wallet')",
+  'public.aurvex_payment_settle',
+  "if auth.role() is distinct from 'service_role'",
+  "if o.kind='wallet'","o.charge_currency<>charged_currency",
+  'PAYMENT_SERVER_ONLY']){
+  assert.ok(sql.includes(token),token);
+ }
+ const checkout=read('supabase/functions/aurvex-payment-checkout/index.ts');
+ assert.ok(checkout.includes('aurvex_payment_prepare_wallet'));
+ assert.ok(checkout.includes('if(!enabled())'));
+ const ui=read('assets/wallet-ui.js');
+ assert.ok(ui.includes("rpc('aurvex_money_wallet_state')"));
+ assert.ok(!ui.includes('aurvex_payment_settle'));
+});

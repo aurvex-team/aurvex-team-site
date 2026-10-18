@@ -10,11 +10,12 @@ const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
 
-function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null,shop=null,inventory=null){
+function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=null,social=null,social37=null,visitors=null,shop=null,inventory=null,wallet=null,currency=null){
   const storage=new Map();
   if(lang)storage.set('aurvex.locale',lang);
   if(wished)storage.set('aurvex.wishlist.devive','1');
   if(theme)storage.set('aurvex.theme',theme);
+  if(currency)storage.set('aurvex.currency',currency);
   const holder={innerHTML:''};
   const fallback={textContent:'',classList:{add(){},remove(){},toggle(){},contains(){return false}},addEventListener(){}};
   const document={
@@ -24,7 +25,7 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
     getElementById(id){return id==='app'?holder:fallback;},
     addEventListener(){},
   };
-  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors,AURVEX_SHOP:shop,AURVEX_INVENTORY:inventory};
+  const window={scrollY:0,addEventListener(){},scrollTo(){},AURVEX_ID:auth,AURVEX_FRIENDS:friends,AURVEX_SOCIAL:social,AURVEX_SOCIAL37:social37,AURVEX_VISITORS:visitors,AURVEX_SHOP:shop,AURVEX_INVENTORY:inventory,AURVEX_WALLET:wallet};
   const location={hash:route};
   const localStorage={getItem(k){return storage.get(k)??null},setItem(k,v){storage.set(k,v)}};
   new Function('translations','supportedLanguages','document','window','location','localStorage',source)(
@@ -1587,4 +1588,76 @@ test('Checkout pages disclose real charge currency and gateway-only fulfillment'
  const client=readFileSync(new URL('../assets/payment-ui.js',import.meta.url),'utf8');
  assert.ok(client.includes('crypto.randomUUID()'));
  assert.ok(!client.includes('FONDY_PAYMENT_KEY'));
+});
+
+test('Balance navigation is immediately after Account and shows a private monetary amount',()=>{
+ const owner='bb9132ee-8c88-4f54-a827-edc8f290893a';
+ const auth={user:{id:owner},mfaVerified:true,profile:{nickname:'AURVEX Creator'}};
+ const wallet={userId:owner,ready:true,loading:false,balanceUahKop:12550,entries:[]};
+ for(const lang of supportedLanguages){
+   const html=render('#/',lang,false,null,auth,null,null,null,null,null,null,wallet).html;
+   const account=html.indexOf('class="account-header-btn');
+   const balance=html.indexOf('class="header-balance-btn');
+   assert.ok(account>=0&&balance>account);
+   assert.ok(balance-account<420,'Balance must directly follow Account');
+   assert.ok(html.includes('href="#/balance"'));
+   assert.ok(html.includes('125,50')||html.includes('125.50'),lang);
+   assert.ok(html.includes(translations[lang].balanceNav));
+ }
+ const loggedOut=render('#/','en',false,null,null,null,null,null,null,null,null,wallet).html;
+ assert.ok(loggedOut.includes('href="#/balance"'));
+ assert.ok(!loggedOut.includes('125.50'));
+ const unverified=render('#/','en',false,null,{user:{id:owner},mfaVerified:false},null,null,null,null,null,null,wallet).html;
+ assert.ok(!unverified.includes('125.50'));
+ const anotherUser=render('#/','en',false,null,{user:{id:'94f222a7-c8d2-4e36-8b14-5dbb9ccc887b'},mfaVerified:true},null,null,null,null,null,null,wallet).html;
+ assert.ok(!anotherUser.includes('125.50'));
+});
+test('Wallet shows 0 in the selected currency, five server-authoritative deposit choices and history',()=>{
+ const id='bb9132ee-8c88-4f54-a827-edc8f290893a';
+ const auth={user:{id},mfaVerified:true};
+ const zero={userId:id,ready:true,balanceUahKop:0,entries:[],loading:false,error:false};
+ for(const currency of ['UAH','USD','EUR','GBP','JPY']){
+   const html=render('#/balance','en',false,null,auth,null,null,null,null,null,null,zero,currency).html;
+   assert.ok(html.includes('class="money-hero"'));
+   assert.ok(html.includes('href="#/balance"'));
+   assert.ok(html.includes(currency),'selected currency '+currency);
+   assert.ok(html.includes('wallet_50'),'wallet_50');
+   assert.ok(html.includes('wallet_1000'),'wallet_1000');
+   assert.ok(html.includes('money-history-empty'));
+   assert.ok(html.includes(translations.en.balanceSeparateStars));
+ }
+ const lobby=render('#/balance','uk').html;
+ assert.ok(lobby.includes(translations.uk.balanceSignInTitle));
+ assert.ok(!lobby.includes('class="money-deposit-grid"'));
+ const privateWallet={...zero,balanceUahKop:5000,entries:[{id:1,createdAt:'2026-10-18T11:00:00Z',amountUahKop:5000}]};
+ const ledger=render('#/balance','en',false,null,auth,null,null,null,null,null,null,privateWallet).html;
+ assert.ok(ledger.includes('class="money-ledger-row"'));
+ assert.ok(ledger.includes('50.00'));
+ assert.ok(ledger.includes(translations.en.balanceDeposit));
+});
+test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge while disabled',()=>{
+ const account='bb9132ee-8c88-4f54-a827-edc8f290893a';
+ const auth={user:{id:account},mfaVerified:true};
+ const html=render('#/checkout?kind=wallet&sku=wallet_250','en',false,null,auth).html;
+ assert.ok(html.includes('250 ₴'));
+ assert.ok(html.includes('data-payment-action="checkout"'));
+ assert.ok(html.includes('data-kind="wallet"'));
+ assert.ok(html.includes(' disabled'));
+ const frontend=readFileSync(new URL('../assets/payment-ui.js',import.meta.url),'utf8');
+ assert.ok(frontend.includes("['stars','cosmetic','wallet']"));
+ const walletUi=readFileSync(new URL('../assets/wallet-ui.js',import.meta.url),'utf8');
+ assert.ok(walletUi.includes("rpc('aurvex_money_wallet_state')"));
+ assert.ok(!walletUi.includes('.from('));
+ assert.ok(!walletUi.includes('setItem('));
+ const checkout=readFileSync(new URL('../supabase/functions/aurvex-payment-checkout/index.ts',import.meta.url),'utf8');
+ assert.ok(checkout.includes('aurvex_payment_prepare_wallet'));
+ assert.ok(checkout.includes("['stars','cosmetic','wallet']"));
+ const sql=readFileSync(new URL('../supabase/migrations/aurvex_money_wallet_and_topups_20261018.sql',import.meta.url),'utf8');
+ for(const fragment of ['aurvex_money_wallets','balance_uah_kop bigint not null default 0',
+  'aurvex_money_ledger','unique references public.aurvex_payment_orders',
+  'aurvex_money_wallet_state','aurvex_shop_actor',
+  'aurvex_payment_prepare_wallet','aurvex_payment_guard',
+  "if o.kind='wallet'","user_id,o.base_uah_kop","on conflict(user_id) do update"]){
+  assert.ok(sql.includes(fragment),fragment);
+ }
 });

@@ -77,3 +77,14 @@ All tables have RLS enabled; private order/event tables are not directly readabl
 - Fondy signature algorithm: https://docs.fondy.io/gateway/signatures/
 - Fondy callbacks: https://docs.fondy.io/gateway/direct-integration/callbacks/
 - Supabase Edge Functions auth: https://supabase.com/docs/guides/functions/auth
+
+
+## v3.13 — Money Balance (not Stars)
+- A compact **Balance** link appears immediately to the right of Account in the header, regardless of locale.
+- The amount is the signed-in account's authenticated, AAL2-protected \`aurvex_money_wallet_state\` result; for signed-out, unverified or stale user sessions show \`—\`, never another person's balance.
+- Wallet value is stored in **UAH kopecks**, not in a set of 37 separate deposits. The site's selected display currency shows the *estimated converted equivalent* using the existing rate display cache. If the rate is missing, nonzero balance is shown as unavailable rather than inventing an FX quote. Zero remains zero in every currency.
+- Five server-priced future deposits: \`wallet_50\` (50 UAH), \`wallet_100\`, \`wallet_250\`, \`wallet_500\`, \`wallet_1000\` (1000 UAH). Every preset opens \`#/checkout?kind=wallet&sku=wallet_<amount>\` in **preview mode**, no payments while merchant disabled.
+- Secure persisted tables \`aurvex_money_wallets\` and \`aurvex_money_ledger\` (one entry per provider-confirmed deposit order), RLS + denied direct reads/writes, AAL2 read-only RPC, and payment-handler-only ledger credits.
+- \`aurvex_payment_prepare_wallet\` uses fixed SKU authority, idempotent request keys, charge currency allowlist, stale-FX safeguards and the same merchant off-switch. \`aurvex_payment_settle\` adds only the confirmed UAH amount, atomically with the order status and event.
+- No **withdrawals**, transfers, spending balance on cosmetics, bank account operations, external cash equivalents, or refunds-to-balance are supported yet. These require additional business/legal rules and test coverage. A balance is not a bank account.
+- All wallet deposit payments remain **OFF** until the merchant's adult-controlled account, digital wallet/virtual-value approval and financial reconciliation/refund policies are in place. Provider approval for Stars alone does not imply consent to store general-purpose user account funds.
