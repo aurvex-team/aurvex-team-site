@@ -879,52 +879,140 @@ function publicPlayerPage(path){
 function inventoryPage(){
  const auth=window.AURVEX_ID||{},sh=window.AURVEX_SHOP||{},m=window.AURVEX_INVENTORY||{};
  const signed=!!auth.user?.id&&auth.mfaVerified===true;
- const cosmetics=signed&&sh.userId===auth.user.id&&sh.ready?(sh.inventory||[]):[];
+ const rows=signed&&sh.userId===auth.user.id&&sh.ready?(sh.inventory||[]):[];
  const games=signed&&m.userId===auth.user.id&&m.ready?(m.gameItems||[]):[];
- const peers=(window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='friend'&&x.peer_id);
- const name=ref=>{const key='shopItem_'+ref;return t(key)===key?ref:t(key)};
- const owned=cosmetics.map(x=>({kind:'cosmetic',ref:x.item_id,name:name(x.item_id)}))
-  .concat(games.filter(g=>g.tradable).map(x=>({kind:'game',ref:x.id,name:x.name})));
- const requested=(m.peerItems||[]).filter(x=>x.tradable!==false);
- const option=(v,label,cur)=>'<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+esc(label)+'</option>';
- const itemLabel=(kind,ref)=>kind==='cosmetic'?name(ref):
-   (games.find(x=>x.id===ref)||requested.find(x=>x.ref===ref))?.name||t('invGame');
+ const friends=(window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='friend'&&x.peer_id);
+ const title=ref=>{const k='shopItem_'+ref;return t(k)===k?ref:t(k)};
+ const shopItems=sh.catalog||[];
+ const safeTheme=x=>['violet','ruby','cyan','gold','emerald','cosmic','frost','flame'].includes(x)?x:'violet';
+ const owned=rows.map(x=>{const item=shopItems.find(v=>v.id===x.item_id);
+   return {kind:'cosmetic',ref:x.item_id,name:title(x.item_id),section:'frames',
+     theme:safeTheme(item?.theme||x.item_id.split('_').at(-1)),subtype:item?.kind||'avatar',
+     game:'AURVEX',tradable:true,equipped:!!item&&sh.equipped?.[item.kind]===x.item_id};
+ }).concat(games.map(x=>({kind:'game',ref:x.id,name:x.name,section:'games',
+   theme:'game',subtype:x.item_code||'item',game:x.game_id,tradable:x.tradable===true,equipped:false})));
+ const key=x=>x.kind+':'+x.ref;
+ const sel=owned.find(x=>key(x)===m.selectedKey)||owned[0]||null;
+ const category=m.category||'all',screen=m.screen==='trades'?'trades':'items';
+ const visible=owned.filter(x=>(category==='all'||category==='tradable'&&x.tradable||
+   category==='frames'&&x.section==='frames'||category==='games'&&x.section==='games')&&
+   (!m.search||[x.name,x.game,x.subtype].join(' ').toLowerCase().includes(String(m.search).toLowerCase())));
+ const peer=(m.peerItems||[]).filter(x=>x.tradable!==false).map(x=>({
+   kind:x.kind,ref:x.ref,name:x.kind==='cosmetic'?title(x.ref):x.name,
+   section:x.kind==='cosmetic'?'frames':'games',game:x.game_id||'AURVEX',
+   theme:x.kind==='cosmetic'?safeTheme(x.ref.split('_').at(-1)):'game',tradable:true
+ }));
+ const selectedGive=Array.isArray(m.give)?m.give:[];
+ const selectedTake=Array.isArray(m.take)?m.take:[];
+ const art=(x,big)=>'<span class="si-art si-art-'+safeTheme(x.theme)+' '+(x.kind==='game'?'si-art-game':'')+(big?' is-large':'')+'">'+
+  (x.kind==='game'?icon('gamepad',big?66:34):
+   '<span class="si-orbit"><span class="si-orbit-core">'+icon('sparkle',big?42:22)+'</span></span>')+'</span>';
+ const tile=(x,action,chosen)=>'<button type="button" class="si-tile'+(chosen?' is-selected':'')+'"'+
+   ' data-inventory-action="'+action+'" data-inv-key="'+esc(key(x))+'"'+
+   ' data-si-search="'+esc((x.name+' '+x.game+' '+x.subtype).toLowerCase())+'"'+
+   ' title="'+esc(x.name)+'" aria-pressed="'+String(!!chosen)+'">'+
+   art(x,false)+'<span class="si-tile-title">'+esc(x.name)+'</span>'+
+   (x.equipped?'<span class="si-tile-equipped">'+icon('check',12)+'</span>':'')+
+   (chosen&&action!=='inspect'?'<span class="si-tile-check">'+icon('check',14)+'</span>':'')+
+   '</button>';
+ const option=(v,label)=>'<option value="'+esc(v)+'"'+(m.peerId===v?' selected':'')+'>'+esc(label)+'</option>';
+ const offerItems=(items)=>Array.isArray(items)?items:[];
+ const summary=(items)=>items.length?'<div class="si-summary-items">'+items.slice(0,10).map(x=>
+   '<span class="si-summary-chip">'+icon(x.kind==='game'?'gamepad':'sparkle',13)+' '+esc(x.kind==='cosmetic'?title(x.ref):
+     (owned.find(v=>v.ref===x.ref)||peer.find(v=>v.ref===x.ref))?.name||t('invGame'))+'</span>').join('')+
+   (items.length>10?'<span class="si-summary-chip">+'+(items.length-10)+'</span>':'')+'</div>':
+   '<p class="si-summary-empty">'+t('siNothing')+'</p>';
  const offers=(m.offers||[]).map(o=>{
-  const incoming=o.receiver_id===auth.user?.id,pending=o.status==='pending'&&Date.parse(o.expires_at)>Date.now();
-  const status=pending?'pending':o.status==='pending'?'expired':o.status;
-  return '<article class="inventory-offer"><div class="inventory-offer-head"><strong>'+esc(o.peer_nickname||t('friendsUnknown'))+
-    '</strong><span>'+t('invStatus_'+status)+'</span></div><p>'+t(incoming?'invIncoming':'invOutgoing')+'</p>'+
-    '<div class="inventory-offer-items"><span>'+t(incoming?'invGet':'invGive')+': '+esc(itemLabel(o.offered_kind,o.offered_ref))+
-    '</span><span>'+t(incoming?'invGive':'invGet')+': '+esc(itemLabel(o.requested_kind,o.requested_ref))+'</span></div>'+
-    (pending?(incoming?'<div class="inventory-offer-actions"><button class="btn btn-primary" type="button" data-inventory-action="accept" data-offer-id="'+esc(o.id)+'">'+t('invAccept')+'</button>'+
-       '<button class="btn btn-outline" type="button" data-inventory-action="decline" data-offer-id="'+esc(o.id)+'">'+t('invDecline')+'</button></div>':
-      '<button class="btn btn-outline" type="button" data-inventory-action="cancel" data-offer-id="'+esc(o.id)+'">'+t('invCancel')+'</button>'):'')+'</article>';
+   const incoming=o.receiver_id===auth.user?.id;
+   const pending=o.status==='pending'&&Date.parse(o.expires_at)>Date.now();
+   const status=pending?'pending':o.status==='pending'?'expired':o.status;
+   const sent=offerItems(o.offered_items),asked=offerItems(o.requested_items);
+   const giving=incoming?asked:sent,getting=incoming?sent:asked;
+   const gift=(incoming?asked:asked).length===0;
+   return '<article class="si-offer"><div class="si-offer-head"><div><span class="smallcaps">'+
+     t(incoming?'invIncoming':'invOutgoing')+'</span><h3>'+esc(o.peer_nickname||t('friendsUnknown'))+'</h3></div>'+
+     '<span class="si-status">'+t('invStatus_'+status)+'</span></div>'+
+     '<div class="si-offer-columns"><div><strong>'+t('invGive')+' · '+giving.length+'</strong>'+
+      summary(giving)+'</div><div><strong>'+t('invGet')+' · '+getting.length+'</strong>'+
+      summary(getting)+'</div></div>'+
+     (gift?'<p class="si-gift-label">'+icon('gift',15)+' '+t('siGiftNotice')+'</p>':'')+
+     (pending?(incoming?'<div class="si-offer-controls"><button type="button" class="btn btn-primary" data-inventory-action="accept" data-offer-id="'+esc(o.id)+'">'+t('invAccept')+'</button>'+
+       '<button type="button" class="btn btn-outline" data-inventory-action="decline" data-offer-id="'+esc(o.id)+'">'+t('invDecline')+'</button></div>':
+       '<div class="si-offer-controls"><button type="button" class="btn btn-outline" data-inventory-action="cancel" data-offer-id="'+esc(o.id)+'">'+t('invCancel')+'</button></div>'):'')+
+     '</article>';
  }).join('');
+ const nav='<div class="si-top-tabs" role="group" aria-label="'+esc(t('inventoryNav'))+'">'+
+   '<button type="button" class="'+(screen==='items'?'active':'')+'" data-inventory-action="view-items">'+icon('layers',17)+' '+t('siInventoryTab')+'</button>'+
+   '<button type="button" class="'+(screen==='trades'?'active':'')+'" data-inventory-action="view-trades">'+icon('arrow',17)+' '+t('siTradesTab')+
+   (m.offers?.filter(x=>x.status==='pending'&&x.receiver_id===auth.user?.id).length?' <span class="si-tab-count">'+m.offers.filter(x=>x.status==='pending'&&x.receiver_id===auth.user?.id).length+'</span>':'')+'</button>'+
+   '<button type="button" class="si-refresh" data-inventory-action="refresh" title="'+esc(t('siRefresh'))+'">'+icon('refresh',17)+'</button></div>';
+ const cards=visible.length?'<div class="si-grid">'+visible.map(x=>tile(x,'inspect',sel&&key(sel)===key(x))).join('')+'</div>':
+   '<div class="si-empty">'+icon('layers',40)+'<strong>'+t(owned.length?'siNoMatches':'siEmptyInventory')+'</strong>'+
+   '<span>'+t(owned.length?'siAdjustFilters':'invNoFrames')+'</span><a href="#/shop">'+t('shopNav')+' '+icon('arrow',14)+'</a></div>';
+ const tabs=[['all','siAll',owned.length],['frames','invFrames',rows.length],
+   ['games','invGames',games.length],['tradable','siTradable',owned.filter(x=>x.tradable).length]];
+ const detail=sel?'<div class="si-detail"><div class="smallcaps">'+esc(sel.game)+'</div>'+
+   '<div class="si-detail-art">'+art(sel,true)+'</div><div class="si-detail-body"><h2>'+esc(sel.name)+'</h2>'+
+   '<p>'+t(sel.section==='frames'?'siFrameDescription':'siGameDescription')+'</p>'+
+   '<dl><div><dt>'+t('siCollection')+'</dt><dd>'+esc(sel.game)+'</dd></div>'+
+   '<div><dt>'+t('siType')+'</dt><dd>'+t(sel.section==='frames'?'invFrames':'invGames')+'</dd></div>'+
+   '<div><dt>'+t('siTradeStatus')+'</dt><dd>'+t(sel.tradable?'invTradable':'invNotTradable')+'</dd></div></dl>'+
+   (sel.section==='frames'&&shopItems.some(z=>z.id===sel.ref)?'<button type="button" class="btn btn-primary" data-shop-action="'+(sel.equipped?'unequip':'equip')+
+      '" data-item-id="'+esc(sel.ref)+'" data-kind="'+esc(sel.subtype)+'"'+(sh.busy?' disabled':'')+'>'+
+     icon('sparkle',16)+' '+t(sel.equipped?'shopUnequip':'shopEquip')+'</button>':'')+
+   (sel.tradable?'<button type="button" class="btn btn-outline" data-inventory-action="trade-selected">'+icon('arrow',16)+' '+t('siTradeThis')+'</button>':'')+
+   '</div></div>':
+   '<div class="si-detail si-detail-placeholder">'+icon('layers',40)+'<strong>'+t('siSelectItem')+'</strong></div>';
+ const browser='<div class="si-workspace"><aside class="si-categories"><div class="si-categories-title">'+t('siCollections')+'</div>'+
+   tabs.map(([cat,label,count])=>'<button type="button" class="'+(category===cat?'active':'')+'" data-inventory-action="category" data-inv-category="'+cat+'">'+
+     icon(cat==='frames'?'sparkle':cat==='games'?'gamepad':cat==='tradable'?'arrow':'layers',17)+'<span>'+t(label)+'</span><b>'+count+'</b></button>').join('')+
+   '</aside><section class="si-browser"><div class="si-browser-toolbar"><div><span class="smallcaps">'+t('siYourItems')+'</span>'+
+   '<h2>'+t('siInventoryTab')+' <span>'+visible.length+' / '+owned.length+'</span></h2></div>'+
+   '<label class="si-search">'+icon('search',16)+'<input data-inventory-search type="search" value="'+esc(m.search||'')+'" placeholder="'+esc(t('siSearch'))+'" autocomplete="off"></label></div>'+
+   '<div class="si-browser-scroll">'+cards+'</div></section><aside class="si-details-col">'+detail+'</aside></div>';
+ const giveItems=owned.filter(x=>x.tradable);
+ const giveCount=selectedGive.length,takeCount=selectedTake.length;
+ const tradeBox=(items,action,selected)=>{
+   if(!items.length)return '<div class="si-mini-empty">'+t(action==='give-toggle'?'siNoTradable':'siPeerEmpty')+'</div>';
+   return '<div class="si-mini-grid">'+items.map(x=>tile(x,action,selected.includes(key(x)))).join('')+'</div>';
+ };
+ const tradeScreen='<div class="si-trade-top"><div><span class="smallcaps">'+t('siTradeOffer')+'</span>'+
+   '<h2>'+t('siBuildTrade')+'</h2><p>'+t('siTradeDescription')+'</p></div>'+
+   '<label>'+t('invFriend')+'<select data-inventory-peer>'+
+    option('',t('invSelectFriend'))+friends.map(x=>option(x.peer_id,x.nickname||x.peer_id)).join('')+
+   '</select></label></div>'+
+   (friends.length?'<div class="si-trade-columns"><section class="si-trade-column"><div class="si-trade-column-head"><div><span class="smallcaps">'+t('siYou')+'</span>'+
+       '<h3>'+t('invGive')+' <span>'+giveCount+'</span></h3></div>'+
+       '<div class="si-trade-tools"><button type="button" data-inventory-action="give-all">'+t('siSelectAll')+'</button>'+
+       '<button type="button" data-inventory-action="give-clear">'+t('siClear')+'</button></div></div>'+
+       tradeBox(giveItems,'give-toggle',selectedGive)+'</section>'+
+     '<section class="si-trade-column"><div class="si-trade-column-head"><div><span class="smallcaps">'+t('siOtherPlayer')+'</span>'+
+       '<h3>'+t('invGet')+' <span>'+takeCount+'</span></h3></div>'+
+       '<div class="si-trade-tools"><button type="button" data-inventory-action="take-clear">'+t('siClear')+'</button></div></div>'+
+       (!m.peerId?'<div class="si-mini-empty">'+t('siChooseFriend')+'</div>':
+        !m.peerItemsReady?'<div class="si-mini-empty">'+t('invLoading')+'</div>':
+        tradeBox(peer,'take-toggle',selectedTake))+'</section></div>'+
+    '<div class="si-trade-review"><div>'+icon('shield',23)+'<div><strong>'+
+     (takeCount===0?t('siGiftTitle'):t('siTradeTitle'))+'</strong><p>'+
+      (takeCount===0?t('siGiftNotice'):t('siFinalNotice'))+'</p></div></div>'+
+    '<div class="si-review-counts"><span>'+t('invGive')+': <b>'+giveCount+'</b></span><span>'+t('invGet')+': <b>'+takeCount+'</b></span></div>'+
+    '<button type="button" class="btn btn-primary" data-inventory-action="send"'+
+      (m.busy||!m.peerId||!m.peerItemsReady||!giveCount||giveCount>500?' disabled':'')+'>'+
+      icon('arrow',17)+' '+t(takeCount===0?'siSendGift':'invSend')+'</button></div>':
+     '<div class="si-empty">'+icon('users',36)+'<h3>'+t('invNeedFriends')+'</h3><a href="#/friends" class="btn btn-outline">'+t('friendsNav')+'</a></div>')+
+   '<div class="si-trade-history"><div class="si-offers-title"><h2>'+t('invOffers')+'</h2><span>'+((m.offers||[]).length)+'</span></div>'+
+   (offers?'<div class="si-offers">'+offers+'</div>':'<div class="si-mini-empty">'+t('invNoOffers')+'</div>')+'</div>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('inventoryNav')+'</span></div>'+
- '<header class="inventory-hero"><div class="smallcaps">AURVEX · INVENTORY</div><h1>'+t('invTitle')+'</h1><p>'+t('invIntro')+'</p></header>'+
- (!signed?'<section class="inventory-panel"><p>'+t('invLogin')+'</p><a class="btn btn-primary" href="#/id">'+t('idSignIn')+'</a></section>':
- '<section class="inventory-panel"><div class="inventory-section-head"><h2>'+icon('sparkle',20)+' '+t('invFrames')+'</h2><a href="#/shop">'+t('shopNav')+' '+icon('arrow',14)+'</a></div>'+
- (cosmetics.length?'<div class="inventory-grid">'+cosmetics.map(row=>{
-   const item=(sh.catalog||[]).find(x=>x.id===row.item_id),wearing=item&&sh.equipped?.[item.kind]===item.id;
-   return '<article class="inventory-item"><div class="inventory-item-visual">'+icon('sparkle',29)+'</div><div><h3>'+esc(name(row.item_id))+'</h3>'+
-    '<p>'+t('invOwned')+'</p></div>'+(item?'<button class="btn btn-outline" type="button" data-shop-action="'+(wearing?'unequip':'equip')+
-      '" data-kind="'+esc(item.kind)+'" data-item-id="'+esc(item.id)+'"'+(sh.busy?' disabled':'')+'>'+t(wearing?'shopUnequip':'shopEquip')+'</button>':'')+'</article>'
- }).join('')+'</div>':'<p class="inventory-empty">'+t(sh.ready?'invNoFrames':'shopLoading')+'</p>')+'</section>'+
- '<section class="inventory-panel"><h2>'+icon('gamepad',20)+' '+t('invGames')+'</h2>'+
- (games.length?'<div class="inventory-grid">'+games.map(g=>'<article class="inventory-item"><div class="inventory-item-visual">'+icon('gamepad',25)+'</div>'+
- '<div><span class="smallcaps">'+esc(g.game_id)+'</span><h3>'+esc(g.name)+'</h3><p>'+t(g.tradable?'invTradable':'invNotTradable')+'</p></div></article>').join('')+'</div>':
- '<p class="inventory-empty">'+t(m.ready?'invNoGames':'invLoading')+'</p>')+'</section>'+
- '<section class="inventory-panel"><h2>'+icon('arrow',20)+' '+t('invTrades')+'</h2><p>'+t('invTradeDesc')+'</p>'+
- (m.messageKey?'<p class="shop-feedback'+(m.error?' is-error':'')+'" role="status">'+t(m.messageKey)+'</p>':'')+
- (peers.length&&owned.length?'<form class="inventory-trade-form" id="inventory-trade-form">'+
- '<label>'+t('invFriend')+'<select name="peer" required>'+option('',t('invSelectFriend'),m.peerId)+peers.map(p=>option(p.peer_id,p.nickname||p.peer_id,m.peerId)).join('')+'</select></label>'+
- '<label>'+t('invGive')+'<select name="offered" required>'+option('',t('invSelectItem'),m.offered)+owned.map(x=>option(x.kind+':'+x.ref,x.name,m.offered)).join('')+'</select></label>'+
- '<label>'+t('invGet')+'<select name="requested" required>'+option('',t('invSelectItem'),m.requested)+requested.map(x=>option(x.kind+':'+x.ref,x.kind==='cosmetic'?name(x.ref):x.name,m.requested)).join('')+'</select></label>'+
- '<button class="btn btn-primary" type="submit"'+(m.busy||!m.peerItemsReady||!requested.length?' disabled':'')+'>'+t('invSend')+'</button></form>':
- '<p class="inventory-empty">'+t(!peers.length?'invNeedFriends':'invNeedItem')+'</p>')+
- '<h3>'+t('invOffers')+'</h3>'+(offers?'<div class="inventory-offers">'+offers+'</div>':'<p class="inventory-empty">'+t('invNoOffers')+'</p>')+'</section>')+
- '<p class="inventory-disclaimer">'+t('invWarning')+'</p>';
+   '<section class="si-shell"><header class="si-header"><div><span class="smallcaps">AURVEX / COMMUNITY</span>'+
+    '<h1>'+t('inventoryNav')+'</h1><p>'+t('invIntro')+'</p></div>'+
+    '<div class="si-header-stats"><span>'+icon('layers',19)+'<b>'+owned.length+'</b> '+t('siItemsTotal')+'</span>'+
+      '<span>'+icon('sparkle',18)+'<b>'+rows.length+'</b> '+t('invFrames')+'</span></div></header>'+
+   (!signed?'<div class="si-login">'+icon('shield',32)+'<h2>'+t('invLogin')+'</h2>'+
+      '<a href="#/id" class="btn btn-primary">'+t('idSignIn')+'</a></div>':
+    nav+(m.messageKey?'<p class="shop-feedback'+(m.error?' is-error':'')+'" role="status">'+t(m.messageKey)+'</p>':'')+
+      (screen==='items'?browser:tradeScreen))+'</section>';
 }
+
 function shopPage(){
  const m=window.AURVEX_SHOP||{},auth=window.AURVEX_ID||{};
  const signed=!!auth.user?.id&&auth.mfaVerified;
