@@ -33,6 +33,58 @@ function fail(error,key){
   console.warn('AURVEX ID operation failed:',error?.code||error?.name||'unknown');
   status(key,true);
 }
+
+const desktopPairing=(()=>{
+ const params=new URLSearchParams(location.search);
+ const port=Number(params.get('port')),nonce=params.get('nonce')||'';
+ return location.origin==='https://aurvex-team.github.io'&&params.get('desktopPairing')==='1'&&
+  Number.isInteger(port)&&port>=1024&&port<=65535&&/^[a-f0-9]{64}$/.test(nonce)?{port,nonce}:null;
+})();
+let desktopPairingBusy=false,desktopPairingDone=false,lastDesktopPairingState='';
+async function reportDesktopPairing(state){
+ if(!desktopPairing||state===lastDesktopPairingState)return;
+ lastDesktopPairingState=state;
+ try{await fetch(`http://127.0.0.1:${desktopPairing.port}/status`,{method:'POST',mode:'cors',cache:'no-store',
+  headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce:desktopPairing.nonce,state}),signal:AbortSignal.timeout(4000)})}catch{}
+}
+async function connectDesktopPairing(){
+ if(!desktopPairing||desktopPairingBusy||desktopPairingDone)return;
+ desktopPairingBusy=true;
+ try{
+  const client=await idClient();
+  const {data:{session},error:sessionError}=await client.auth.getSession();
+  if(sessionError)throw sessionError;
+  if(!session){void reportDesktopPairing('waiting');return}
+  const {data:{user},error:userError}=await client.auth.getUser();
+  if(userError||!user||!user.email_confirmed_at){void reportDesktopPairing('waiting');return}
+  const {data:levels,error:levelError}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
+  if(levelError)throw levelError;
+  if(levels.currentLevel!=='aal2'){
+   void reportDesktopPairing(levels.nextLevel==='aal2'?'mfa-required':'mfa-setup-required');return;
+  }
+  const accessToken=typeof session.access_token==='string'?session.access_token:'';
+  const refreshToken=typeof session.refresh_token==='string'?session.refresh_token:'';
+  if(accessToken.length<=50||refreshToken.length<20)throw new Error('The verified AURVEX session is incomplete. Sign in again.');
+  void reportDesktopPairing('connecting');
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+  let response;
+  try{response=await fetch(`http://127.0.0.1:${desktopPairing.port}/connect`,{method:'POST',mode:'cors',cache:'no-store',
+   headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce:desktopPairing.nonce,
+   access_token:accessToken,refresh_token:refreshToken}),signal:controller.signal})}
+  finally{clearTimeout(timeout)}
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.ok!==true)throw new Error(String(result.error||'Desktop connection failed.'));
+  desktopPairingDone=true;
+  const clean=new URL(location.href);
+  clean.searchParams.delete('desktopPairing');clean.searchParams.delete('port');clean.searchParams.delete('nonce');
+  history.replaceState(history.state,'',clean.pathname+clean.search+clean.hash);
+ }catch(error){
+  void reportDesktopPairing('failed');
+  status('idSessionError',true);
+  console.warn('AURVEX desktop pairing failed:',error?.code||error?.name||'failed');
+ }finally{desktopPairingBusy=false}
+}
+
 function updateProfile(profile){
   model.profile=profile||null;
   model.avatarUrl=profileMediaUrl(profile?.avatar_path);
@@ -76,7 +128,7 @@ async function reload(){
       model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
       model.profileTitles=[];
       clearWishlistSubscription();
-      model.ready=true;model.statusKey='';notify();return;
+      model.ready=true;model.statusKey='';notify();void reportDesktopPairing('waiting');return;
     }
     const user=await currentVerifiedUser();
     if(revision!==profileReloadToken)return;
@@ -91,7 +143,7 @@ async function reload(){
       model.profileTitles=[];
       // No profile or wishlist query is made before the second factor succeeds.
       updateProfile(null);clearWishlistSubscription();
-      model.ready=true;model.statusKey='';notify();return;
+      model.ready=true;model.statusKey='';notify();void reportDesktopPairing(mfa.hasFactors?'mfa-required':'mfa-setup-required');return;
     }
     // Verified aal2 session: private account data is now readable under RLS.
     // Server is authoritative: never re-upload an old local wishlist snapshot.
@@ -103,7 +155,7 @@ async function reload(){
     model.profileTitles=titles;
     if(!pendingWishlistWrites)broadcastWishlist(wished);
     await activateWishlist(user.id);
-    model.ready=true;model.statusKey='';notify();
+    model.ready=true;model.statusKey='';notify();void connectDesktopPairing();
   }catch(error){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
