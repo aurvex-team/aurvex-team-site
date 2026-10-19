@@ -5,8 +5,8 @@
   "platforms": {
     "linux": {
       "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.15-In-App-Login-Linux.run",
-      "sha256": "cf75fa47744469bc488210babfce8ad4f713999315381aad4298537498427f04",
-      "size": 301392
+      "sha256": "ca755b2e735825ecbfd599cad3a9a4e47df64b4f417ad2791a534ba598146466",
+      "size": 302150
     }
   }
 }
