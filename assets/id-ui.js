@@ -110,8 +110,21 @@ async function connectDesktopPairing(){
   if(levels.currentLevel!=='aal2'){
    void reportDesktopPairing(levels.nextLevel==='aal2'?'mfa-required':'mfa-setup-required');return;
   }
-  const accessToken=typeof session.access_token==='string'?session.access_token:'';
-  const refreshToken=typeof session.refresh_token==='string'?session.refresh_token:'';
+  // Supabase can rotate the browser refresh token while another site tab is active.
+  // Prefer a refreshed transferable session, while retaining the last valid one if refresh races.
+  let transferable=session;
+  try{
+   const refreshed=await client.auth.refreshSession();
+   const candidate=refreshed?.data?.session;
+   if(!refreshed?.error&&candidate?.user?.id===user.id&&
+      typeof candidate.access_token==='string'&&candidate.access_token.length>50&&
+      typeof candidate.refresh_token==='string'&&candidate.refresh_token.length>=20){
+    transferable=candidate;
+   }
+  }catch{}
+  const accessToken=typeof transferable.access_token==='string'?transferable.access_token:'';
+  const refreshToken=typeof transferable.refresh_token==='string'&&transferable.refresh_token.length>=20?transferable.refresh_token:
+   (typeof session.refresh_token==='string'&&session.refresh_token.length>=20?session.refresh_token:'');
   if(accessToken.length<=50||refreshToken.length<20)throw new Error('The verified AURVEX session is incomplete. Sign in again.');
   void reportDesktopPairing('connecting');
   postDesktopPairingForm({access_token:accessToken,refresh_token:refreshToken});
