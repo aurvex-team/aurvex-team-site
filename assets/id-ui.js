@@ -348,4 +348,11 @@ window.AURVEX_DESKTOP?.onSession(async tokens => {
   }
 });
 
+
+if(desktopPairing){
+  window.addEventListener('focus',()=>void connectDesktopPairing());
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)void connectDesktopPairing()});
+  setInterval(()=>void connectDesktopPairing(),4000);
+}
+
 void initialize();
