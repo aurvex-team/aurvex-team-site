@@ -6,8 +6,8 @@ import {idClient} from './id-service.js?v=20261018-391';
 
 export function countActivePresences(state){
   if(!state||typeof state!=='object'||Array.isArray(state))return 0;
-  // Realtime Presence state is keyed by ephemeral per-tab Presence keys.
-  // Each Presence key is a random per-tab identifier; count each key once.
+  // Realtime Presence is keyed by one random sessionStorage id per tab.
+  // The key survives refreshes in this tab, so reconnect overlap counts only once.
   return Object.keys(state).filter(key=>
     Array.isArray(state[key])&&state[key].length>0).length;
 }
@@ -58,7 +58,11 @@ function updateTracking(){
 async function start(){
   try{
     const client=await idClient();
-    const key=crypto.randomUUID();
+    let key='';
+    try{
+      key=sessionStorage.getItem('aurvex.live-presence-key')||'';
+      if(!/^[0-9a-f-]{36}$/i.test(key)){key=crypto.randomUUID();sessionStorage.setItem('aurvex.live-presence-key',key)}
+    }catch{key=crypto.randomUUID()}
     channel=client.channel('aurvex-store:live-visitors:v1',{
       config:{presence:{key}}
     });
