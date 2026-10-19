@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261019-486';
+import { translations, supportedLanguages } from './i18n.js?v=20261019-504';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -1197,7 +1197,7 @@ function shopPage(){
      }).join('')+'</div>':'<p>'+t('shopCollectionEmpty')+'</p>')+
      (Array.isArray(m.history)&&m.history.length?'<details><summary>'+t('shopHistory')+'</summary>'+
        '<div class="shop-history">'+m.history.slice(0,10).map(h=>
-         '<div><span>'+t(h.reason==='welcome'?'shopWelcomeTransaction':'shopPurchaseTransaction')+
+         '<div><span>'+(h.reason==='welcome'?t('shopWelcomeTransaction'):h.reason==='sale_payout'?t('shopSalePayout'):t('shopPurchaseTransaction'))+
          (h.item_id?' · '+esc(t('shopItem_'+h.item_id)):'')+'</span><strong>'+
          (h.points_delta>0?'+':'')+Number(h.points_delta||0)+' '+t('shopPoints')+'</strong></div>').join('')+'</div></details>':'')+
      '</section>':'')+
