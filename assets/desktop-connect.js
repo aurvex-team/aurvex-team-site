@@ -51,4 +51,4 @@ button.addEventListener('click',async()=>{
 window.addEventListener('focus',()=>void check());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void check()});
 void check();
-setInterval(()=>{if(!document.hidden&&!approved)void check()},7000);
+setInterval(()=>{if((autoConnect||!document.hidden)&&!approved)void check()},7000);
