@@ -14,9 +14,16 @@ export async function idClient(){
   return clientPromise;
 }
 export function idReturnUrl(){
-  // Point OAuth and email verification at a normal HTTPS page; PKCE "code"
-  // returns in URL query parameters, NOT the hash used by our SPA routes.
-  return new URL('id.html',document.baseURI).href.split('#')[0];
+  // Keep the nonce-protected desktop pairing context across OAuth/OTP redirects.
+  const callback=new URL('id.html',document.baseURI);
+  const current=new URL(window.location.href);
+  if(current.searchParams.get('desktopPairing')==='1'){
+    for(const key of ['desktopPairing','port','nonce']){
+      const value=current.searchParams.get(key);
+      if(value)callback.searchParams.set(key,value);
+    }
+  }
+  return callback.href.split('#')[0];
 }
 export async function requestEmailCode(email,register){
   const client=await idClient();
