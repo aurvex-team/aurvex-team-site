@@ -256,7 +256,7 @@ function desktopPage(){
   '<div class="hero-actions"><a class="btn btn-primary" href="./desktop/updates/'+launcherFile+'" download>'+icon('arrow',16)+' '+esc(launcherT('download'))+'</a><span class="tag">'+esc(launcherT('version'))+'</span></div></div>'+
   '<div class="about-graphic" aria-hidden="true"><span class="about-orbit"></span><span class="about-orbit"></span><span class="about-emblem">A</span></div></div>'+
   '<section class="section"><div class="mission-card"><div class="smallcaps">'+esc(launcherT('fileType'))+'</div><h2>'+esc(launcherT('installTitle'))+'</h2><p>'+esc(launcherT('installText'))+'</p>'+
-  '<div class="hero-actions"><button class="btn btn-outline" type="button" data-action="copy-launcher-command">'+icon('copy',16)+' '+esc(launcherT('copy'))+'</button></div><pre><code data-launcher-command>'+esc(commands)+'</code></pre><p><strong>'+esc(launcherT('shaLabel'))+':</strong> <code>cf75fa47744469bc488210babfce8ad4f713999315381aad4298537498427f04</code></p></div></section>'+
+  '<div class="hero-actions"><button class="btn btn-outline" type="button" data-action="copy-launcher-command">'+icon('copy',16)+' '+esc(launcherT('copy'))+'</button></div><pre><code data-launcher-command>'+esc(commands)+'</code></pre><p><strong>'+esc(launcherT('shaLabel'))+':</strong> <code>ca755b2e735825ecbfd599cad3a9a4e47df64b4f417ad2791a534ba598146466</code></p></div></section>'+
   '<section class="section"><div class="saved-banner">'+icon('info',19)+'<span><strong>'+esc(launcherT('knownTitle'))+':</strong> '+esc(launcherT('knownIssue'))+'</span></div></section>'+
   '<section class="section"><div class="mission-card"><h2>'+esc(launcherT('otherTitle'))+'</h2><p>'+esc(launcherT('otherText'))+'</p></div></section>';
 }
