@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "version": "0.6.0-alpha.15",
-  "notes": "Direct in-launcher AURVEX ID sign-in by email code with 2FA; stable verified session sync.",
+  "version": "0.6.0-alpha.16",
+  "notes": "Google sign-in starts in the default browser; verified session returns to the launcher after 2FA.",
   "platforms": {
     "linux": {
-      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.15-In-App-Login-Linux.run",
-      "sha256": "ca755b2e735825ecbfd599cad3a9a4e47df64b4f417ad2791a534ba598146466",
-      "size": 302150
+      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.16-Google-Login-Fix-Linux.run",
+      "sha256": "74bf8f367b2058711f0f2329c7961369aee59a4c8070aa249b6e82f0da7e526b",
+      "size": 302542
     }
   }
 }
