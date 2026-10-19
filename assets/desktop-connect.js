@@ -36,7 +36,7 @@ button.addEventListener('click',async()=>{
   let res;
   try{res=await fetch(`http://127.0.0.1:${port}/connect`,{method:'POST',mode:'cors',cache:'no-store',
     headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce,
-     access_token:session.access_token}),signal:controller.signal});}
+     access_token:session.access_token,refresh_token:session.refresh_token}),signal:controller.signal});}
   finally{clearTimeout(timeout)}
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok!==true)throw Error(String(data.error||'Connection failed.'));
