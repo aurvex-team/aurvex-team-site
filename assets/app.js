@@ -250,7 +250,7 @@ function launcherT(key){return launcherCopy[state.language]?.[key]||launcherCopy
 function launcherNavLink(path){return '<a class="side-link'+(isActive(path,'/desktop')?' active':'')+'" href="#/desktop">'+icon('laptop',18)+'<span>'+esc(launcherT('nav'))+'</span></a>'}
 const launcherFile='AURVEX-Launcher-v0.6.0-alpha.7-Login-Library-Fix-Linux.run';
 function desktopPage(){
- const commands='chmod +x '+launcherFile+'\n./'+launcherFile;
+ const commands='cd ~/Downloads\nchmod +x '+launcherFile+'\n./'+launcherFile;
  return '<div class="breadcrumb"><a href="#/">'+esc(launcherT('crumb'))+'</a>'+icon('arrow',13)+esc(launcherT('nav'))+'</div>'+
   '<div class="about-hero"><div><div class="smallcaps">'+esc(launcherT('eyebrow'))+'</div><h1>'+esc(launcherT('title'))+'</h1><p>'+esc(launcherT('intro'))+'</p>'+
   '<div class="hero-actions"><a class="btn btn-primary" href="./desktop/updates/'+launcherFile+'" download>'+icon('arrow',16)+' '+esc(launcherT('download'))+'</a><span class="tag">'+esc(launcherT('version'))+'</span></div></div>'+
