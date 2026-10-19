@@ -223,14 +223,14 @@ function header(path){
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
-      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+
+      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+launcherNavLink(path)+
       navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/balance','balanceNav','wallet',path)+navLink('/inventory','inventoryNav','layers',path)+navLink('/library','libraryNav','gamepad',path)+
       navLink('/friends','friendsNav','users',path,
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/chat','chatNav','message',path)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
-      navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+launcherNavLink(path)+'</div>'+
+      navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
     '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
 }
