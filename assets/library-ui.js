@@ -32,3 +32,4 @@ async function end(game){const id=sessions.get(game);if(!id)return;sessions.dele
 window.addEventListener('aurvex:library-route',()=>void load());window.addEventListener('aurvex:desktop-game-event',onGameEvent);window.addEventListener('aurvex:desktop-session-connected',()=>void load());window.addEventListener('aurvex:desktop-session',()=>void load());window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#/library'))void load()});
 document.addEventListener('click',event=>{const retry=event.target.closest('[data-retry]');if(retry){void load();return}const play=event.target.closest('[data-play]');if(play&&window.AURVEX_DESKTOP)void window.AURVEX_DESKTOP.launch(play.dataset.play).catch(()=>{})});
 document.addEventListener('aurvex:auth-changed',()=>void load());
+window.addEventListener('aurvex:id-state',()=>void load());
