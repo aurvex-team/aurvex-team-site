@@ -64,24 +64,15 @@ async function reportDesktopPairing(state){
  showDesktopPairingState(state);
 }
 function postDesktopPairingForm(tokens){
- return new Promise((resolve,reject)=>{
-  const target='aurvex-pairing-'+desktopPairing.nonce.slice(0,12);
-  const frame=document.createElement('iframe');frame.name=target;frame.title='AURVEX Launcher connection';frame.hidden=true;frame.setAttribute('aria-hidden','true');
-  const form=document.createElement('form');form.method='POST';form.action=`http://127.0.0.1:${desktopPairing.port}/connect`;form.target=target;form.enctype='application/x-www-form-urlencoded';form.referrerPolicy='no-referrer';form.hidden=true;
-  for(const [name,value] of Object.entries({nonce:desktopPairing.nonce,access_token:tokens.access_token,refresh_token:tokens.refresh_token})){
-   const field=document.createElement('input');field.type='hidden';field.name=name;field.value=value;form.append(field);
-  }
-  let settled=false;const timer=setTimeout(()=>finish(new Error('Launcher did not acknowledge the sign-in.')),7000);
-  function finish(error){if(settled)return;settled=true;clearTimeout(timer);window.removeEventListener('message',onMessage);form.remove();setTimeout(()=>frame.remove(),250);error?reject(error):resolve()}
-  function onMessage(event){
-   const data=event.data;
-   if(event.origin!==`http://127.0.0.1:${desktopPairing.port}`||event.source!==frame.contentWindow||
-      data?.type!=='aurvex-desktop-pairing'||data.nonce!==desktopPairing.nonce)return;
-   finish(data.ok===true?null:new Error('Launcher rejected this session.'));
-  }
-  window.addEventListener('message',onMessage);document.body.append(frame,form);
-  try{form.submit()}catch(error){finish(error)}
- });
+ const form=document.createElement('form');form.method='POST';
+ form.action=`http://127.0.0.1:${desktopPairing.port}/connect`;
+ // A top-level POST avoids browser permission gates for loopback fetches and subframes.
+ form.target='_top';form.enctype='application/x-www-form-urlencoded';
+ form.referrerPolicy='no-referrer';form.hidden=true;
+ for(const [name,value] of Object.entries({nonce:desktopPairing.nonce,access_token:tokens.access_token,refresh_token:tokens.refresh_token})){
+  const field=document.createElement('input');field.type='hidden';field.name=name;field.value=value;form.append(field);
+ }
+ document.body.append(form);form.submit();
 }
 async function connectDesktopPairing(){
  if(!desktopPairing||desktopPairingBusy||desktopPairingDone)return;
@@ -102,17 +93,7 @@ async function connectDesktopPairing(){
   const refreshToken=typeof session.refresh_token==='string'?session.refresh_token:'';
   if(accessToken.length<=50||refreshToken.length<20)throw new Error('The verified AURVEX session is incomplete. Sign in again.');
   void reportDesktopPairing('connecting');
-  try{await postDesktopPairingForm({access_token:accessToken,refresh_token:refreshToken})}
-  catch{
-   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
-   let response;
-   try{response=await fetch(`http://127.0.0.1:${desktopPairing.port}/connect`,{method:'POST',mode:'cors',cache:'no-store',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce:desktopPairing.nonce,
-    access_token:accessToken,refresh_token:refreshToken}),signal:controller.signal})}
-   finally{clearTimeout(timeout)}
-   const result=await response.json().catch(()=>({}));
-   if(!response.ok||result.ok!==true)throw new Error(String(result.error||'Desktop connection failed.'));
-  }
+  postDesktopPairingForm({access_token:accessToken,refresh_token:refreshToken});
   client.auth.stopAutoRefresh?.();
   desktopPairingDone=true;
   showDesktopPairingState('success');
