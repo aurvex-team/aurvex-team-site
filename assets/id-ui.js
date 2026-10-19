@@ -285,4 +285,15 @@ document.addEventListener('visibilitychange',()=>{
 setInterval(()=>{
   if(document.visibilityState==='visible'&&activeUserId)void readRemoteWishlist(activeUserId);
 },30000);
+window.AURVEX_DESKTOP?.onSession(async tokens => {
+  try {
+    const client = await idClient();
+    const { error } = await client.auth.setSession(tokens);
+    if (error) throw error;
+    await reload();
+  } catch (error) {
+    fail(error, 'idSessionError');
+  }
+});
+
 void initialize();
