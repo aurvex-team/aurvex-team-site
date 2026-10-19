@@ -637,13 +637,6 @@ function playerProfilePage(auth){
   const customEmoji=customStatusEmojis.includes(rawCustomEmoji)?rawCustomEmoji:'';
   const customDuration=customStatusDurations.includes(customDraft?.duration)?customDraft.duration:
    savedCustomStatus?.expiresAt?'1d':'never';
-  const profileSteps=[
-   !!auth.profile?.nickname,!!auth.profile?.avatar_path,!!auth.profile?.banner_path,
-   !!savedBio,profileLinks.some(l=>l?.url),auth.mfaVerified===true
-  ];
-  const complete=profileSteps.filter(Boolean).length;
-  const completePercent=Math.round(100*complete/profileSteps.length);
-
   const activeTab=['overview','links'].includes(state.profileTab)?state.profileTab:'overview';
   const tabData=[
     ['overview','user','profileTabOverview'],
@@ -693,18 +686,6 @@ function playerProfilePage(auth){
       tabToolbar+
       '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
         panelStart('overview')+
-        '<section class="profile-command-center"><div class="profile-command-head"><div>'+
-          '<span class="smallcaps">AURVEX / PROFILE STUDIO</span><h2>'+t('profileCommandTitle')+'</h2>'+
-          '<p>'+t('profileCommandDescription')+'</p></div>'+
-          '<div class="profile-completion"><strong>'+completePercent+'%</strong><span>'+t('profileComplete')+'</span></div></div>'+
-          '<div class="profile-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+completePercent+
-            '" aria-label="'+esc(t('profileComplete'))+'"><span style="width:'+completePercent+'%"></span></div>'+
-          '<div class="profile-command-links">'+
-            '<a href="#/inventory">'+icon('layers',18)+'<span>'+t('inventoryNav')+'</span>'+icon('arrow',15)+'</a>'+
-            '<a href="#/shop">'+icon('sparkle',18)+'<span>'+t('shopNav')+'</span>'+icon('arrow',15)+'</a>'+
-            '<a href="#/balance">'+icon('wallet',18)+'<span>'+t('balanceNav')+'</span>'+icon('arrow',15)+'</a>'+
-            '<button type="button" data-profile-tab="links">'+icon('globe',18)+'<span>'+t('profileTabLinks')+'</span>'+icon('arrow',15)+'</button>'+
-          '</div><p class="profile-progress-hint">'+t('profileProgressHint')+'</p></section>'+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
           '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
         '<div class="player-edit-layout">'+
