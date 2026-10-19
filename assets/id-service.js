@@ -6,11 +6,20 @@ const SUPABASE_SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.1/+e
 let clientPromise;
 export async function idClient(){
   if(!isIdConfigured())throw new Error('AURVEX_ID_NOT_CONFIGURED');
-  if(!clientPromise)clientPromise=import(SUPABASE_SDK).then(({createClient})=>
-    createClient(ID_CONFIG.supabaseUrl,ID_CONFIG.supabasePublishableKey,{
-      auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}
-    })
-  ).catch(err=>{clientPromise=null;throw err});
+  if(!clientPromise)clientPromise=import(SUPABASE_SDK).then(async({createClient})=>{
+    const desktop=typeof window.AURVEX_DESKTOP?.session==='function';
+    const client=createClient(ID_CONFIG.supabaseUrl,ID_CONFIG.supabasePublishableKey,{
+      auth:{flowType:'pkce',detectSessionInUrl:!desktop,persistSession:!desktop,autoRefreshToken:!desktop}
+    });
+    if(desktop){
+      const session=await window.AURVEX_DESKTOP.session();
+      if(session?.access_token&&session?.refresh_token){
+        const {error}=await client.auth.setSession(session);
+        if(error)throw error;
+      }
+    }
+    return client;
+  }).catch(err=>{clientPromise=null;throw err});
   return clientPromise;
 }
 export function idReturnUrl(){
