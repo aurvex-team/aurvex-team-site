@@ -5,8 +5,8 @@
   "platforms": {
     "linux": {
       "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.6-Steam-Library-Linux.run",
-      "sha256": "15b7897eec83412a18a1035b6f6bdfa4c8d4367700ac90aba4b3e432fb818ed2",
-      "size": 175552
+      "sha256": "e0bdc79fdde2a1e8acc266079adc8d60bb84a1eb723b3e5faac49c8bb8731223",
+      "size": 175585
     }
   }
 }\n
