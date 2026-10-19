@@ -7,7 +7,7 @@ import {
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,
  getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
-} from './id-service.js?v=20261018-391';
+} from './id-service.js?v=20261019-494';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,
@@ -41,9 +41,27 @@ const desktopPairing=(()=>{
   Number.isInteger(port)&&port>=1024&&port<=65535&&/^[a-f0-9]{64}$/.test(nonce)?{port,nonce}:null;
 })();
 let desktopPairingBusy=false,desktopPairingDone=false,lastDesktopPairingState='';
+const desktopPairingNotice=desktopPairing?document.createElement('div'):null;
+const desktopPairingMessages={
+ en:{waiting:'Sign in to your AURVEX ID to connect this launcher.','mfa-required':'Complete the 2FA check to connect your launcher.','mfa-setup-required':'Set up 2FA in Profile → Security, then retry.','connecting':'Connecting your verified AURVEX ID to the launcher…',success:'Connected! Returning to AURVEX Launcher…',failed:'Could not connect to the launcher. Return to it and retry.'},
+ uk:{waiting:'Увійди в AURVEX ID, щоб підключити лаунчер.','mfa-required':'Підтверди 2FA, щоб підключити лаунчер.','mfa-setup-required':'Налаштуй 2FA у Профілі → Безпека й повтори спробу.','connecting':'Підключаю підтверджений AURVEX ID до лаунчера…',success:'Підключено! Повертаюся до AURVEX Launcher…',failed:'Не вдалося підключити лаунчер. Повернись до нього й повтори спробу.'},
+ pl:{waiting:'Zaloguj się do AURVEX ID, aby połączyć launcher.','mfa-required':'Dokończ weryfikację 2FA, aby połączyć launcher.','mfa-setup-required':'Skonfiguruj 2FA w Profil → Bezpieczeństwo i spróbuj ponownie.','connecting':'Łączenie potwierdzonego AURVEX ID z launcherem…',success:'Połączono! Powrót do AURVEX Launcher…',failed:'Nie udało się połączyć launchera. Wróć do niego i spróbuj ponownie.'},
+ de:{waiting:'Melde dich bei deiner AURVEX ID an, um den Launcher zu verbinden.','mfa-required':'Schließe die 2FA-Prüfung ab, um den Launcher zu verbinden.','mfa-setup-required':'Richte 2FA unter Profil → Sicherheit ein und versuche es erneut.','connecting':'Verbinde deine bestätigte AURVEX ID mit dem Launcher…',success:'Verbunden! Kehre zu AURVEX Launcher zurück…',failed:'Der Launcher konnte nicht verbunden werden. Kehre zurück und versuche es erneut.'}
+};
+if(desktopPairingNotice){
+ desktopPairingNotice.setAttribute('role','status');desktopPairingNotice.setAttribute('aria-live','polite');
+ Object.assign(desktopPairingNotice.style,{position:'fixed',zIndex:'2147483647',left:'50%',bottom:'20px',transform:'translateX(-50%)',maxWidth:'min(620px,calc(100vw - 32px))',padding:'14px 18px',border:'1px solid #8b6ac5',borderRadius:'12px',background:'#211933',color:'#f6edff',font:'600 14px/1.5 system-ui,sans-serif',boxShadow:'0 8px 30px #0008',textAlign:'center'});
+ document.body.append(desktopPairingNotice);
+}
+function showDesktopPairingState(state){
+ if(!desktopPairingNotice)return;
+ const language=document.documentElement.lang||'en';
+ desktopPairingNotice.textContent=desktopPairingMessages[language]?.[state]||desktopPairingMessages.en[state]||desktopPairingMessages.en.failed;
+}
 async function reportDesktopPairing(state){
  if(!desktopPairing||state===lastDesktopPairingState)return;
  lastDesktopPairingState=state;
+ showDesktopPairingState(state);
  try{await fetch(`http://127.0.0.1:${desktopPairing.port}/status`,{method:'POST',mode:'cors',cache:'no-store',
   headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce:desktopPairing.nonce,state}),signal:AbortSignal.timeout(4000)})}catch{}
 }
@@ -75,11 +93,13 @@ async function connectDesktopPairing(){
   const result=await response.json().catch(()=>({}));
   if(!response.ok||result.ok!==true)throw new Error(String(result.error||'Desktop connection failed.'));
   desktopPairingDone=true;
+  showDesktopPairingState('success');
   const clean=new URL(location.href);
   clean.searchParams.delete('desktopPairing');clean.searchParams.delete('port');clean.searchParams.delete('nonce');
   history.replaceState(history.state,'',clean.pathname+clean.search+clean.hash);
  }catch(error){
   void reportDesktopPairing('failed');
+  showDesktopPairingState('failed');
   status('idSessionError',true);
   console.warn('AURVEX desktop pairing failed:',error?.code||error?.name||'failed');
  }finally{desktopPairingBusy=false}
@@ -347,7 +367,6 @@ window.AURVEX_DESKTOP?.onSession(async tokens => {
     fail(error, 'idSessionError');
   }
 });
-
 
 if(desktopPairing){
   window.addEventListener('focus',()=>void connectDesktopPairing());
