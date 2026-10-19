@@ -24,6 +24,7 @@ let activeUserId='';
 let pendingWishlistWrites=0;
 let wishlistQueue=Promise.resolve();
 let profileReloadToken=0;
+let desktopSyncBusy=false,desktopSyncedUser='',desktopSyncedAccess='';
 
 function status(key,error=false){
   model.statusKey=key;model.statusError=error;model.busy=false;notify();
@@ -32,6 +33,26 @@ function fail(error,key){
   // Do not leak Auth provider responses or private account details in the UI.
   console.warn('AURVEX ID operation failed:',error?.code||error?.name||'unknown');
   status(key,true);
+}
+
+async function syncVerifiedSessionToLauncher(){
+  const desktop=window.AURVEX_DESKTOP;
+  if(!desktop?.connectSession||!model.user?.id||!model.mfaVerified||desktopSyncBusy)return;
+  desktopSyncBusy=true;
+  try{
+    const client=await idClient();
+    const {data:{session},error}=await client.auth.getSession();
+    if(error)throw error;
+    if(!session?.access_token||!session?.refresh_token)return;
+    if(desktopSyncedUser===model.user.id&&desktopSyncedAccess===session.access_token)return;
+    const connected=await desktop.session();
+    if(connected?.access_token===session.access_token){desktopSyncedUser=model.user.id;desktopSyncedAccess=session.access_token;return}
+    await desktop.connectSession({access_token:session.access_token,refresh_token:session.refresh_token});
+    desktopSyncedUser=model.user.id;desktopSyncedAccess=session.access_token;
+  }catch(error){
+    console.warn('AURVEX desktop sign-in sync failed:',error?.code||error?.name||'failed');
+    status('idSessionError',true);
+  }finally{desktopSyncBusy=false}
 }
 
 const desktopPairing=(()=>{
@@ -178,7 +199,7 @@ async function reload(){
     model.profileTitles=titles;
     if(!pendingWishlistWrites)broadcastWishlist(wished);
     await activateWishlist(user.id);
-    model.ready=true;model.statusKey='';notify();void connectDesktopPairing();
+    model.ready=true;model.statusKey='';notify();void connectDesktopPairing();void syncVerifiedSessionToLauncher();
   }catch(error){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
@@ -293,6 +314,7 @@ document.addEventListener('click',async function(event){
       const client=await idClient();
       const {error}=await client.auth.signOut({scope:'local'});
       if(error)throw error;
+      await window.AURVEX_DESKTOP?.signOut?.();
       ++profileReloadToken;
       model.user=null;updateProfile(null);model.pendingEmail='';
       model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
