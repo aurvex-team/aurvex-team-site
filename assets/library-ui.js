@@ -1,4 +1,4 @@
-import { idClient } from './id-service.js?v=20261019-486';
+import { idClient } from './id-service.js?v=20261018-391';
 
 const copy={
  en:{eyebrow:'YOUR SPACE / GAME LIBRARY',title:'Your games, your story.',intro:'Every game you own, together with your playtime and milestones.',owned:'Games owned',time:'Time played',achievements:'Achievements',recent:'Recently played',all:'Your games',empty:'Your library is waiting for its first game.',emptyHint:'Games you own on AURVEX will appear here automatically.',signIn:'Sign in and complete 2FA to see your games.',loading:'Loading your library…',error:'Could not load your library. Try refreshing the page.',hours:'h',minutes:'min',played:'Played',never:'Not played yet',acquired:'Added',launch:'Play',open:'Open the launcher',milestone:'Milestones',milestoneHint:'Earned from your playtime and sessions.',first:'First steps',firstDesc:'Launch a game for the first time',hour:'Getting started',hourDesc:'Play for one hour',ten:'Dedicated player',tenDesc:'Play for ten hours',sessions:'A regular',sessionsDesc:'Launch games ten times',locked:'Locked',unlocked:'Unlocked',continue:'Continue playing',now:'Just now'},
