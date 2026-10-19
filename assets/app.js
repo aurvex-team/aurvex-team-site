@@ -1497,8 +1497,9 @@ function legacyCopyText(text){
   let copied=false;try{copied=document.execCommand('copy')}catch{/* Clipboard fallback unavailable */}field.remove();return copied;
 }
 function copyTextToClipboard(text){
-  if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(text).catch(function(){if(legacyCopyText(text))return;throw new Error('clipboard-unavailable')});
-  return legacyCopyText(text)?Promise.resolve():Promise.reject(new Error('clipboard-unavailable'));
+  if(legacyCopyText(text))return Promise.resolve();
+  if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(text);
+  return Promise.reject(new Error('clipboard-unavailable'));
 }
 function toast(message){
   const node=document.getElementById('toast');
