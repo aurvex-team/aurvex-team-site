@@ -43,8 +43,13 @@ button.addEventListener('click',async()=>{
  sending=true;void report('connecting');
  button.disabled=true;say('Connecting securely to the launcher on this computer…');
  try{
-  const client=await idClient();const {data:{session},error}=await client.auth.getSession();
-  if(error||!session||session.user?.id!==approved)throw Error('Session changed. Retry verification.');
+  const client=await idClient();
+  // Refresh before handoff so the launcher receives a complete, current PKCE session.
+  const {data:{session:current},error:currentError}=await client.auth.getSession();
+  if(currentError||!current||current.user?.id!==approved)throw Error('Your browser session changed. Sign in again, then retry.');
+  const {data:{session},error}=await client.auth.refreshSession();
+  if(error||!session||session.user?.id!==approved||typeof session.access_token!=='string'||session.access_token.length<50||typeof session.refresh_token!=='string'||session.refresh_token.length<20)
+   throw Error('Could not prepare a complete sign-in session. Sign in again on the AURVEX ID tab, then retry.');
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
   let res;
   try{res=await fetch(`http://127.0.0.1:${port}/connect`,{method:'POST',mode:'cors',cache:'no-store',
