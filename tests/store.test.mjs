@@ -1663,7 +1663,7 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
 });
 
 
-test('Profile Studio shows editor, completion dashboard and verified navigation in all locales',()=>{
+test('Profile keeps its editor without the summary dashboard in all locales',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},
   mfaVerified:true,mfaFactors:[{id:'verified'}],
@@ -1673,14 +1673,13 @@ test('Profile Studio shows editor, completion dashboard and verified navigation 
     public_links:[{title:'GitHub',url:'https://github.com/aurvex-team'}],wishlist_public:false}};
  for(const lang of supportedLanguages){
   const html=render('#/id',lang,false,null,auth).html;
-  for(const required of ['class="profile-command-center"','class="profile-progress-bar"',
-    'role="progressbar"','aria-valuenow="100"','href="#/inventory"','href="#/shop"',
-    'href="#/balance"','id="profile-about-form"','name="bio"','maxlength="240"',
+  assert.ok(!html.includes('class="profile-command-center"'),lang+': summary panel remains');
+  assert.ok(!html.includes('class="profile-progress-bar"'),lang+': completion bar remains');
+  for(const required of ['id="profile-about-form"','name="bio"','maxlength="240"',
     'name="duration"','name="custom_text"','name="custom_emoji"',
     'id="profile-custom-status-form"','profile-custom-status','data-profile-emoji="💻"',
     'data-profile-clear-status','data-profile-tab="links"',
-    translations[lang].profileCommandTitle,translations[lang].profileAboutTitle,
-    translations[lang].profileCustomStatus]){
+    translations[lang].profileAboutTitle,translations[lang].profileCustomStatus]){
    assert.ok(html.includes(required),lang+': '+required);
   }
   assert.ok(html.includes('Building a scary game'));
