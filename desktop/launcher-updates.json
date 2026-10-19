@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "version": "0.6.0-alpha.6",
-  "notes": "Restored Desktop Library button and added a Steam-style game library with custom collections, favorites, search, sorting, playtime and milestones.",
+  "version": "0.6.0-alpha.7",
+  "notes": "Fixes Google sign-in session handoff independently of library UI mounting and makes Desktop Library open via a direct visible button.",
   "platforms": {
     "linux": {
-      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.6-Steam-Library-Linux.run",
-      "sha256": "e0bdc79fdde2a1e8acc266079adc8d60bb84a1eb723b3e5faac49c8bb8731223",
-      "size": 175585
+      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.7-Login-Library-Fix-Linux.run",
+      "sha256": "9200a5a7b0cace9e3fc926bd72c9ac83d31044c000a80eb9978a6e44f3ae7a40",
+      "size": 175993
     }
   }
 }\n
