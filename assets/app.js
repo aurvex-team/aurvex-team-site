@@ -171,7 +171,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -230,7 +230,7 @@ function sidebar(path){
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/chat','chatNav','message',path)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
-      navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+'</div>'+
+      navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+navLink('/about','about','info',path)+launcherNavLink(path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
     '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
 }
@@ -240,6 +240,27 @@ function mobileNav(path){
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
+const launcherCopy={
+ en:{nav:'Download Launcher',crumb:'Home',eyebrow:'DESKTOP APP · LINUX PREVIEW',title:'AURVEX Desktop Launcher',intro:'Your AURVEX library, profile and community in a dedicated desktop app.',available:'Public preview',version:'Version 0.6.0 alpha.7 · Linux x86_64',download:'Download Linux preview',fileType:'Linux .run installer · x86_64',installTitle:'Install on Linux',installText:'After downloading, open a terminal in your Downloads folder and run:',knownTitle:'Sign-in update in progress',knownIssue:'This public preview has a known sign-in issue: Google may open your website profile without connecting the launcher. A newer build is being prepared and will replace this download after the website handoff is published and verified.',otherTitle:'More platforms',otherText:'Windows and macOS builds are not available yet.',shaLabel:'SHA-256'},
+ uk:{nav:'Завантажити лаунчер',crumb:'Головна',eyebrow:'ДЕСКТОПНИЙ ЗАСТОСУНОК · LINUX PREVIEW',title:'AURVEX Desktop Launcher',intro:'Бібліотека AURVEX, профіль і спільнота в окремому застосунку для комп’ютера.',available:'Публічне preview',version:'Версія 0.6.0 alpha.7 · Linux x86_64',download:'Завантажити preview для Linux',fileType:'Інсталятор .run · Linux x86_64',installTitle:'Встановлення на Linux',installText:'Після завантаження відкрий термінал у папці «Завантаження» та виконай:',knownTitle:'Виправлення входу готується',knownIssue:'У цьому публічному preview є відома проблема входу: Google може відкрити профіль на сайті, але не під’єднати лаунчер. Нову збірку розмістимо тут після публікації та перевірки передачі входу із сайту.',otherTitle:'Інші платформи',otherText:'Збірки для Windows і macOS ще не доступні.',shaLabel:'SHA-256'},
+ pl:{nav:'Pobierz launcher',crumb:'Strona główna',eyebrow:'APLIKACJA DESKTOPOWA · LINUX PREVIEW',title:'AURVEX Desktop Launcher',intro:'Biblioteka AURVEX, profil i społeczność w osobnej aplikacji desktopowej.',available:'Publiczna wersja preview',version:'Wersja 0.6.0 alpha.7 · Linux x86_64',download:'Pobierz wersję preview dla Linux',fileType:'Instalator .run · Linux x86_64',installTitle:'Instalacja w systemie Linux',installText:'Po pobraniu otwórz terminal w folderze Pobrane i uruchom:',knownTitle:'Trwa aktualizacja logowania',knownIssue:'Ta publiczna wersja preview ma znany problem z logowaniem: Google może otworzyć profil na stronie bez połączenia launchera. Nowsza wersja zastąpi ten plik po opublikowaniu i sprawdzeniu przekazywania sesji ze strony.',otherTitle:'Więcej platform',otherText:'Wersje dla Windows i macOS nie są jeszcze dostępne.',shaLabel:'SHA-256'},
+ de:{nav:'Launcher herunterladen',crumb:'Startseite',eyebrow:'DESKTOP-APP · LINUX PREVIEW',title:'AURVEX Desktop Launcher',intro:'AURVEX-Bibliothek, Profil und Community in einer eigenen Desktop-App.',available:'Öffentliche Preview',version:'Version 0.6.0 alpha.7 · Linux x86_64',download:'Linux-Preview herunterladen',fileType:'Linux-.run-Installer · x86_64',installTitle:'Installation unter Linux',installText:'Öffne nach dem Download ein Terminal im Ordner „Downloads“ und führe Folgendes aus:',knownTitle:'Anmeldekorrektur in Arbeit',knownIssue:'Diese öffentliche Preview hat ein bekanntes Anmeldeproblem: Google kann dein Website-Profil öffnen, ohne den Launcher zu verbinden. Ein neuer Build ersetzt diesen Download, sobald die Website-Übergabe veröffentlicht und geprüft wurde.',otherTitle:'Weitere Plattformen',otherText:'Builds für Windows und macOS sind noch nicht verfügbar.',shaLabel:'SHA-256'}
+};
+function launcherT(key){return launcherCopy[state.language]?.[key]||launcherCopy.en[key]||key}
+function launcherNavLink(path){return '<a class="side-link'+(isActive(path,'/desktop')?' active':'')+'" href="#/desktop">'+icon('laptop',18)+'<span>'+esc(launcherT('nav'))+'</span></a>'}
+const launcherFile='AURVEX-Launcher-v0.6.0-alpha.7-Login-Library-Fix-Linux.run';
+function desktopPage(){
+ const commands='chmod +x '+launcherFile+'\\n./'+launcherFile;
+ return '<div class="breadcrumb"><a href="#/">'+esc(launcherT('crumb'))+'</a>'+icon('arrow',13)+esc(launcherT('nav'))+'</div>'+
+  '<div class="about-hero"><div><div class="smallcaps">'+esc(launcherT('eyebrow'))+'</div><h1>'+esc(launcherT('title'))+'</h1><p>'+esc(launcherT('intro'))+'</p>'+
+  '<div class="hero-actions"><a class="btn btn-primary" href="./desktop/updates/'+launcherFile+'" download>'+icon('arrow',16)+' '+esc(launcherT('download'))+'</a><span class="tag">'+esc(launcherT('version'))+'</span></div></div>'+
+  '<div class="about-graphic" aria-hidden="true"><span class="about-orbit"></span><span class="about-orbit"></span><span class="about-emblem">A</span></div></div>'+
+  '<section class="section"><div class="mission-card"><div class="smallcaps">'+esc(launcherT('fileType'))+'</div><h2>'+esc(launcherT('installTitle'))+'</h2><p>'+esc(launcherT('installText'))+'</p>'+
+  '<pre><code>'+esc(commands)+'</code></pre><p><strong>'+esc(launcherT('shaLabel'))+':</strong> <code>9200a5a7b0cace9e3fc926bd72c9ac83d31044c000a80eb9978a6e44f3ae7a40</code></p></div></section>'+
+  '<section class="section"><div class="saved-banner">'+icon('info',19)+'<span><strong>'+esc(launcherT('knownTitle'))+':</strong> '+esc(launcherT('knownIssue'))+'</span></div></section>'+
+  '<section class="section"><div class="mission-card"><h2>'+esc(launcherT('otherTitle'))+'</h2><p>'+esc(launcherT('otherText'))+'</p></div></section>';
+}
+
 function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
 function gameCard(){
   return '<article class="game-card"><a href="#/game/devive" class="game-cover"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"><span class="cover-label">'+t('twoD')+'</span><span class="cover-logo">DEVIVE</span></a>'+
@@ -1388,7 +1409,7 @@ function footer(){
   return '<footer class="footer"><div class="footer-inner"><div><h3>AURVEX<span style="color:var(--accent)">.</span></h3>'+
     '<p>'+t('footerTag')+'</p></div><div class="footer-links"><a href="#/browse">'+t('footerExplore')+'</a>'+
     '<a href="#/games">'+t('games')+'</a><a href="#/apps">'+t('apps')+'</a>'+
-    '<a href="#/about">'+t('about')+'</a><a href="#/team">'+t('team')+'</a><a href="#/support">'+t('supportTeam')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
+    '<a href="#/about">'+t('about')+'</a><a href="#/desktop">'+esc(launcherT('nav'))+'</a><a href="#/team">'+t('team')+'</a><a href="#/support">'+t('supportTeam')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
     '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a></div></footer>';
 }
 function render(keepScroll=false){
@@ -1398,6 +1419,7 @@ function render(keepScroll=false){
   document.documentElement.dataset.theme=state.theme;
   let page;
   if(route.path==='/')page=home();
+  else if(route.path==='/desktop')page=desktopPage();
   else if(route.path==='/game/devive')page=gamePage();
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
   else if(route.path==='/saved')page=savedPage();
@@ -1417,7 +1439,7 @@ function render(keepScroll=false){
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/chat'?t('chatNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/about'?t('about'):route.path==='/team'?t('team'):route.path==='/support'?t('supportTeam'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/chat'?t('chatNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
