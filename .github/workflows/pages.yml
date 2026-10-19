@@ -62,6 +62,7 @@ jobs:
           cp desktop-connect.html _site/
           cp index.html _site/profile.html
           cp -r assets _site/
+          cp -r desktop _site/
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:

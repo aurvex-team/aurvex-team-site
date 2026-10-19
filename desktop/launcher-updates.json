@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "version": "0.6.0-alpha.3",
+  "notes": "Google sign-in handoff and one-click Linux updates.",
+  "platforms": {
+    "linux": {
+      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.3-Linux.run",
+      "sha256": "04ab1c59fc20e1dcb555d5f33d2ff6516099a0a904b900472fd74b9e0aa19624",
+      "size": 159686
+    }
+  }
+}
