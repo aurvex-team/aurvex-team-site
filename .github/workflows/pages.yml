@@ -32,6 +32,7 @@ jobs:
           node --check assets/app.js
           node --check assets/id-ui.js
           node --check assets/id-service.js
+          node --check assets/desktop-connect.js
           node --check assets/friends-service.js
           node --check assets/friends-ui.js
           node --check assets/social-service.js
@@ -58,6 +59,7 @@ jobs:
           cp index.html _site/
           cp index.html _site/store.html
           cp index.html _site/id.html
+          cp desktop-connect.html _site/
           cp index.html _site/profile.html
           cp -r assets _site/
       - name: Upload site artifact
