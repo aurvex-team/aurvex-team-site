@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "version": "0.6.0-alpha.5",
-  "notes": "Your Space game library, playtime and achievements, visible launcher version, and working install folder controls.",
+  "version": "0.6.0-alpha.6",
+  "notes": "Restored Desktop Library button and added a Steam-style game library with custom collections, favorites, search, sorting, playtime and milestones.",
   "platforms": {
     "linux": {
-      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.5-Library-Linux.run",
-      "sha256": "6ae34df1f3879e4875898892315b32751ac716f1c6e3fab78b622e35af820e9a",
-      "size": 168036
+      "url": "https://aurvex-team.github.io/aurvex-team-site/desktop/updates/AURVEX-Launcher-v0.6.0-alpha.6-Steam-Library-Linux.run",
+      "sha256": "15b7897eec83412a18a1035b6f6bdfa4c8d4367700ac90aba4b3e432fb818ed2",
+      "size": 175552
     }
   }
-}
+}\n
