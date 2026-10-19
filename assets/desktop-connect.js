@@ -44,22 +44,30 @@ button.addEventListener('click',async()=>{
  button.disabled=true;say('Connecting securely to the launcher on this computer…');
  try{
   const client=await idClient();
-  // Refresh before handoff so the launcher receives a complete, current PKCE session.
+  // Keep the valid browser session if refresh is already running in the separate ID tab.
   const {data:{session:current},error:currentError}=await client.auth.getSession();
   if(currentError||!current||current.user?.id!==approved)throw Error('Your browser session changed. Sign in again, then retry.');
-  const {data:{session},error}=await client.auth.refreshSession();
-  if(error||!session||session.user?.id!==approved||typeof session.access_token!=='string'||session.access_token.length<50||typeof session.refresh_token!=='string'||session.refresh_token.length<20)
-   throw Error('Could not prepare a complete sign-in session. Sign in again on the AURVEX ID tab, then retry.');
+  let session=current;
+  try{
+   const refreshed=await client.auth.refreshSession();
+   const candidate=refreshed?.data?.session;
+   if(!refreshed?.error&&candidate&&typeof candidate.access_token==='string'&&candidate.access_token.length>50)session=candidate;
+  }catch{}
+  const accessToken=typeof session.access_token==='string'?session.access_token:'';
+  const refreshToken=typeof session.refresh_token==='string'&&session.refresh_token.length>=20?session.refresh_token:
+   (typeof current.refresh_token==='string'&&current.refresh_token.length>=20?current.refresh_token:'');
+  if(accessToken.length<=50)throw Error('AURVEX did not return an access token. Sign in again on the ID tab, then retry.');
+  if(!refreshToken)throw Error('AURVEX did not return a refresh token. Sign in again on the ID tab, then retry.');
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
   let res;
   try{res=await fetch(`http://127.0.0.1:${port}/connect`,{method:'POST',mode:'cors',cache:'no-store',
     headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce,
-     access_token:session.access_token,refresh_token:session.refresh_token}),signal:controller.signal});}
+     access_token:accessToken,refresh_token:refreshToken}),signal:controller.signal});}
   finally{clearTimeout(timeout)}
   const data=await res.json().catch(()=>({}));
   if(!res.ok||data.ok!==true)throw Error(String(data.error||'Connection failed.'));
   approved=null;say('✓ Connected successfully! Return to AURVEX Launcher. You may close this tab.');
- }catch(e){void report('failed');const message=String(e.message||'');say(/failed to fetch|networkerror|aborterror/i.test(message)?
+ }catch(e){void report('failed');const message=String(e.message||'').replace(/[.]+$/,'');say(/failed to fetch|networkerror|aborterror/i.test(message)?
   'Could not reach the launcher on this computer. Keep it open, close this tab, and start Connect Profile again.':
   'Connection failed: '+message+'. Keep the launcher open and retry from its Profile screen.');}
  finally{sending=false;if(approved&&ok)button.disabled=false}
