@@ -1004,8 +1004,8 @@ function friendsPage(){
   const auth=window.AURVEX_ID||{}, data=window.AURVEX_FRIENDS||{};
   if(!auth.user||!auth.mfaVerified){
     return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('friendsNav')+'</div>'+
-      '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',40)+'</div>'+
-      '<div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('friendsLockedTitle')+'</h1><p>'+
+      '<section class="friends-lock notifications-auth-gate"><div class="friends-lock-icon">'+icon('shield',40)+'</div>'+
+      '<div class="smallcaps">'+t('social37Kicker')+'</div><h1>'+t('friendsLockedTitle')+'</h1><p>'+
       t(auth.user?'friends2faNeeded':'friendsSignInNeeded')+'</p>'+
       '<a class="btn btn-accent" href="#/id">'+t('friendsOpenProfile')+' '+icon('arrow',16)+'</a></section>';
   }
@@ -1455,10 +1455,15 @@ function socialNotificationsPage(route){
     const family=n.kind==='family_invite',uid=esc(n.actor_id),nid=esc(n.id),avatar=n.avatarUrl?
       '<img src="'+esc(n.avatarUrl)+'" alt="">':icon('user',24);
     const title=family?'social37FamilyInvite':'social37FriendRequest';
+    const created=Date.parse(n.created_at||''),delta=created-Date.now(),absolute=Math.abs(delta);
+    const timeUnit=absolute<60000?'second':absolute<3600000?'minute':absolute<86400000?'hour':'day';
+    const timeDivisor=timeUnit==='second'?1000:timeUnit==='minute'?60000:timeUnit==='hour'?3600000:86400000;
+    const timeLabel=Number.isFinite(created)?'<time class="notification-time" datetime="'+new Date(created).toISOString()+'">'+
+      esc(new Intl.RelativeTimeFormat(state.language,{numeric:'auto'}).format(Math.round(delta/timeDivisor),timeUnit))+'</time>':'';
     return '<article class="social-notification'+(n.read?' is-read':' is-unread')+'">'+
       '<div class="friends-avatar">'+avatar+'</div><div class="social-notification-copy">'+
       '<div class="notification-item-heading"><strong><a href="#/player/'+uid+'">'+esc(n.nickname||t('friendsUnknown'))+'</a></strong>'+
-      (!n.read?'<span class="notification-unread-badge">'+t('social37Unread')+'</span>':'')+'</div>'+
+      '<span class="notification-item-meta">'+timeLabel+(!n.read?'<span class="notification-unread-badge">'+t('social37Unread')+'</span>':'')+'</span></div>'+
       '<p>'+t(title)+'</p><div class="social-notification-actions">'+
       (family?'<button type="button" class="btn btn-accent" data-social37-action="open-invite" data-notification-id="'+nid+'"'+(social.busy?' disabled':'')+'>'+
        icon('home',15)+' '+t('social37OpenInvite')+'</button>':
