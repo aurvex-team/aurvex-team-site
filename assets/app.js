@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261019-504';
+import { translations, supportedLanguages } from './i18n.js?v=20261023-600';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -171,7 +171,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/downloads','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -207,6 +207,7 @@ function header(path){
     '<span class="brand-crest"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4 29 27H3L16 4Z" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><path d="M16 13 22 24H10l6-11Z" fill="white"/></svg></span><span>AURVEX</span></a>'+
     '<nav class="top-links" aria-label="Main navigation"><a href="#/" class="'+(path==='/'?'active':'')+'">'+t('discover')+'</a>'+
     '<a href="#/browse" class="'+(isActive(path,'/browse')?'active':'')+'">'+t('browse')+'</a>'+
+     '<a href="#/downloads" class="'+(path==='/downloads'?'active':'')+'">'+t('downloadsNav')+'</a>'+
     '<a href="#/shop" class="'+(path==='/shop'?'active':'')+'">'+t('shopNav')+'</a>'+
     '<a href="#/chat" class="'+(path==='/chat'?'active':'')+'">'+t('chatNav')+'</a>'+
     '<a href="#/about" class="'+(path==='/about'?'active':'')+'">'+t('about')+'</a></nav>'+
@@ -223,7 +224,7 @@ function header(path){
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
-      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+launcherNavLink(path)+
+      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+launcherNavLink(path)+navLink('/downloads','downloadsNav','laptop',path)+
       navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/balance','balanceNav','wallet',path)+navLink('/inventory','inventoryNav','layers',path)+navLink('/library','libraryNav','gamepad',path)+
       navLink('/friends','friendsNav','users',path,
@@ -259,6 +260,111 @@ function desktopPage(){
   '<div class="hero-actions"><button class="btn btn-outline" type="button" data-action="copy-launcher-command">'+icon('copy',16)+' '+esc(launcherT('copy'))+'</button></div><pre><code data-launcher-command>'+esc(commands)+'</code></pre><p><strong>'+esc(launcherT('shaLabel'))+':</strong> <code>74bf8f367b2058711f0f2329c7961369aee59a4c8070aa249b6e82f0da7e526b</code></p></div></section>'+
   '<section class="section"><div class="saved-banner">'+icon('info',19)+'<span><strong>'+esc(launcherT('knownTitle'))+':</strong> '+esc(launcherT('knownIssue'))+'</span></div></section>'+
   '<section class="section"><div class="mission-card"><h2>'+esc(launcherT('otherTitle'))+'</h2><p>'+esc(launcherT('otherText'))+'</p></div></section>';
+}
+
+
+function downloadsPage(route){
+  const os=route.params.get('os')||'';
+  const current=route.params.get('version')||'';
+  const distro=route.params.get('distro')||'';
+  const systems=[
+    {id:'windows',label:t('downloadsWindows'),symbol:'⊞',desc:t('downloadsWindowsDesc')},
+    {id:'macos',label:t('downloadsMacOS'),symbol:'⌘',desc:t('downloadsMacOSDesc')},
+    {id:'linux',label:t('downloadsLinux'),symbol:'◉',desc:t('downloadsLinuxDesc')},
+    {id:'ios',label:t('downloadsIOS'),symbol:'◌',desc:t('downloadsIOSDesc')},
+    {id:'android',label:t('downloadsAndroid'),symbol:'▣',desc:t('downloadsAndroidDesc')}
+  ];
+  const versions={
+    windows:[
+      {id:'win11-26h2',label:'Windows 11 · 26H2',meta:'x64 · '+t('downloadsCurrent')},
+      {id:'win11-25h2',label:'Windows 11 · 25H2',meta:'x64'},
+      {id:'win11-24h2',label:'Windows 11 · 24H2',meta:'x64'},
+      {id:'win10-22h2',label:'Windows 10 · 22H2',meta:'x64 · '+t('downloadsLegacy'),legacy:true}
+    ],
+    macos:[
+      {id:'macos-27',label:'macOS 27 Golden Gate · 27.0.1',meta:t('downloadsAppleSilicon')+' · '+t('downloadsIntel')},
+      {id:'macos-26',label:'macOS 26 Tahoe · 26.7.1',meta:t('downloadsAppleSilicon')+' · '+t('downloadsIntel')},
+      {id:'macos-15',label:'macOS 15 Sequoia · 15.8.1',meta:t('downloadsAppleSilicon')+' · '+t('downloadsIntel')},
+      {id:'macos-14',label:'macOS 14 Sonoma · 14.8.9',meta:t('downloadsAppleSilicon')+' · '+t('downloadsIntel')},
+      {id:'macos-13',label:'macOS 13 Ventura · 13.7.8',meta:t('downloadsAppleSilicon')+' · '+t('downloadsIntel')}
+    ],
+    ios:[
+      {id:'ios-27',label:'iOS 27',meta:'iPhone'},
+      {id:'ios-26',label:'iOS 26',meta:'iPhone'}
+    ],
+    android:[
+      {id:'android-17',label:'Android 17',meta:t('downloadsCurrent')},
+      {id:'android-16',label:'Android 16',meta:t('downloadsPrevious')}
+    ]
+  };
+  const distros=[
+    {id:'nixos',name:'NixOS',meta:'26.05 · '+t('downloadsStable')+' · unstable',options:[
+      {id:'nixos-26.05',label:'NixOS 26.05',meta:t('downloadsStable')},
+      {id:'nixos-unstable',label:'NixOS Unstable',meta:t('downloadsRolling')}
+    ]},
+    {id:'ubuntu',name:'Ubuntu',meta:'26.10 · 26.04 LTS · 24.04 LTS',options:[
+      {id:'ubuntu-26.10',label:'Ubuntu 26.10',meta:t('downloadsCurrent')},
+      {id:'ubuntu-26.04',label:'Ubuntu 26.04 LTS',meta:t('downloadsLTS')},
+      {id:'ubuntu-24.04',label:'Ubuntu 24.04 LTS',meta:t('downloadsLTS')}
+    ]},
+    {id:'debian',name:'Debian',meta:'13 Stable · 12 Oldstable',options:[
+      {id:'debian-13',label:'Debian 13 Trixie',meta:t('downloadsStable')},
+      {id:'debian-12',label:'Debian 12 Bookworm',meta:t('downloadsPrevious')}
+    ]},
+    {id:'fedora',name:'Fedora Workstation',meta:'44 · 43',options:[
+      {id:'fedora-44',label:'Fedora 44',meta:t('downloadsCurrent')},
+      {id:'fedora-43',label:'Fedora 43',meta:t('downloadsPrevious')}
+    ]},
+    {id:'arch',name:'Arch Linux',meta:t('downloadsRolling'),options:[
+      {id:'arch-rolling',label:'Arch Linux',meta:t('downloadsRolling')}
+    ]},
+    {id:'manjaro',name:'Manjaro',meta:t('downloadsStable')+' · '+t('downloadsRolling'),options:[
+      {id:'manjaro-stable',label:'Manjaro Stable',meta:t('downloadsStable')},
+      {id:'manjaro-testing',label:'Manjaro Testing',meta:t('downloadsRolling')}
+    ]},
+    {id:'mint',name:'Linux Mint',meta:'22.x',options:[
+      {id:'mint-22',label:'Linux Mint 22.x',meta:t('downloadsStable')}
+    ]},
+    {id:'opensuse',name:'openSUSE',meta:'Leap 16.0 · Tumbleweed',options:[
+      {id:'opensuse-leap-16',label:'openSUSE Leap 16.0',meta:t('downloadsStable')},
+      {id:'opensuse-tumbleweed',label:'openSUSE Tumbleweed',meta:t('downloadsRolling')}
+    ]}
+  ];
+  const platform=systems.find(x=>x.id===os);
+  const selectedDistro=distros.find(x=>x.id===distro);
+  const options=os==='linux'?(selectedDistro?.options||[]):(versions[os]||[]);
+  const selectedVersion=options.find(x=>x.id===current);
+  const systemCards=systems.map(x=>'<a class="download-os-card'+(os===x.id?' is-selected':'')+'" href="#/downloads?os='+x.id+'">'+
+    '<span class="download-os-symbol" aria-hidden="true">'+x.symbol+'</span><span class="download-os-copy"><strong>'+x.label+'</strong><small>'+x.desc+'</small></span>'+
+    '<span class="download-os-arrow" aria-hidden="true">'+icon('arrow',17)+'</span></a>').join('');
+  const distroCards=os==='linux'?'<div class="download-choice-list">'+distros.map(x=>
+    '<a class="download-choice-card'+(distro===x.id?' is-selected':'')+'" href="#/downloads?os=linux&distro='+x.id+'">'+
+    '<span><strong>'+x.name+'</strong><small>'+x.meta+'</small></span><span class="download-choice-status">'+t('downloadsComingSoon')+'</span></a>'
+  ).join('')+'</div>':'';
+  const optionCards=options.length?'<div class="download-choice-list">'+options.map(x=>{
+    const target=os==='linux'?'#/downloads?os=linux&distro='+distro+'&version='+encodeURIComponent(x.id):
+      '#/downloads?os='+os+'&version='+encodeURIComponent(x.id);
+    return '<a class="download-choice-card'+(current===x.id?' is-selected':'')+'" href="'+target+'">'+
+      '<span><strong>'+x.label+'</strong><small>'+x.meta+'</small></span><span class="download-choice-status">'+
+      (current===x.id?t('downloadsSelected'):t('downloadsComingSoon'))+'</span></a>';
+  }).join('')+'</div>':'';
+  const pending=selectedVersion?'<aside class="download-build-note"><span class="download-note-icon">'+icon('info',19)+'</span><div>'+
+    '<strong>'+t('downloadsBuildPending')+'</strong><p>'+t('downloadsBuildNotReady')+'</p>'+
+    (selectedVersion.legacy?'<p class="download-legacy-note">'+t('downloadsWindowsLegacy')+'</p>':'')+
+    (os==='ios'||os==='android'?'<p>'+t('downloadsMobileNote')+'</p>':'')+
+    '<span class="download-status-pill">'+t('downloadsPreparing')+'</span></div></aside>':'';
+  const panel=platform?'<section class="download-panel"><div class="download-panel-head"><div>'+
+    '<div class="smallcaps">'+t('downloadsSelected')+'</div><h2>'+platform.symbol+' '+platform.label+
+    (selectedDistro?' <span>· '+selectedDistro.name+'</span>':'')+'</h2><p>'+platform.desc+'</p></div>'+
+    '<a class="download-reset" href="#/downloads">'+t('downloadsAllSystems')+'</a></div>'+
+    (os==='linux'&&!selectedDistro?'<h3>'+t('downloadsChooseDistro')+'</h3>': '')+distroCards+
+    (os==='linux'&&selectedDistro?'<h3>'+t('downloadsChooseVersion')+'</h3>':'')+
+    (os!=='linux'?'<h3>'+t('downloadsChooseVersion')+'</h3>':'')+optionCards+pending+'</section>':'';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('downloadsNav')+'</span></div>'+
+    '<section class="downloads-hero"><div class="downloads-hero-glow"></div><div class="smallcaps">AURVEX · DOWNLOADS</div>'+
+    '<h1>'+t('downloadsTitle')+'</h1><p>'+t('downloadsIntro')+'</p><span class="downloads-live-chip">'+icon('shield',15)+' '+t('downloadsPreparing')+'</span></section>'+
+    '<section class="downloads-section"><div class="downloads-section-head"><div><span class="smallcaps">'+t('downloadsPlatformLabel')+'</span>'+
+    '<h2>'+t('downloadsChoosePlatform')+'</h2></div></div><div class="download-os-grid">'+systemCards+'</div></section>'+panel;
 }
 
 function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
@@ -533,15 +639,21 @@ function mfaGatePage(auth){
     enrollment?t('mfaSetupTitle'):(enrollNeeded?t('mfaSetupTitle'):t('mfaChallengeTitle'));
   const description=auth.mfaHasFactors&&!enrollment?t('mfaChallengeIntro'):t('mfaSetupIntro');
   const setupSecret=enrollment?.secret||'';
+  const qrUi={
+    en:{enlarge:'Enlarge QR code',close:'Close enlarged QR',copy:'Copy setup key',copied:'Setup key copied.'},
+    uk:{enlarge:'Збільшити QR-код',close:'Закрити збільшений QR-код',copy:'Скопіювати ключ налаштування',copied:'Ключ налаштування скопійовано.'},
+    pl:{enlarge:'Powiększ kod QR',close:'Zamknij powiększony kod QR',copy:'Skopiuj klucz konfiguracji',copied:'Skopiowano klucz konfiguracji.'},
+    de:{enlarge:'QR-Code vergrößern',close:'Vergrößerten QR-Code schließen',copy:'Einrichtungsschlüssel kopieren',copied:'Einrichtungsschlüssel kopiert.'}
+  }[state.language]||{enlarge:'Enlarge QR code',close:'Close enlarged QR',copy:'Copy setup key',copied:'Setup key copied.'};
   // Only trust the QR data-URI scheme expected from Supabase Auth.
   const qr=(typeof enrollment?.qr==='string'&&enrollment.qr.startsWith('data:image/svg+xml'))
     ?enrollment.qr:'';
   const qrBlock=enrollment?
-    '<div class="mfa-qr-wrap">'+(qr?'<img src="'+esc(qr)+'" alt="TOTP QR" class="mfa-qr">':'')+
+    '<div class="mfa-qr-wrap">'+(qr?'<button type="button" class="mfa-qr-open" data-id-action="mfa-qr-open" aria-label="'+esc(qrUi.enlarge)+'"><img src="'+esc(qr)+'" alt="TOTP QR" class="mfa-qr"></button>':'')+
       '<div class="mfa-scan-note">'+t('mfaScan')+'</div></div>'+
-    '<div class="mfa-secret"><div>'+t('mfaManual')+'</div>'+
-      '<code>'+esc(setupSecret)+'</code></div>'+
-    '<p class="mfa-warning">'+icon('shield',16)+' '+t('mfaSecretWarn')+'</p>':'';
+    '<div class="mfa-secret"><div>'+t('mfaManual')+'</div><code>'+esc(setupSecret)+'</code>'+ (setupSecret?'<button type="button" class="btn btn-outline mfa-copy-secret" data-id-action="mfa-copy-secret">'+icon('copy',15)+' '+esc(qrUi.copy)+'</button>':'')+'</div>'+
+    '<p class="mfa-warning">'+icon('shield',16)+' '+t('mfaSecretWarn')+'</p>'+
+    (auth.mfaQrExpanded&&qr?'<div class="mfa-qr-overlay" role="dialog" aria-modal="true" aria-label="'+esc(qrUi.enlarge)+'" data-id-action="mfa-qr-close"><button type="button" class="mfa-qr-close" aria-label="'+esc(qrUi.close)+'">×</button><img src="'+esc(qr)+'" alt="TOTP QR" class="mfa-qr-large"></div>':''):'';
   const statusText=auth.statusKey?'<p role="status" class="id-alert'+(auth.statusError?' id-alert-error':'')+'">'+t(auth.statusKey)+'</p>':'';
   const verifyForm=(enrollment||auth.mfaHasFactors)?
     '<form id="id-mfa-form" class="id-form mfa-code-form">'+
@@ -1149,7 +1261,7 @@ function shopPage(){
    const pts=Number.isSafeInteger(item.price_points)?item.price_points:0;
    const money=formatShopMoney(item.price_uah_kop);
    return '<article class="shop-card">'+
-     '<div class="shop-card-preview" data-shop-card-theme="'+esc(item.theme)+'" data-shop-card-kind="'+kind+'">'+
+     '<div class="shop-card-preview" data-shop-card-theme="'+esc(item.theme)+'" data-shop-card-kind="'+kind+'" data-shop-card-id="'+esc(item.id)+'">'+
        '<span class="shop-art-ring"></span><span class="shop-art-core">A</span>'+
        '<span class="shop-art-smallcaps">AURVEX</span></div>'+
      '<div class="shop-card-body"><span class="smallcaps">'+t(kind==='avatar'?'shopAvatar':'shopProfile')+'</span>'+
@@ -1420,6 +1532,7 @@ function render(keepScroll=false){
   let page;
   if(route.path==='/')page=home();
   else if(route.path==='/desktop')page=desktopPage();
+   else if(route.path==='/downloads')page=downloadsPage(route);
   else if(route.path==='/game/devive')page=gamePage();
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
   else if(route.path==='/saved')page=savedPage();

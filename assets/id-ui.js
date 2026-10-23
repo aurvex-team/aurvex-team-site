@@ -1,6 +1,6 @@
 // AURVEX ID client, version 3.3: Google identity, profile art, server-owned wishlist.
 // OAuth secrets never appear in the browser. Supabase RLS owns authorization.
-import { translations } from './i18n.js?v=20261018-391';
+import { translations } from './i18n.js?v=20261023-600';
 import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-360';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
@@ -10,7 +10,7 @@ import {
 } from './id-service.js?v=20261019-502';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
- mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,
+ mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,mfaQrExpanded:false,
  profileTitles:[],
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
  emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
@@ -182,7 +182,7 @@ async function reload(){
     if(sessionError)throw sessionError;
     if(!sessionData?.session){
       model.user=null;updateProfile(null);model.pendingEmail='';
-      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;model.mfaQrExpanded=false;
       model.profileTitles=[];
       clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();void reportDesktopPairing('waiting');return;
@@ -216,7 +216,7 @@ async function reload(){
   }catch(error){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
-    model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+    model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;model.mfaQrExpanded=false;
     model.profileTitles=[];
     clearWishlistSubscription();
     fail(error,'idSessionError');
@@ -282,7 +282,7 @@ document.addEventListener('submit',async function(event){
     if(!factorId){status('mfaSetupError',true);return}
     try{
       await verifyMfaCode(factorId,code);
-      model.mfaEnrollment=null;
+      model.mfaEnrollment=null;model.mfaQrExpanded=false;
       // The server issues an aal2 JWT; recheck with Supabase.
       await reload();
       status('mfaVerifiedSuccess');
@@ -314,7 +314,16 @@ document.addEventListener('click',async function(event){
   const button=event.target.closest('[data-id-action]');
   if(!button)return;
   const action=button.dataset.idAction;
-  if(action==='google'){
+  if(action==='mfa-qr-open'){
+    model.mfaQrExpanded=true;notify();
+  }else if(action==='mfa-qr-close'){
+    model.mfaQrExpanded=false;notify();
+  }else if(action==='mfa-copy-secret'){
+    const secret=model.mfaEnrollment?.secret||'';
+    if(!secret)return;
+    try{await navigator.clipboard.writeText(secret);status('mfaSecretCopied')}
+    catch{window.prompt(t('mfaManual'),secret)}
+  }else if(action==='google'){
     if(!isIdConfigured()||!ID_CONFIG.googleEnabled){status('idProviderUnavailable',true);return}
     if(model.busy)return;
     model.busy=true;
@@ -330,7 +339,7 @@ document.addEventListener('click',async function(event){
       await window.AURVEX_DESKTOP?.signOut?.();
       ++profileReloadToken;
       model.user=null;updateProfile(null);model.pendingEmail='';
-      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;
+      model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;model.mfaQrExpanded=false;
       model.profileTitles=[];
       clearWishlistSubscription();status('idSignedOut');
     }catch(error){fail(error,'idOperationError')}
@@ -348,7 +357,7 @@ document.addEventListener('click',async function(event){
   }else if(action==='mfa-cancel-backup'){
     if(!model.mfaVerified||!model.mfaEnrollment)return;
     const factorId=model.mfaEnrollment.factorId;
-    model.mfaEnrollment=null;
+    model.mfaEnrollment=null;model.mfaQrExpanded=false;
     const client=await idClient();
     void client.auth.mfa.unenroll({factorId}).catch(()=>{});
     status('');
