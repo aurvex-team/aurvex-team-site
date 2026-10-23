@@ -1004,8 +1004,8 @@ function friendsPage(){
   const auth=window.AURVEX_ID||{}, data=window.AURVEX_FRIENDS||{};
   if(!auth.user||!auth.mfaVerified){
     return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('friendsNav')+'</div>'+
-      '<section class="friends-lock notifications-auth-gate"><div class="friends-lock-icon">'+icon('shield',40)+'</div>'+
-      '<div class="smallcaps">'+t('social37Kicker')+'</div><h1>'+t('friendsLockedTitle')+'</h1><p>'+
+      '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',40)+'</div>'+
+      '<div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('friendsLockedTitle')+'</h1><p>'+
       t(auth.user?'friends2faNeeded':'friendsSignInNeeded')+'</p>'+
       '<a class="btn btn-accent" href="#/id">'+t('friendsOpenProfile')+' '+icon('arrow',16)+'</a></section>';
   }
@@ -1437,7 +1437,7 @@ function familyPage(route){
 function socialNotificationsPage(route){
   const auth=window.AURVEX_ID||{}, social=window.AURVEX_SOCIAL37||{};
   if(!auth.user||!auth.mfaVerified)return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('social37Nav')+'</div>'+
-    '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',36)+'</div><h1>'+t('social37Title')+'</h1>'+
+    '<section class="friends-lock notifications-auth-gate"><div class="friends-lock-icon">'+icon('shield',36)+'</div><h1>'+t('social37Title')+'</h1>'+
       '<p>'+t('social37Login')+'</p><a class="btn btn-primary" href="#/id">'+t('friendsOpenProfile')+'</a></section>';
   const notes=Array.isArray(social.notifications)?social.notifications:[],blocked=Array.isArray(social.blocked)?social.blocked:[];
   const unread=notes.filter(n=>!n.read).length;
@@ -1480,7 +1480,7 @@ function socialNotificationsPage(route){
       icon('ban',14)+' '+t('social37Unblock')+'</button></div>').join(''):
     '<div class="friends-empty">'+t('social37BlockedEmpty')+'</div>';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('social37Nav')+'</span></div>'+
-    '<header class="friends-hero notifications-hero"><div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('social37Title')+'</h1>'+
+    '<header class="friends-hero notifications-hero"><div class="smallcaps">'+t('social37Kicker')+'</div><h1>'+t('social37Title')+'</h1>'+
       '<p>'+t('social37Lead')+'</p><div class="notification-hero-stats"><span><strong>'+notes.length+'</strong> '+t('social37AllFilter')+'</span>'+
       '<span><strong>'+unread+'</strong> '+t('social37Unread')+'</span></div></header>'+msg+
     '<div class="social-notifications-layout"><div class="social-notifications-main"><section class="friends-panel notifications-panel">'+
