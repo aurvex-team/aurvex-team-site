@@ -5,13 +5,13 @@ import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-360';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
- subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,
+ subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,claimDeviveToLibrary,
  getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
 } from './id-service.js?v=20261019-502';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,mfaQrExpanded:false,
- profileTitles:[],
+ profileTitles:[],ownedGameIds:[],claimingGame:'',
  configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
  emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
 window.AURVEX_ID=model;
@@ -183,7 +183,7 @@ async function reload(){
     if(!sessionData?.session){
       model.user=null;updateProfile(null);model.pendingEmail='';
       model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;model.mfaQrExpanded=false;
-      model.profileTitles=[];
+      model.profileTitles=[];model.ownedGameIds=[];model.claimingGame='';
       clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();void reportDesktopPairing('waiting');return;
     }
@@ -197,27 +197,29 @@ async function reload(){
     model.mfaHasFactors=mfa.hasFactors;
     model.mfaFactors=mfa.verifiedFactors;
     if(!mfa.verified){
-      model.profileTitles=[];
+      model.profileTitles=[];model.ownedGameIds=[];model.claimingGame='';
       // No profile or wishlist query is made before the second factor succeeds.
       updateProfile(null);clearWishlistSubscription();
       model.ready=true;model.statusKey='';notify();void reportDesktopPairing(mfa.hasFactors?'mfa-required':'mfa-setup-required');return;
     }
     // Verified aal2 session: private account data is now readable under RLS.
     // Server is authoritative: never re-upload an old local wishlist snapshot.
-    const [profile,wished,titles]=await Promise.all([
-      ownProfile(user.id),getOwnWishlist(user.id),getOwnProfileTitles(user.id)
+    const [profile,wished,titles,libraryState]=await Promise.all([
+      ownProfile(user.id),getOwnWishlist(user.id),getOwnProfileTitles(user.id),
+      idClient().then(client=>client.rpc('aurvex_game_library_state')).then(({data,error})=>{if(error)throw error;return data}).catch(error=>{console.warn('AURVEX library refresh failed:',error?.code||'failed');return null})
     ]);
     if(revision!==profileReloadToken||model.user?.id!==user.id)return;
     updateProfile(profile);
     model.profileTitles=titles;
-    if(!pendingWishlistWrites)broadcastWishlist(wished);
+    model.ownedGameIds=Array.isArray(libraryState?.games)?libraryState.games.map(game=>game.game_id):[];
+    if(!pendingWishlistWrites)broadcastWishlist(model.ownedGameIds.includes('devive')?false:wished);
     await activateWishlist(user.id);
     model.ready=true;model.statusKey='';notify();void connectDesktopPairing();void syncVerifiedSessionToLauncher();
   }catch(error){
     if(revision!==profileReloadToken)return;
     model.ready=true;model.user=null;updateProfile(null);
     model.mfaVerified=false;model.mfaHasFactors=false;model.mfaFactors=[];model.mfaEnrollment=null;model.mfaQrExpanded=false;
-    model.profileTitles=[];
+    model.profileTitles=[];model.ownedGameIds=[];model.claimingGame='';
     clearWishlistSubscription();
     fail(error,'idSessionError');
   }
@@ -378,6 +380,30 @@ document.addEventListener('click',async function(event){
       status('idMediaRemoved');
     }catch(error){fail(error,'idUploadFailed')}
   }
+});
+window.addEventListener('aurvex:claim-devive',function(){
+  const userId=model.user?.id;
+  if(!userId||!model.mfaVerified){window.location.hash='#/id';return}
+  if(model.ownedGameIds.includes('devive')||model.claimingGame)return;
+  model.claimingGame='devive';notify();
+  wishlistQueue=wishlistQueue.catch(()=>{}).then(async()=>{
+    if(model.user?.id!==userId||!model.mfaVerified)throw new Error('AURVEX_SHOP_MFA_REQUIRED');
+    const result=await claimDeviveToLibrary();
+    if(result?.owned!==true)throw new Error('AURVEX_LIBRARY_CLAIM_FAILED');
+    model.ownedGameIds=[...new Set([...model.ownedGameIds,'devive'])];
+    model.claimingGame='';
+    broadcastWishlist(false);
+    window.dispatchEvent(new CustomEvent('aurvex:library-state',{detail:{gameIds:model.ownedGameIds}}));
+    window.dispatchEvent(new Event('aurvex:auth-changed'));
+    notify();
+    window.dispatchEvent(new CustomEvent('aurvex:library-claim-result',{detail:{success:true}}));
+  }).catch(error=>{
+    model.claimingGame='';
+    console.warn('AURVEX library claim failed:',error?.code||error?.message||'failed');
+    notify();
+    window.dispatchEvent(new CustomEvent('aurvex:library-claim-result',{detail:{success:false}}));
+    status('libraryClaimError',true);
+  });
 });
 window.addEventListener('aurvex:wishlist-changed',function(event){
   const userId=model.user?.id;
