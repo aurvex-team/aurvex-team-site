@@ -181,6 +181,33 @@ function navLink(route,key,ico,path,counter){
   const label=esc(t(key));
   return '<a class="side-link'+(isActive(path,route)?' active':'')+'" href="'+href(route)+'" aria-label="'+label+'" title="'+label+'">'+icon(ico,18)+'<span>'+t(key)+'</span>'+(counter?'<span class="counter">'+counter+'</span>':'')+'</a>';
 }
+function notificationPopover(){
+ const social=window.AURVEX_SOCIAL37||{},notes=Array.isArray(window.AURVEX_SOCIAL37?.notifications)?window.AURVEX_SOCIAL37.notifications:[];
+ const unread=notes.filter(n=>!n.read).length;
+ const items=notes.length?notes.map(n=>{
+  const family=n.kind==='family_invite';
+  const avatar=n.avatarUrl?'<img src="'+esc(n.avatarUrl)+'" alt="">':icon('user',19);
+  const actor=esc(n.nickname||t('friendsUnknown'));
+  const actorLink=n.actor_id?'<a href="#/player/'+esc(n.actor_id)+'">'+actor+'</a>':'<strong>'+actor+'</strong>';
+  const date=Date.parse(n.created_at||''),age=date?Math.abs(Date.now()-date):0;
+  const unit=!date?'':age<60000?'minute':age<3600000?'hour':'day';
+  const divisor=unit==='minute'?60000:unit==='hour'?3600000:86400000;
+  const when=unit?'<time>'+esc(new Intl.RelativeTimeFormat(state.language,{numeric:'auto'}).format(Math.round((date-Date.now())/divisor),unit))+'</time>':'';
+  return '<article class="notification-popover-item'+(n.read?'':' is-unread')+'"><span class="notification-popover-avatar">'+avatar+'</span>'+
+   '<div class="notification-popover-copy"><div class="notification-popover-meta">'+actorLink+when+'</div>'+
+   '<p>'+t(family?'social37FamilyInvite':'social37FriendRequest')+'</p><div class="notification-popover-actions">'+
+   (family?'<button type="button" class="notification-popover-action" data-social37-action="open-invite" data-notification-id="'+esc(n.id)+'"'+(social.busy?' disabled':'')+'>'+t('social37OpenInvite')+'</button>':
+    '<a class="notification-popover-action" href="#/friends">'+t('social37OpenFriends')+'</a>')+
+   (!n.read?'<button type="button" class="notification-popover-read" data-social37-action="read" data-notification-id="'+esc(n.id)+'" title="'+t('social37Read')+'" aria-label="'+t('social37Read')+'"'+(social.busy?' disabled':'')+'>'+icon('check',14)+'</button>':'')+
+   '</div></div></article>';
+ }).join(''):'<div class="notification-popover-empty">'+icon('bell',23)+'<strong>'+t('social37Empty')+'</strong></div>';
+ return '<section class="notification-popover" id="notifications-popover" role="dialog" aria-label="'+t('social37Nav')+'"'+(notificationsOpen?'':' hidden')+'>'+
+  '<header class="notification-popover-header"><div><span class="smallcaps">AURVEX / SOCIAL</span><h2>'+t('social37Nav')+
+  (notes.length?'<span class="notification-popover-count">'+notes.length+'</span>':'')+'</h2></div>'+
+  (unread?'<button class="notification-popover-mark" type="button" data-social37-action="read-all"'+(social.busy?' disabled':'')+'>'+t('social37MarkAll')+'</button>':'')+
+  '<button class="notification-popover-close" type="button" data-action="notifications-close" aria-label="'+t('closeMenu')+'">'+icon('close',16)+'</button></header>'+
+  '<div class="notification-popover-list">'+items+'</div></section>';
+}
 function header(path){
   const id=window.AURVEX_ID;
   const profileAvatar=id?.user&&id?.avatarUrl?
@@ -206,18 +233,13 @@ function header(path){
     '<button class="icon-btn menu-trigger" type="button" data-action="menu" aria-label="'+t('menu')+'" aria-expanded="false">'+icon('menu',20)+'</button>'+
     '<a class="top-brand" href="#/" aria-label="AURVEX Store">'+
     '<span class="brand-crest"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4 29 27H3L16 4Z" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><path d="M16 13 22 24H10l6-11Z" fill="white"/></svg></span><span>AURVEX</span></a>'+
-    '<nav class="top-links" aria-label="Main navigation"><a href="#/" class="'+(path==='/'?'active':'')+'">'+t('discover')+'</a>'+
-    '<a href="#/browse" class="'+(isActive(path,'/browse')?'active':'')+'">'+t('browse')+'</a>'+
 
-    '<a href="#/shop" class="'+(path==='/shop'?'active':'')+'">'+t('shopNav')+'</a>'+
-    '<a href="#/chat" class="'+(path==='/chat'?'active':'')+'">'+t('chatNav')+'</a>'+
-    '</nav>'+
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
     '<div class="top-actions">'+liveBadge+preferenceMenu('language')+preferenceMenu('currency')+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
-    '<a class="icon-btn social-bell'+(path==='/notifications'?' active':'')+'" href="#/notifications" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'">'+
-      icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</a>'+
+    '<div class="notification-popover-wrap"><button class="icon-btn social-bell'+(notificationsOpen?' active':'')+'" type="button" data-action="notifications-toggle" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'" aria-haspopup="dialog" aria-expanded="'+String(notificationsOpen)+'" aria-controls="notifications-popover">'+
+      icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</button>'+notificationPopover()+'</div>'+
     '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a>'+
     '<a class="header-balance-btn'+(path==='/balance'?' active':'')+'" href="#/balance" aria-label="'+esc(t('balanceNav')+': '+balanceLabel)+'">'+icon('wallet',17)+
     '<span class="header-balance-caption">'+t('balanceNav')+'</span><strong>'+esc(balanceLabel)+'</strong><span class="header-balance-plus">'+icon('plus',15)+'</span></a></div></header>';
@@ -1598,6 +1620,11 @@ function setMenu(open){
   if(toggle)toggle.setAttribute('aria-expanded',String(open));
 }
 document.addEventListener('click',function(event){
+  if(notificationsOpen&&!event.target.closest('.notification-popover-wrap')){
+    notificationsOpen=false;
+    const panel=document.getElementById('notifications-popover');if(panel)panel.hidden=true;
+    document.querySelector('[data-action="notifications-toggle"]')?.setAttribute('aria-expanded','false');
+  }
   const profileTab=event.target.closest('button[data-profile-tab]');
   if(profileTab){
     const next=profileTab.dataset.profileTab;
@@ -1679,6 +1706,8 @@ document.addEventListener('click',function(event){
     copyTextToClipboard(command).then(function(){toast(launcherT('copySuccess'))}).catch(function(){toast(launcherT('copyFailed'))});
     return;
   }
+  if(action==='notifications-toggle'){notificationsOpen=!notificationsOpen;render(true);document.querySelector('[data-action="notifications-toggle"]')?.focus();return}
+  if(action==='notifications-close'){notificationsOpen=false;render(true);document.querySelector('[data-action="notifications-toggle"]')?.focus();return}
   if(action==='menu'){setMenu(!document.body.classList.contains('menu-open'));return}
   if(action==='close-menu'){setMenu(false);return}
   if(action==='share'){
@@ -1771,7 +1800,7 @@ window.addEventListener('aurvex:sync-wishlist',function(event){
   if(!event.detail||typeof event.detail.wished!=='boolean')return;
   state.wished=event.detail.wished;store(STORAGE.wish,state.wished?'1':'0');render(true);
 });
-window.addEventListener('hashchange',function(){render();window.scrollTo(0,0)});
+window.addEventListener('hashchange',function(){notificationsOpen=false;render();window.scrollTo(0,0)});
 window.addEventListener('keydown',function(event){
   const tab=event.target.closest?.('button[data-profile-tab]');
   if(tab&&['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){
@@ -1787,6 +1816,8 @@ window.addEventListener('keydown',function(event){
     }
   }
   if(event.key==='Escape'){
+    notificationsOpen=false;const pop=document.getElementById('notifications-popover');if(pop)pop.hidden=true;
+    document.querySelector('[data-action="notifications-toggle"]')?.setAttribute('aria-expanded','false');
     document.querySelectorAll('details.pref-dropdown[open]').forEach(x=>{x.open=false});
     closeFilterMenus();setMenu(false);return;
   }
