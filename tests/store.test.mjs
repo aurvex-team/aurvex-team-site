@@ -760,7 +760,7 @@ test('Notifications include actionable friend requests and link-only family invi
 test('Notifications filters, mark-all action and empty states are localized',()=>{
  const auth={user:{id:'33333333-3333-4333-8333-333333333333'},mfaVerified:true};
  const v={ready:true,showOnline:false,onlineIds:[],blocked:[],notifications:[
-  {id:'66666666-6666-4666-8666-666666666666',actor_id:'44444444-4444-4444-8444-444444444444',nickname:'tester',kind:'friend_request',read:false},
+  {id:'66666666-6666-4666-8666-666666666666',actor_id:'44444444-4444-4444-8444-444444444444',nickname:'tester',kind:'friend_request',read:false,created_at:'2026-10-22T12:00:00Z'},
   {id:'77777777-7777-4777-8777-777777777777',actor_id:'55555555-5555-4555-8555-555555555555',nickname:'family_owner',kind:'family_invite',read:true}
  ]};
  for(const lang of supportedLanguages){
@@ -771,6 +771,8 @@ test('Notifications filters, mark-all action and empty states are localized',()=
   assert.ok(all.includes('href="#/notifications?filter=family"'),lang);
   assert.ok(all.includes('data-social37-action="read-all"'),lang);
   assert.ok(all.includes(translations[lang].social37MarkAll),lang);
+  assert.ok(all.includes(translations[lang].social37Kicker),lang);
+  assert.ok(all.includes('class="notification-time"'));
   const friend=render('#/notifications?filter=friends',lang,false,null,auth,null,null,v).html;
   assert.ok(friend.includes('tester'));
   assert.ok(!friend.includes('family_owner'));
