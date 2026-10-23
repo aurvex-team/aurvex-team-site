@@ -102,6 +102,15 @@ test('Devive can be added to the library and disappears from the wishlist when o
   assert.ok(!wishlist.includes('class="game-card"'));
 });
 
+test('Wishlist sync notice is shown only while signed out',()=>{
+  const guest=render('#/saved',null,true).html;
+  assert.ok(guest.includes(translations.en.idWishlistSync));
+  assert.ok(!guest.includes(translations.en.localOnly));
+  const signedIn=render('#/saved','en',true,null,{user:{id:'user-123'}}).html;
+  assert.ok(!signedIn.includes(translations.en.idWishlistSync));
+  assert.ok(!signedIn.includes(translations.en.localOnly));
+});
+
 test('catalog input is escaped and no fake checkout is available',()=>{
   const html=render('#/browse?q=%3Cscript%3E').html;
   assert.ok(html.includes('&lt;script&gt;'));
