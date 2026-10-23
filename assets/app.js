@@ -178,7 +178,8 @@ function isActive(path,where){
   return where===path;
 }
 function navLink(route,key,ico,path,counter){
-  return '<a class="side-link'+(isActive(path,route)?' active':'')+'" href="'+href(route)+'">'+icon(ico,18)+'<span>'+t(key)+'</span>'+(counter?'<span class="counter">'+counter+'</span>':'')+'</a>';
+  const label=esc(t(key));
+  return '<a class="side-link'+(isActive(path,route)?' active':'')+'" href="'+href(route)+'" aria-label="'+label+'" title="'+label+'">'+icon(ico,18)+'<span>'+t(key)+'</span>'+(counter?'<span class="counter">'+counter+'</span>':'')+'</a>';
 }
 function header(path){
   const id=window.AURVEX_ID;
