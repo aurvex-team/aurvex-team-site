@@ -109,6 +109,9 @@ document.addEventListener('click',event=>{
    }else if(action==='read'){
     await socialRead(notification);
     message('social37MarkedRead');
+   }else if(action==='read-all'){
+    await Promise.all(model.notifications.filter(n=>!n.read).map(n=>socialRead(n.id)));
+    message('social37MarkedAll');
    }else if(action==='open-invite'){
     const token=await socialOpenInvite(notification);
     if(who!==current())return;
