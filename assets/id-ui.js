@@ -155,6 +155,11 @@ async function readRemoteWishlist(userId){
   try{
     const wished=await getOwnWishlist(userId);
     if(model.user?.id!==userId||pendingWishlistWrites)return;
+    if(wished&&model.ownedGameIds.includes('devive')){
+      await setOwnWishlist(userId,false);
+      broadcastWishlist(false);
+      return;
+    }
     broadcastWishlist(wished);
   }catch(error){
     console.warn('AURVEX wishlist refresh failed:',error?.code||'failed');
@@ -212,7 +217,11 @@ async function reload(){
     updateProfile(profile);
     model.profileTitles=titles;
     model.ownedGameIds=Array.isArray(libraryState?.games)?libraryState.games.map(game=>game.game_id):[];
-    if(!pendingWishlistWrites)broadcastWishlist(model.ownedGameIds.includes('devive')?false:wished);
+    if(!pendingWishlistWrites){
+      const ownsDevive=model.ownedGameIds.includes('devive');
+      if(ownsDevive&&wished)await setOwnWishlist(user.id,false).catch(error=>console.warn('AURVEX owned wishlist cleanup failed:',error?.code||'failed'));
+      broadcastWishlist(ownsDevive?false:wished);
+    }
     await activateWishlist(user.id);
     model.ready=true;model.statusKey='';notify();void connectDesktopPairing();void syncVerifiedSessionToLauncher();
   }catch(error){
