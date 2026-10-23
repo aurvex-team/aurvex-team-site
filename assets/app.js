@@ -834,6 +834,9 @@ function playerProfilePage(auth){
               '<button type="submit" class="btn btn-primary"'+saving+'>'+icon('check',16)+' '+t('profileStatusSave')+'</button></div></div>'+
           '</form><p class="profile-about-note">'+icon('clock',14)+' '+t('profileStatusExpirationHint')+'</p></section>'+
         renderProfileLinks(profileLinks,'main')+
+        '<section class="inventory-privacy-card profile-online-visibility"><h3>'+icon('eye',19)+' '+t('social37Settings')+'</h3>'+
+          '<label class="social-wish-toggle social37-online-control"><input type="checkbox" data-social37-action="visibility"'+(window.AURVEX_SOCIAL37?.showOnline?' checked':'')+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+
+            '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label></section>'+
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
           '<form id="wishlist-privacy-form" class="id-form">'+
            '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
@@ -1484,12 +1487,7 @@ function socialNotificationsPage(route){
         icon('check',15)+' '+t('social37MarkAll')+'</button>':'<span class="notification-caught-up">'+icon('check',14)+' '+t('social37CaughtUp')+'</span>')+
       '</div><div class="notifications-list">'+notificationList+'</div>'+
       '<p class="social-muted">'+t('social37FamilyInvitationHelp')+'</p></section></div>'+
-      '<aside class="social-notification-settings"><section class="friends-panel notification-privacy-panel">'+
-        '<div class="smallcaps">'+t('social37Settings')+'</div><h2>'+t('social37Settings')+'</h2>'+
-        '<label class="social-wish-toggle social37-online-control">'+
-        '<input type="checkbox" data-social37-action="visibility"'+(social.showOnline?' checked':'')+(social.busy?' disabled':'')+'>'+
-        '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label>'+
-       '</section><details class="friends-panel social-notifications-blocked"><summary><span>'+t('social37BlockedTitle')+'</span>'+
+      '<aside class="social-notification-settings"><details class="friends-panel social-notifications-blocked"><summary><span>'+t('social37BlockedTitle')+'</span>'+
         '<span class="notification-filter-count">'+blocked.length+'</span></summary><div class="friends-list">'+blockedList+'</div>'+
         '<p class="social-muted">'+t('social37BlockedNote')+'</p></details></aside></div>';
 }
