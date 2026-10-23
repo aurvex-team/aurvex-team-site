@@ -22,29 +22,29 @@ function render(){
  const current=sortedGames(),picked=current.find(g=>g.game_id===selected)||current[0]||null;
  if(picked)selected=picked.game_id;
  const allTime=games.reduce((a,g)=>a+Number(g.total_seconds||0),0);
- if(busy){el.innerHTML=\`<div class="steam-library steam-library-loading">\${t('loading')}</div>\`;return}
- el.innerHTML=\`<div class="steam-library">
+ if(busy){el.innerHTML=`<div class="steam-library steam-library-loading">${t('loading')}</div>`;return}
+ el.innerHTML=`<div class="steam-library">
   <header class="steam-library-top">
-   <div><div class="steam-library-eyebrow">\${t('eyebrow')}</div><h1>\${t('title')}</h1><p>\${t('intro')}</p></div>
-   <div class="steam-library-stats"><span><b>\${games.length}</b>\${t('owned')}</span><span><b>\${duration(allTime)}</b>\${t('time')}</span></div>
+   <div><div class="steam-library-eyebrow">${t('eyebrow')}</div><h1>${t('title')}</h1><p>${t('intro')}</p></div>
+   <div class="steam-library-stats"><span><b>${games.length}</b>${t('owned')}</span><span><b>${duration(allTime)}</b>${t('time')}</span></div>
   </header>
   <div class="steam-library-layout">
-   <section class="steam-game-detail">\${picked?detail(picked):\`<div class="steam-empty steam-empty-library"><span class="steam-empty-mark">A</span><h2>\${t('noGames')}</h2><p>\${t('noGamesHint')}</p><a class="library-empty-action" href="#/browse">\${t('continue')}</a></div>\`}</section>
+   <section class="steam-game-detail">${picked?detail(picked):`<div class="steam-empty steam-empty-library"><span class="steam-empty-mark">A</span><h2>${t('noGames')}</h2><p>${t('noGamesHint')}</p><a class="library-empty-action" href="#/browse">${t('continue')}</a></div>`}</section>
    <aside class="steam-game-column">
-    <div class="steam-filter-group" aria-label="\${t('categories')}">
-     \${navItem('all','▦',t('all'))}\${navItem('installed','⬇',t('installed'))}\${navItem('favorites','♥',t('favorites'))}
+    <div class="steam-filter-group" aria-label="${t('categories')}">
+     ${navItem('all','▦',t('all'))}${navItem('installed','⬇',t('installed'))}${navItem('favorites','♥',t('favorites'))}
     </div>
-    <div class="steam-collections-head"><strong>\${t('categories')}</strong><button data-new-category title="\${t('newCategory')}" aria-label="\${t('newCategory')}">＋</button></div>
-    <div class="steam-category-list">\${prefs.categories.map(c=>\`<div class="steam-category-row">\${navItem('cat:'+c.id,'▤',c.name)}<button class="steam-category-menu-trigger" data-category-menu="\${esc(c.id)}" aria-label="\${t('manage')}">···</button></div>\`).join('')||\`<p class="steam-no-collections">\${t('emptyHint')}</p>\`}</div>
-    <button class="steam-new-collection" data-new-category>＋ \${t('newCategory')}</button>
-    <div class="steam-game-list-head"><strong>\${esc(filter==='all'?t('all'):filter==='installed'?t('installed'):filter==='favorites'?t('favorites'):prefs.categories.find(c=>filter==='cat:'+c.id)?.name||t('all'))}</strong><span>\${current.length}</span></div>
-    <label class="steam-search"><span>⌕</span><input data-search value="\${esc(query)}" placeholder="\${t('search')}"></label>
-    <label class="steam-sort"><span>\${t('sort')}</span><select data-sort><option value="recent" \${sort==='recent'?'selected':''}>\${t('recent')}</option><option value="name" \${sort==='name'?'selected':''}>\${t('name')}</option><option value="playtime" \${sort==='playtime'?'selected':''}>\${t('playtime')}</option></select></label>
-    \${picked?\`<label class="steam-collection-select"><span>\${t('addTo')}</span><select data-assign="\${esc(picked.game_id)}"><option value="">—</option>\${prefs.categories.map(c=>\`<option value="\${esc(c.id)}" \${(prefs.assignments[picked.game_id]||[]).includes(c.id)?'selected':''}>\${esc(c.name)}</option>\`).join('')}</select></label>\`:''}
-    <div class="steam-game-rows">\${current.length?current.map(listRow).join(''):\`<div class="steam-list-empty">\${games.length?t('empty'):t('noGames')}</div>\`}</div>
+    <div class="steam-collections-head"><strong>${t('categories')}</strong><button data-new-category title="${t('newCategory')}" aria-label="${t('newCategory')}">＋</button></div>
+    <div class="steam-category-list">${prefs.categories.map(c=>`<div class="steam-category-row">${navItem('cat:'+c.id,'▤',c.name)}<button class="steam-category-menu-trigger" data-category-menu="${esc(c.id)}" aria-label="${t('manage')}">···</button></div>`).join('')||`<p class="steam-no-collections">${t('emptyHint')}</p>`}</div>
+    <button class="steam-new-collection" data-new-category>＋ ${t('newCategory')}</button>
+    <div class="steam-game-list-head"><strong>${esc(filter==='all'?t('all'):filter==='installed'?t('installed'):filter==='favorites'?t('favorites'):prefs.categories.find(c=>filter==='cat:'+c.id)?.name||t('all'))}</strong><span>${current.length}</span></div>
+    <label class="steam-search"><span>⌕</span><input data-search value="${esc(query)}" placeholder="${t('search')}"></label>
+    <label class="steam-sort"><span>${t('sort')}</span><select data-sort><option value="recent" ${sort==='recent'?'selected':''}>${t('recent')}</option><option value="name" ${sort==='name'?'selected':''}>${t('name')}</option><option value="playtime" ${sort==='playtime'?'selected':''}>${t('playtime')}</option></select></label>
+    ${picked?`<label class="steam-collection-select"><span>${t('addTo')}</span><select data-assign="${esc(picked.game_id)}"><option value="">—</option>${prefs.categories.map(c=>`<option value="${esc(c.id)}" ${(prefs.assignments[picked.game_id]||[]).includes(c.id)?'selected':''}>${esc(c.name)}</option>`).join('')}</select></label>`:''}
+    <div class="steam-game-rows">${current.length?current.map(listRow).join(''):`<div class="steam-list-empty">${games.length?t('empty'):t('noGames')}</div>`}</div>
    </aside>
   </div>
- </div><dialog class="steam-category-dialog"><form method="dialog" data-category-form><h2>\${t('newCategory')}</h2><input name="name" maxlength="32" required placeholder="\${t('createPrompt')}"><div><button value="cancel" class="btn btn-outline">\${t('cancel')}</button><button value="ok" class="btn btn-accent">\${t('save')}</button></div></form></dialog>\`;
+ </div><dialog class="steam-category-dialog"><form method="dialog" data-category-form><h2>${t('newCategory')}</h2><input name="name" maxlength="32" required placeholder="${t('createPrompt')}"><div><button value="cancel" class="btn btn-outline">${t('cancel')}</button><button value="ok" class="btn btn-accent">${t('save')}</button></div></form></dialog>`;
  bindLocalInputs(el);
 }
 function navItem(key,icon,label){return `<button class="steam-nav-item ${filter===key?'active':''}" data-filter="${esc(key)}"><span>${icon}</span><b>${esc(label)}</b><i>${countFor(key)}</i></button>`}
