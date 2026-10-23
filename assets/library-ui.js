@@ -19,7 +19,7 @@ function sortedGames(){let list=[...games];if(query)list=list.filter(g=>gameName
 function render(){
  const el=root();if(!el)return;
  const current=contentKinds.includes('games')?sortedGames():[];
- const picked=selected?games.find(g=>g.game_id===selected)||null:null;
+ const picked=contentKinds.includes('games')&&selected?games.find(g=>g.game_id===selected)||null:null;
  if(picked&&!contentKinds.includes('games'))selected='';
  const allTime=games.reduce((a,g)=>a+Number(g.total_seconds||0),0);
  if(busy){el.innerHTML=`<div class="steam-library steam-library-loading">${t('loading')}</div>`;return}
@@ -52,3 +52,5 @@ async function end(game){const id=sessions.get(game);if(!id)return;sessions.dele
 
 document.addEventListener('click',event=>{const el=event.target.closest('#aurvex-library [data-select],#aurvex-library [data-retry],#aurvex-library [data-play],#aurvex-library [data-install]');if(!el)return;if(el.dataset.select){selected=el.dataset.select;render()}else if(el.hasAttribute('data-retry'))void load();else if(el.dataset.play&&window.AURVEX_DESKTOP)void window.AURVEX_DESKTOP.launch(el.dataset.play).catch(()=>{});else if(el.dataset.install&&window.AURVEX_DESKTOP){el.disabled=true;el.textContent=t('installing');void window.AURVEX_DESKTOP.install(el.dataset.install).then(()=>load()).catch(()=>{el.disabled=false;el.textContent=t('install')})}});
 document.addEventListener('change',event=>{const box=event.target.closest('#aurvex-library [data-content-kind]');if(!box)return;const kind=box.dataset.contentKind;contentKinds=box.checked?[...new Set([...contentKinds,kind])]:contentKinds.filter(x=>x!==kind);if(!contentKinds.length)selected='';writePrefs();render()});
+
+document.addEventListener('aurvex:auth-changed',()=>void load());window.addEventListener('aurvex:id-state',()=>void load());window.addEventListener('aurvex:library-route',()=>void load());window.addEventListener('aurvex:desktop-game-event',onGameEvent);window.addEventListener('aurvex:desktop-session-connected',()=>void load());window.addEventListener('aurvex:desktop-session',()=>void load());window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#/library'))void load()});
