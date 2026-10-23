@@ -1,13 +1,13 @@
 // AURVEX ID client, version 3.3: Google identity, profile art, server-owned wishlist.
 // OAuth secrets never appear in the browser. Supabase RLS owns authorization.
-import { translations } from './i18n.js?v=20261023-624';
+import { translations } from './i18n.js?v=20261023-625';
 import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261017-360';
 import {
  idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,claimDeviveToLibrary,
  getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
-} from './id-service.js?v=20261023-624';
+} from './id-service.js?v=20261023-625';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,mfaQrExpanded:false,
@@ -157,6 +157,7 @@ async function readRemoteWishlist(userId){
     if(model.user?.id!==userId||pendingWishlistWrites)return;
     if(wished&&model.ownedGameIds.includes('devive')){
       await setOwnWishlist(userId,false);
+      if(model.user?.id!==userId||pendingWishlistWrites)return;
       broadcastWishlist(false);
       return;
     }
@@ -220,6 +221,7 @@ async function reload(){
     if(!pendingWishlistWrites){
       const ownsDevive=model.ownedGameIds.includes('devive');
       if(ownsDevive&&wished)await setOwnWishlist(user.id,false).catch(error=>console.warn('AURVEX owned wishlist cleanup failed:',error?.code||'failed'));
+      if(revision!==profileReloadToken||model.user?.id!==user.id)return;
       broadcastWishlist(ownsDevive?false:wished);
     }
     await activateWishlist(user.id);
