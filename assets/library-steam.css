@@ -12,10 +12,8 @@
 .steam-detail-art{position:relative;display:flex;align-items:flex-end;height:clamp(230px,35vh,390px);padding:clamp(20px,3vw,38px);overflow:hidden;background-image:var(--game-banner,none),radial-gradient(ellipse at 72% 20%,color-mix(in srgb,var(--sl-accent) 24%,transparent),transparent 45%),linear-gradient(120deg,var(--sl-panel),var(--sl-bg) 75%)}
 .steam-detail-art.devive{background-image:var(--game-banner,none),radial-gradient(ellipse at 74% 18%,#8b2737 0,transparent 48%),linear-gradient(120deg,#35171f,#1c1016 55%,var(--sl-bg))}
 .steam-detail-art:after{position:absolute;inset:0;content:"";pointer-events:none;background:linear-gradient(0deg,var(--sl-bg) 0%,transparent 82%),linear-gradient(90deg,#090508a8,transparent 80%)}
-.steam-detail-title{position:relative;z-index:1;display:flex;align-items:center;gap:15px}
-.steam-detail-title>span{display:grid;place-items:center;width:58px;height:70px;border:1px solid #ffffff35;border-radius:10px;background:#ffffff12;color:#fff;font-size:25px;font-weight:900;box-shadow:0 8px 28px #0005}
-.steam-detail-title small{color:#f5dfe3;font-size:9px;letter-spacing:1.4px;text-transform:uppercase}
-.steam-detail-title h2{margin:4px 0 0;color:#fff;font-size:clamp(27px,3vw,40px);letter-spacing:-.8px;line-height:1.1}
+.steam-detail-title{position:relative;z-index:1}
+.steam-detail-title h2{margin:0;color:#fff;font-size:clamp(27px,3vw,40px);letter-spacing:-.8px;line-height:1.1}
 .steam-detail-content{padding:22px clamp(18px,3vw,36px)}
 .steam-detail-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .steam-detail-actions>.btn{min-height:40px;padding:9px 19px;border:1px solid var(--sl-accent);border-radius:9px;background:var(--sl-accent);color:var(--on-primary,#fff);font-weight:800}
