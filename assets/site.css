@@ -2454,3 +2454,13 @@ input,select{color:var(--text)}
 /* Three discovery tiles after removing the About destination. */
 .category-grid-home{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:1300px){.category-grid-home{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Full viewport page canvas across every storefront route. */
+:root{--max:100%}
+.main{width:100%;margin-left:0}
+.content{width:100%;max-width:none;margin:0}
+@media(min-width:801px){
+  .content{display:flex;flex-direction:column;min-height:calc(100vh - 72px);padding:clamp(20px,2.4vw,38px) clamp(18px,2vw,34px) 112px}
+  .content>.footer{margin-top:auto}
+}
