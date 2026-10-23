@@ -2450,3 +2450,7 @@ input,select{color:var(--text)}
   .side-link.active{box-shadow:inset 0 -2px var(--accent)}
   .side-link .counter{position:absolute;top:-3px;right:-3px;margin:0;padding:0 4px;min-width:15px;text-align:center;background:var(--surface-2);font-size:9px}
 }
+
+/* Three discovery tiles after removing the About destination. */
+.category-grid-home{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1300px){.category-grid-home{grid-template-columns:repeat(2,minmax(0,1fr))}}
