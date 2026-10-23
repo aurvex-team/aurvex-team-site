@@ -1860,6 +1860,15 @@ test('Game Library fills the viewport, scrolls only its item list, and uses them
  assert.ok(!ui.includes('steam-collection-select'));
  assert.ok(!ui.includes('steam-icon-button'));
  assert.ok(ui.includes("selected=''"));
+ assert.ok(ui.includes("sort='name'"),'Alphabetical sorting is the default');
+ assert.ok(ui.includes("contentKinds=['games','apps']"),'Games and apps are enabled together by default');
+ assert.ok(ui.includes("function sortedLibraryItems()"),'The right column uses one merged list');
+ assert.ok(ui.includes("data?.apps)?data.apps:Array.isArray(data?.programs)?data.programs"),'Library accepts app records from the server');
+ assert.ok(ui.includes("current.map(listRow)"),'Games and apps share one rendered list');
+ assert.ok(!ui.includes("steam-content-section"),'Separate content sections are removed');
+ for(const emptyCopy of ["noItems:'No games or apps","noItems:'У бібліотеці поки немає ігор або програм","noItems:'W bibliotece nie ma jeszcze gier ani aplikacji","noItems:'Noch keine Spiele oder Apps"]){
+  assert.ok(ui.includes(emptyCopy),emptyCopy);
+ }
  assert.ok(app.includes("document.body.classList.toggle('library-fullscreen',route.path==='/library')"));
  assert.ok(css.includes('body.library-fullscreen{height:100dvh;overflow:hidden'));
  assert.ok(css.includes('body.library-fullscreen .steam-game-rows{flex:1;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto'));
