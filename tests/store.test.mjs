@@ -195,47 +195,21 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
 
 
 
-test('MORE section links to Team and Support the Team with About removed',()=>{
-  const html=render('#/').html;
-  const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
-  assert.ok(sidebar.includes('href="#/team"'));
-  assert.ok(sidebar.includes('href="#/support"'));
-  assert.ok(!sidebar.includes('href="#/about"'));
-  const more=sidebar.split('<div class="side-label">'+translations.en.more+'</div>')[1]?.split('</div>')[0]||'';
-  assert.ok(more.includes('href="#/team"'));
-  assert.ok(more.includes('href="#/support"'));
-  assert.ok(more.indexOf('href="#/team"')<more.indexOf('href="#/support"'));
-  assert.ok(!more.includes('href="#/about"'));
-  assert.ok(!html.includes('href="#/about"'));
-  assert.ok(html.includes('href="#/team"'));
-  assert.ok(html.includes('href="#/support"'));
+test('Support the Team navigation and page are fully removed',()=>{
+ for(const lang of supportedLanguages){
+  const home=render('#/',lang);
+  assert.equal(home.lang,lang);
+  assert.ok(!home.html.includes('href="#/support"'));
+  assert.ok(!home.html.includes('Support the Team'));
+  const oldRoute=render('#/support',lang);
+  assert.equal(oldRoute.title,'Store | AURVEX');
+  assert.ok(!oldRoute.html.includes('support-hero'));
+  assert.ok(!oldRoute.html.includes('support-option'));
+  assert.ok(!oldRoute.html.includes('href="#/support"'));
+  assert.equal(translations[lang].supportTeam,undefined);
+  assert.equal(translations[lang].supportTitle,undefined);
+ }
 });
-test('Team and Support have real pages with content localized in all four languages',()=>{
-  for(const lang of supportedLanguages){
-    const team=render('#/team',lang);
-    assert.equal(team.lang,lang);
-    assert.ok(team.html.includes(translations[lang].teamTitle));
-    assert.ok(!team.html.includes(translations[lang].teamMembersNote));
-    assert.ok(!team.html.includes(translations[lang].teamTrackCode));
-    assert.ok(!team.html.includes('team-tracks'));
-    assert.ok(!team.html.includes('team-profiles-note'));
-    assert.ok(team.html.includes('href="#/game/devive"'));
-    const support=render('#/support',lang);
-    assert.equal(support.lang,lang);
-    assert.ok(support.html.includes(translations[lang].supportTitle));
-    assert.ok(support.html.includes(translations[lang].supportFundingStatus));
-    assert.ok(support.html.includes('data-action="share-site"'));
-    assert.ok(support.html.includes(translations[lang].supportNote));
-  }
-});
-test('Support page does not invent payment details or operational checkout',()=>{
-  const html=render('#/support').html;
-  assert.ok(!html.includes('send.monobank.ua'));
-  assert.ok(!html.includes('checkout.stripe.com'));
-  assert.ok(!html.includes('<form action="https://'));
-  assert.ok(html.includes(translations.en.supportFundingDesc));
-});
-
 test('Team joins Discord through a safe external collaboration link in all languages',()=>{
   for(const lang of supportedLanguages){
     const team=render('#/team',lang);
