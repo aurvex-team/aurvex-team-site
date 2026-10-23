@@ -2416,3 +2416,23 @@ input,select{color:var(--text)}
 @media(max-width:900px){.launcher-os-section .download-os-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.download-platform-status{position:absolute;right:18px;top:18px}.download-platform-hero{padding-top:60px}}
 @media(max-width:760px){.launcher-os-section{padding:16px}.launcher-os-section .download-os-grid,.download-choice-grid{grid-template-columns:1fr}.download-platform-hero{align-items:flex-start;flex-direction:column;gap:15px;min-height:0;padding:22px}.download-platform-icon{width:64px;height:64px;border-radius:18px;font-size:39px}.download-platform-status{position:static;margin-left:0}.download-platform-hero:after{right:-50px}.linux-launcher-download{grid-template-columns:auto minmax(0,1fr)}.linux-download-actions{grid-column:1/-1;justify-content:flex-start}.linux-launcher-download pre,.download-sha{grid-column:1/-1}.download-screen-toolbar>span{display:none}}
 @media(max-width:420px){.launcher-os-section .download-os-card{min-height:90px;padding:14px}.download-os-symbol{width:44px;height:44px;font-size:25px}.download-choice-grid .download-choice-card{padding:14px}}
+
+
+/* Desktop navigation dock: move the full left menu into a compact bottom bar. */
+@media(min-width:801px){
+  .sidebar{
+    top:auto;bottom:16px;left:50%;right:auto;width:max-content;max-width:calc(100vw - 32px);height:auto;max-height:none;
+    padding:8px 10px;overflow-x:auto;overflow-y:hidden;display:flex;flex-direction:row;align-items:center;gap:5px;
+    transform:translateX(-50%);border:1px solid var(--line-strong);border-radius:22px;
+    background:color-mix(in srgb,var(--header) 88%,transparent);backdrop-filter:blur(22px);box-shadow:0 12px 40px #0008;
+  }
+  .sidebar::-webkit-scrollbar{display:none}
+  .side-group{display:flex;align-items:center;gap:4px;flex:none;margin:0}
+  .side-group+.side-group{padding-left:7px;border-left:1px solid var(--line)}
+  .side-label,.side-space,.side-promo{display:none}
+  .side-link{flex:none;gap:8px;white-space:nowrap;border-radius:13px;padding:10px 11px;margin:0;font-size:11px}
+  .side-link.active{box-shadow:inset 0 -2px var(--accent)}
+  .side-link .counter{margin-left:0}
+  .sidebar-shade{display:none}
+  .main{margin-left:0;padding-bottom:112px}
+}
