@@ -729,6 +729,7 @@ test('Only 2FA users can see inbox and online preference',()=>{
  const googleOnly=render('#/notifications','en',false,null,
   {user:{id:'44444444-4444-4444-8444-444444444444'},mfaVerified:false}).html;
  assert.ok(guest.includes(translations.uk.social37Login));
+ assert.ok(guest.includes('class="friends-lock notifications-auth-gate"'));
  assert.ok(googleOnly.includes(translations.en.social37Login));
  assert.ok(!guest.includes('data-social37-action="visibility"'));
  assert.ok(!googleOnly.includes('data-social37-action="read"'));
