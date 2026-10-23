@@ -195,32 +195,20 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
 
 
 
-test('Support the Team navigation and page are fully removed',()=>{
+test('Team and Support pages and navigation are fully removed',()=>{
  for(const lang of supportedLanguages){
   const home=render('#/',lang);
-  assert.equal(home.lang,lang);
+  assert.ok(!home.html.includes('href="#/team"'));
   assert.ok(!home.html.includes('href="#/support"'));
-  assert.ok(!home.html.includes('Support the Team'));
-  const oldRoute=render('#/support',lang);
-  assert.equal(oldRoute.title,'Store | AURVEX');
-  assert.ok(!oldRoute.html.includes('support-hero'));
-  assert.ok(!oldRoute.html.includes('support-option'));
-  assert.ok(!oldRoute.html.includes('href="#/support"'));
-  assert.equal(translations[lang].supportTeam,undefined);
+  const oldTeam=render('#/team',lang),oldSupport=render('#/support',lang);
+  assert.equal(oldTeam.title,'Store | AURVEX');
+  assert.equal(oldSupport.title,'Store | AURVEX');
+  assert.ok(!oldTeam.html.includes('team-hero'));
+  assert.ok(!oldSupport.html.includes('support-hero'));
+  assert.equal(translations[lang].teamTitle,undefined);
   assert.equal(translations[lang].supportTitle,undefined);
  }
 });
-test('Team joins Discord through a safe external collaboration link in all languages',()=>{
-  for(const lang of supportedLanguages){
-    const team=render('#/team',lang);
-    assert.ok(team.html.includes(translations[lang].teamJoin));
-    assert.ok(team.html.includes(translations[lang].teamJoinHint));
-    assert.ok(team.html.includes('href="https://discord.gg/KWD2rfy2Vh"'));
-    assert.ok(team.html.includes('target="_blank" rel="noopener noreferrer"'));
-    assert.ok(team.html.includes('href="#/game/devive"'));
-  }
-});
-
 test('production entrypoint always loads versioned JavaScript and stylesheet',()=>{
   assert.ok(index.includes('assets/app.js?v='));
   assert.ok(index.includes('assets/site.css?v='));
@@ -768,6 +756,37 @@ test('Notifications include actionable friend requests and link-only family invi
  }
 });
 
+
+test('Notifications filters, mark-all action and empty states are localized',()=>{
+ const auth={user:{id:'33333333-3333-4333-8333-333333333333'},mfaVerified:true};
+ const v={ready:true,showOnline:false,onlineIds:[],blocked:[],notifications:[
+  {id:'66666666-6666-4666-8666-666666666666',actor_id:'44444444-4444-4444-8444-444444444444',nickname:'tester',kind:'friend_request',read:false},
+  {id:'77777777-7777-4777-8777-777777777777',actor_id:'55555555-5555-4555-8555-555555555555',nickname:'family_owner',kind:'family_invite',read:true}
+ ]};
+ for(const lang of supportedLanguages){
+  const all=render('#/notifications',lang,false,null,auth,null,null,v).html;
+  assert.ok(all.includes('href="#/notifications?filter=all"'),lang);
+  assert.ok(all.includes('href="#/notifications?filter=unread"'),lang);
+  assert.ok(all.includes('href="#/notifications?filter=friends"'),lang);
+  assert.ok(all.includes('href="#/notifications?filter=family"'),lang);
+  assert.ok(all.includes('data-social37-action="read-all"'),lang);
+  assert.ok(all.includes(translations[lang].social37MarkAll),lang);
+  const friend=render('#/notifications?filter=friends',lang,false,null,auth,null,null,v).html;
+  assert.ok(friend.includes('tester'));
+  assert.ok(!friend.includes('family_owner'));
+  const family=render('#/notifications?filter=family',lang,false,null,auth,null,null,v).html;
+  assert.ok(family.includes('family_owner'));
+  assert.ok(!family.includes('tester'));
+  const unread=render('#/notifications?filter=unread',lang,false,null,auth,null,null,v).html;
+  assert.ok(unread.includes('tester'));
+  assert.ok(!unread.includes('family_owner'));
+  const empty=render('#/notifications?filter=unread',lang,false,null,auth,null,null,{...v,notifications:[]}).html;
+  assert.ok(empty.includes(translations[lang].social37CaughtUp));
+ }
+ const controller=readFileSync(new URL('../assets/social37-ui.js',import.meta.url),'utf8');
+ assert.ok(controller.includes("await Promise.all(model.notifications.filter(n=>!n.read).map(n=>socialRead(n.id)))"));
+ assert.ok(controller.includes("message('social37MarkedAll')"));
+});
 test('Friends-only online indicator and family invite/blocked player actions render correctly',()=>{
  const friendId='55555555-5555-4555-8555-555555555555';
  const auth={user:{id:'44444444-4444-4444-8444-444444444444'},mfaVerified:true};
