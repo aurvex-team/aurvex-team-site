@@ -371,7 +371,7 @@ function downloadsPage(route){
     '<section class="download-platform-hero"><div class="download-platform-icon">'+platform.symbol+'</div><div class="download-platform-heading">'+
     '<span class="smallcaps">AURVEX · '+platform.label+'</span><h1>'+(selectedVersion?selectedVersion.label:(selectedDistro?selectedDistro.name:platform.label))+'</h1>'+
     '<p>'+(selectedVersion?selectedVersion.meta:(selectedDistro?selectedDistro.meta:platform.desc))+'</p></div>'+
-    '<span class="download-platform-status">'+icon('shield',15)+' '+t('downloadsPreparing')+'</span></section>'+
+    '<span class="download-platform-status">'+icon('shield',15)+' '+(selectedVersion&&os==='linux'?esc(launcherT('fileType')):t('downloadsPreparing'))+'</span></section>'+
     (selectedVersion?(os==='linux'?linuxDownload:stage):(stage+(os==='windows'?'<p class="download-legacy-note">'+t('downloadsWindowsLegacy')+'</p>':'')))
     :'<section class="downloads-hero launcher-downloads-hero"><div class="downloads-hero-glow"></div>'+
     '<div class="smallcaps">'+esc(launcherT('eyebrow'))+'</div><h1>'+esc(launcherT('title'))+'</h1><p>'+esc(launcherT('intro'))+
