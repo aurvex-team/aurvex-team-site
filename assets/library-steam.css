@@ -113,3 +113,37 @@
 .steam-list-empty a:hover{text-decoration:underline}
 .steam-library-loading{max-width:1280px;margin:0 auto}
 @media(max-width:700px){.steam-library{max-width:none;margin:0 auto}.steam-content-picker summary{max-width:165px}}
+
+/* Full viewport library canvas; only the right-hand result list scrolls. */
+body.library-fullscreen{height:100dvh;overflow:hidden;overscroll-behavior:none}
+body.library-fullscreen #app{height:100dvh;min-height:0;overflow:hidden}
+body.library-fullscreen .main{height:calc(100dvh - 72px);min-height:0;overflow:hidden;padding-bottom:112px;box-sizing:border-box}
+body.library-fullscreen .content{display:block;width:100%;height:100%;min-height:0;max-width:none;margin:0;padding:0;overflow:hidden}
+body.library-fullscreen .content>.footer{display:none}
+body.library-fullscreen #aurvex-library.library-page{width:100%;height:100%;min-height:0;padding:0;overflow:hidden}
+body.library-fullscreen .steam-library{width:100%;height:100%;max-width:none;min-height:0;margin:0;border-radius:0;border-left:0;border-right:0}
+body.library-fullscreen .steam-library-layout{min-height:0;flex:1;overflow:hidden}
+body.library-fullscreen .steam-game-detail{min-height:0;overflow:hidden}
+body.library-fullscreen .steam-game-column{height:100%;min-height:0;overflow:hidden}
+body.library-fullscreen .steam-game-rows{flex:1;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:var(--sl-line-strong) transparent;scrollbar-width:thin}
+.steam-sort-picker{position:relative;min-width:0}
+.steam-sort-picker summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:128px;min-height:33px;padding:0 10px;overflow:hidden;border:1px solid var(--sl-line-strong);border-radius:8px;background:var(--sl-bg);color:var(--sl-text);font-size:10px;cursor:pointer;list-style:none}
+.steam-sort-picker summary::-webkit-details-marker{display:none}
+.steam-sort-picker summary span{color:var(--sl-accent)}
+.steam-sort-options{position:absolute;z-index:12;top:calc(100% + 6px);right:0;display:grid;gap:2px;min-width:175px;padding:6px;border:1px solid var(--sl-line-strong);border-radius:10px;background:var(--sl-panel);box-shadow:var(--shadow,0 14px 36px #0009)}
+.steam-sort-options button{width:100%;padding:9px 10px;border:0;border-radius:7px;background:transparent;color:var(--sl-muted);text-align:left;font-size:10px;cursor:pointer}
+.steam-sort-options button:hover{background:var(--sl-hover);color:var(--sl-text)}
+@media(max-width:700px){
+ body.library-fullscreen .main{height:calc(100dvh - 72px);padding-bottom:96px}
+ body.library-fullscreen .steam-library-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,.9fr) minmax(0,1.1fr)}
+ body.library-fullscreen .steam-game-detail{min-height:0;border-right:0;border-bottom:1px solid var(--sl-line)}
+ body.library-fullscreen .steam-detail-art{height:42%;min-height:112px}
+ body.library-fullscreen .steam-detail-content{padding:12px 16px}
+ body.library-fullscreen .steam-detail-stats{gap:7px;margin:9px 0 0;padding:8px 0;border-bottom:0}
+ body.library-fullscreen .steam-detail-stats strong{font-size:10px}
+ body.library-fullscreen .steam-empty-library{height:100%;min-height:0;padding:12px}
+ body.library-fullscreen .steam-empty-mark{width:46px;height:46px;margin-bottom:8px;border-radius:15px}
+ body.library-fullscreen .steam-empty-library p{margin:7px 0 0;font-size:11px}
+ body.library-fullscreen .steam-game-column{height:100%;min-height:0;max-height:none;overflow:hidden}
+ body.library-fullscreen .steam-game-rows{max-height:none}
+}
