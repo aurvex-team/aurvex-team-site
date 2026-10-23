@@ -415,11 +415,6 @@ function home(){
     '<button class="btn btn-soft" type="button" data-action="wishlist">'+icon('heart',17)+' '+t(state.wished?'removeWish':'addWish')+'</button></div>'+
     '<div class="hero-facts"><span>'+icon('gift',15)+' '+t('freeAtLaunch')+'</span><span>'+icon('clock',15)+' '+t('inDevelopment')+'</span><span>'+icon('gamepad',15)+' '+t('twoD')+'</span></div></div>'+
     '<span class="art-note">'+t('conceptArtwork')+'</span></section>'+
-  '<section class="section">'+sectionHead('explore','discoverTitle','discoverText',null,null)+
-    '<div class="category-grid category-grid-home">'+categoryCard('/games','gamepad','collectionGames','collectionGamesDesc','#6a65fd55')+
-    categoryCard('/apps','laptop','collectionApps','collectionAppsDesc','#478fc955')+
-    categoryCard('/rewards','gift','collectionFree','collectionFreeDesc','#3f9d8255')+
-    '</div></section>'+
   '<section class="section">'+sectionHead('selectionKicker','selectionTitle','selectionSubtitle','showAll','/browse')+
     '<div class="editorial-grid">'+gameCard()+upcomingCard()+'</div></section>'+
   '<section class="section">'+sectionHead('whyKicker','whyTitle','whyText',null,null)+features()+'</section>'+
