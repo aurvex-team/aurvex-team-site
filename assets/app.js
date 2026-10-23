@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261023-600';
+import { translations, supportedLanguages } from './i18n.js?v=20261023-623';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -238,7 +238,7 @@ function header(path){
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
     '<div class="top-actions">'+liveBadge+preferenceMenu('language')+preferenceMenu('currency')+
     '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
-    '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished?'<span class="wish-dot"></span>':'')+'</a>'+
+    '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished&&!isDeviveOwned()?'<span class="wish-dot"></span>':'')+'</a>'+
     '<div class="notification-popover-wrap"><button class="icon-btn social-bell'+(notificationsOpen?' active':'')+'" type="button" data-action="notifications-toggle" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'" aria-haspopup="dialog" aria-expanded="'+String(notificationsOpen)+'" aria-controls="notifications-popover">'+
       icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</button>'+notificationPopover()+'</div>'+
     '<a class="account-header-btn'+(path==='/id'?' active':'')+'" href="#/id" aria-label="'+t('aurvexId')+'">'+profileAvatar+'<span>'+esc(profileLabel)+'</span></a>'+
@@ -404,12 +404,20 @@ function downloadsPage(route){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+esc(launcherT('nav'))+'</span></div>'+
     '<main class="launcher-downloads">'+screen+'</main>';
 }
-function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
+function isDeviveOwned(){return window.AURVEX_ID?.ownedGameIds?.includes('devive')===true}
+function libraryAction(className='btn btn-soft'){
+  const id=window.AURVEX_ID||{};
+  if(isDeviveOwned())return '<a class="'+className+'" href="#/library">'+icon('check',16)+' '+t('inLibrary')+'</a>';
+  if(id.claimingGame==='devive')return '<button class="'+className+'" type="button" disabled>'+icon('clock',16)+' '+t('libraryAdding')+'</button>';
+  if(!id.user?.id||id.mfaVerified!==true)return '<a class="'+className+'" href="#/id">'+icon('user',16)+' '+t('signInToAdd')+'</a>';
+  return '<button class="'+className+'" type="button" data-action="claim-devive">'+icon('plus',16)+' '+t('addToLibrary')+'</button>';
+}
+function wishlistButton(){if(isDeviveOwned())return '';return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
 function gameCard(){
   return '<article class="game-card"><a href="#/game/devive" class="game-cover"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"><span class="cover-label">'+t('twoD')+'</span><span class="cover-logo">DEVIVE</span></a>'+
     '<div class="game-card-body"><div class="game-name"><h3><a href="#/game/devive">Devive</a></h3>'+tag('freeAtLaunch','tag-green')+'</div><p>'+t('deviveShort')+'</p>'+
     '<div class="card-meta">'+tag('gameType')+tag('horror')+tag('genrePsychological')+tag('inDevelopment','tag-amber')+'</div>'+
-    '<div class="card-actions"><a class="btn btn-outline" href="#/game/devive">'+t('viewDetails')+' '+icon('arrow',14)+'</a>'+wishlistButton()+'</div></div></article>';
+    '<div class="card-actions"><a class="btn btn-outline" href="#/game/devive">'+t('viewDetails')+' '+icon('arrow',14)+'</a>'+libraryAction('btn btn-soft')+wishlistButton()+'</div></div></article>';
 }
 function upcomingCard(){
   return '<article class="upcoming-card"><div class="upcoming-watermark">'+icon('sparkle',170)+'</div>'+
@@ -435,7 +443,7 @@ function home(){
     '<div class="hero-content"><div class="hero-label">'+t('eyebrow')+'</div><div class="hero-wordmark">DEVIVE</div>'+
     '<h2 class="hero-headline">'+t('heroTitle')+'<br>'+t('heroTitleAccent')+'</h2><p class="hero-description">'+t('heroCopy')+'</p>'+
     '<div class="hero-actions"><a class="btn btn-primary" href="#/game/devive">'+t('exploreDevive')+' '+icon('arrow',16)+'</a>'+
-    '<button class="btn btn-soft" type="button" data-action="wishlist">'+icon('heart',17)+' '+t(state.wished?'removeWish':'addWish')+'</button></div>'+
+    '+libraryAction('btn btn-soft')+'</div>'+
     '<div class="hero-facts"><span>'+icon('gift',15)+' '+t('freeAtLaunch')+'</span><span>'+icon('clock',15)+' '+t('inDevelopment')+'</span><span>'+icon('gamepad',15)+' '+t('twoD')+'</span></div></div>'+
     '<span class="art-note">'+t('conceptArtwork')+'</span></section>'+
   '<section class="section">'+sectionHead('selectionKicker','selectionTitle','selectionSubtitle','showAll','/browse')+
@@ -615,13 +623,13 @@ function gamePage(){
     '</div><aside class="purchase-panel"><div class="purchase-banner"><img src="'+sceneUrl+'" alt=""></div><h3>Devive</h3>'+
     '<p>'+t('deviveFlavor')+' '+t('deviveShort')+'</p><div class="card-meta">'+tag('freeAtLaunch','tag-green')+tag('genrePsychological')+tag('inDevelopment','tag-amber')+'</div>'+
     '<div class="purchase-actions"><button class="btn btn-accent" type="button" disabled>'+icon('cloud',17)+' '+t('downloadDisabled')+'</button>'+
-    '<button class="btn btn-outline" type="button" data-action="wishlist">'+icon('heart',17)+' '+t(state.wished?'removeWish':'addWish')+'</button></div>'+
+    '+libraryAction('btn btn-accent')+(!isDeviveOwned()?'<button class="btn btn-outline" type="button" data-action="wishlist">'+icon('heart',17)+' '+t(state.wished?'removeWish':'addWish')+'</button>':'')+'</div>'+
     '<p class="notice">'+t('devStatusNotice')+'</p><dl class="specs">'+specItems.map(function(x){return '<div><dt>'+t(x[0])+'</dt><dd>'+(x[1]==='AURVEX Team'?'AURVEX Team':t(x[1]))+'</dd></div>'}).join('')+'</dl></aside></div>';
 }
 function savedPage(){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('saved')+'</div>'+
     heading('savedTitle','savedSub','savedKicker')+
-    (state.wished?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
+    (state.wished&&!isDeviveOwned()?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
     '<div class="saved-banner">'+icon('shield',20)+t(window.AURVEX_ID?.user?'idWishlistSync':'localOnly')+'</div>';
 }
 function mfaGatePage(auth){
@@ -1741,7 +1749,12 @@ document.addEventListener('click',function(event){
     state.theme=state.theme==='dark'?'light':'dark';
     store(STORAGE.theme,state.theme);render(true);return;
   }
+  if(action==='claim-devive'){
+    if(!window.AURVEX_ID?.user?.id||window.AURVEX_ID?.mfaVerified!==true){location.hash='#/id';return}
+    if(!isDeviveOwned()&&!window.AURVEX_ID?.claimingGame)window.dispatchEvent(new CustomEvent('aurvex:claim-devive'));return;
+  }
   if(action==='wishlist'){
+    if(isDeviveOwned())return;
     state.wished=!state.wished;store(STORAGE.wish,state.wished?'1':'0');
     render(true);toast(t(state.wished?'savedAdded':'savedRemoved'));
     if(typeof window.dispatchEvent==='function')window.dispatchEvent(new CustomEvent('aurvex:wishlist-changed',{detail:{wished:state.wished}}));return;
@@ -1790,6 +1803,7 @@ document.addEventListener('submit',function(event){
   }
 });
 window.addEventListener('aurvex:id-state',function(){render(true)});
+window.addEventListener('aurvex:library-claim-result',function(event){toast(t(event.detail?.success?'libraryAdded':'libraryClaimError'))});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
 window.addEventListener('aurvex:shop-state',function(){render(true)});
 window.addEventListener('aurvex:payment-state',function(){if(['/shop','/checkout','/payment'].includes(routeInfo().path))render(true)});
