@@ -233,7 +233,8 @@ function sidebar(path){
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
       navLink('/team','team','layers',path)+navLink('/support','supportTeam','heart',path)+'</div>'+
-    '</aside>';
+    '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
+    '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
