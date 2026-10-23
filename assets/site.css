@@ -2362,3 +2362,57 @@ input,select{color:var(--text)}
 .shop-card-preview[data-shop-card-id="profile_solarflare"] .shop-art-core{font-size:55px;text-shadow:0 0 8px #fff1a8,0 0 38px #ff9a32}
 .shop-card-preview[data-shop-card-id="profile_voidglass"] .shop-art-ring{border-style:double;border-width:4px;border-radius:16px;transform:rotate(45deg);filter:drop-shadow(0 0 14px #ad85ff)}
 .shop-card-preview[data-shop-card-id="profile_voidglass"] .shop-art-core{transform:rotate(-45deg);text-shadow:0 0 7px #fff,0 0 28px #8661ff}
+
+
+/* Full-page launcher platform flow: every selection replaces the current screen. */
+.launcher-downloads{padding:0 0 34px;min-width:0}
+.launcher-downloads-hero{min-height:245px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.launcher-downloads-hero h1{max-width:760px;font-size:clamp(36px,5vw,58px)}
+.launcher-downloads-hero p{max-width:740px;font-size:15px}
+.launcher-os-section{margin-top:24px;padding:24px;border:1px solid var(--line-strong);border-radius:20px;background:var(--surface)}
+.launcher-os-section .downloads-section-head{margin-bottom:18px}
+.launcher-os-section .download-os-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.launcher-os-section .download-os-card{min-height:112px;padding:20px;background:var(--surface-2)}
+.download-screen-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:2px 0 18px}
+.download-screen-toolbar>span{color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.1em}
+.download-back{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--text);font-size:12px;font-weight:750;text-decoration:none;transition:background .18s,border-color .18s}
+.download-back svg{transform:rotate(180deg)}
+.download-back:hover{border-color:#a98bff9c;background:var(--surface-2)}
+.download-platform-hero{position:relative;display:flex;align-items:center;gap:24px;min-height:210px;padding:clamp(24px,4vw,44px);overflow:hidden;border:1px solid #bcaaff30;border-radius:24px;background:radial-gradient(circle at 87% 42%,#9272ff27,transparent 30%),linear-gradient(135deg,#1b1c30,#111621 75%);color:white}
+.download-platform-hero:after{content:"";position:absolute;right:7%;width:185px;height:185px;border:1px solid #b9a5ff25;border-radius:50%;box-shadow:0 0 0 24px #b9a5ff08,0 0 0 48px #b9a5ff05;pointer-events:none}
+.download-platform-icon{z-index:1;display:grid;place-items:center;flex:none;width:88px;height:88px;border:1px solid #c5b6ff38;border-radius:24px;background:linear-gradient(145deg,#a889ff35,#7086ff12);color:#e1d8ff;font-size:52px;font-weight:750}
+.download-platform-heading{z-index:1;min-width:0}
+.download-platform-heading .smallcaps{color:#c9b9ff}
+.download-platform-heading h1{margin:9px 0 5px;font-size:clamp(30px,4vw,46px);letter-spacing:-1.4px;line-height:1.1}
+.download-platform-heading p{margin:0;color:#c5c1d4;font-size:13px}
+.download-platform-status{z-index:1;display:inline-flex;align-items:center;gap:7px;margin-left:auto;padding:9px 12px;border:1px solid #bcaaff55;border-radius:999px;background:#9578ff18;color:#dfd5ff;font-size:10px;font-weight:800;white-space:nowrap}
+.download-stage{margin-top:24px;padding:clamp(20px,3vw,32px);border:1px solid var(--line-strong);border-radius:20px;background:var(--surface);box-shadow:var(--shadow)}
+.download-stage-head{margin-bottom:18px}
+.download-stage-head .smallcaps,.download-release-detail>.smallcaps{color:var(--accent)}
+.download-stage-head h2{margin:7px 0 5px;font-size:clamp(22px,3vw,31px);letter-spacing:-.7px}
+.download-stage-head p{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
+.download-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.download-choice-grid .download-choice-card{min-height:72px;padding:16px 18px;border-radius:15px;transition:border-color .18s,transform .18s,background .18s}
+.download-choice-grid .download-choice-card:hover{transform:translateY(-2px)}
+.download-choice-grid .download-choice-status{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#9578ff16;color:var(--accent)}
+.download-distro-card strong{font-size:14px}
+.download-distro-card small{font-size:11px}
+.download-release-detail{max-width:850px;margin:24px auto 0;padding:clamp(22px,4vw,38px);border:1px solid var(--line-strong);border-radius:22px;background:var(--surface);box-shadow:var(--shadow);text-align:center}
+.download-release-check{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 15px;border:1px solid #a98bff55;border-radius:17px;background:#9578ff15;color:var(--accent)}
+.download-release-detail h2{margin:7px 0;font-size:clamp(25px,3.5vw,37px);letter-spacing:-.8px}
+.download-release-detail>p{margin:0 0 20px;color:var(--muted);font-size:12px}
+.download-release-detail .download-build-note{text-align:left}
+.linux-launcher-download{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px 18px;align-items:center;margin:24px 0 0;padding:clamp(20px,3vw,30px);border:1px solid #64d8a34a;border-radius:20px;background:linear-gradient(135deg,#12352a1c,var(--surface) 64%);box-shadow:var(--shadow)}
+.linux-download-mark{display:grid;place-items:center;width:54px;height:54px;border:1px solid #64d8a34a;border-radius:16px;background:#46cd8a16;color:#58d69a}
+.linux-download-copy .smallcaps{color:#58d69a}
+.linux-download-copy h3{margin:5px 0;font-size:19px}
+.linux-download-copy p{margin:0;color:var(--muted);font-size:11px;line-height:1.65}
+.linux-download-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:9px}
+.linux-download-actions .btn{min-height:40px}
+.linux-launcher-download pre{grid-column:2/-1;margin:0;padding:13px 15px;overflow:auto;border:1px solid var(--line-strong);border-radius:12px;background:var(--surface-2);color:var(--text);font-size:11px}
+.download-sha{grid-column:2/-1;margin:0;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+.download-sha code{color:var(--text)}
+.download-legacy-note{margin-top:14px;color:#d79b35;font-size:11px;line-height:1.65}
+@media(max-width:900px){.launcher-os-section .download-os-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.download-platform-status{position:absolute;right:18px;top:18px}.download-platform-hero{padding-top:60px}}
+@media(max-width:760px){.launcher-os-section{padding:16px}.launcher-os-section .download-os-grid,.download-choice-grid{grid-template-columns:1fr}.download-platform-hero{align-items:flex-start;flex-direction:column;gap:15px;min-height:0;padding:22px}.download-platform-icon{width:64px;height:64px;border-radius:18px;font-size:39px}.download-platform-status{position:static;margin-left:0}.download-platform-hero:after{right:-50px}.linux-launcher-download{grid-template-columns:auto minmax(0,1fr)}.linux-download-actions{grid-column:1/-1;justify-content:flex-start}.linux-launcher-download pre,.download-sha{grid-column:1/-1}.download-screen-toolbar>span{display:none}}
+@media(max-width:420px){.launcher-os-section .download-os-card{min-height:90px;padding:14px}.download-os-symbol{width:44px;height:44px;font-size:25px}.download-choice-grid .download-choice-card{padding:14px}}

@@ -171,7 +171,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/downloads','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/about','/team','/support','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -207,7 +207,7 @@ function header(path){
     '<span class="brand-crest"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4 29 27H3L16 4Z" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><path d="M16 13 22 24H10l6-11Z" fill="white"/></svg></span><span>AURVEX</span></a>'+
     '<nav class="top-links" aria-label="Main navigation"><a href="#/" class="'+(path==='/'?'active':'')+'">'+t('discover')+'</a>'+
     '<a href="#/browse" class="'+(isActive(path,'/browse')?'active':'')+'">'+t('browse')+'</a>'+
-     '<a href="#/downloads" class="'+(path==='/downloads'?'active':'')+'">'+t('downloadsNav')+'</a>'+
+
     '<a href="#/shop" class="'+(path==='/shop'?'active':'')+'">'+t('shopNav')+'</a>'+
     '<a href="#/chat" class="'+(path==='/chat'?'active':'')+'">'+t('chatNav')+'</a>'+
     '<a href="#/about" class="'+(path==='/about'?'active':'')+'">'+t('about')+'</a></nav>'+
@@ -224,7 +224,7 @@ function header(path){
 function sidebar(path){
   return '<div class="sidebar-shade" data-action="close-menu"></div><aside class="sidebar" id="site-sidebar">'+
     '<div class="side-group"><div class="side-label">'+t('store')+'</div>'+
-      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+launcherNavLink(path)+navLink('/downloads','downloadsNav','laptop',path)+
+      navLink('/','home','home',path)+navLink('/browse','browse','compass',path)+launcherNavLink(path)+
       navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/balance','balanceNav','wallet',path)+navLink('/inventory','inventoryNav','layers',path)+navLink('/library','libraryNav','gamepad',path)+
       navLink('/friends','friendsNav','users',path,
@@ -250,19 +250,7 @@ const launcherCopy={
 function launcherT(key){return launcherCopy[state.language]?.[key]||launcherCopy.en[key]||key}
 function launcherNavLink(path){return '<a class="side-link'+(isActive(path,'/desktop')?' active':'')+'" href="#/desktop">'+icon('laptop',18)+'<span>'+esc(launcherT('nav'))+'</span></a>'}
 const launcherFile='AURVEX-Launcher-v0.6.0-alpha.16-Google-Login-Fix-Linux.run';
-function desktopPage(){
- const commands='cd ~/Downloads\nchmod +x '+launcherFile+'\n./'+launcherFile;
- return '<div class="breadcrumb"><a href="#/">'+esc(launcherT('crumb'))+'</a>'+icon('arrow',13)+esc(launcherT('nav'))+'</div>'+
-  '<div class="about-hero"><div><div class="smallcaps">'+esc(launcherT('eyebrow'))+'</div><h1>'+esc(launcherT('title'))+'</h1><p>'+esc(launcherT('intro'))+'</p>'+
-  '<div class="hero-actions"><a class="btn btn-primary" href="./desktop/updates/'+launcherFile+'" download>'+icon('arrow',16)+' '+esc(launcherT('download'))+'</a><span class="tag">'+esc(launcherT('version'))+'</span></div></div>'+
-  '<div class="about-graphic" aria-hidden="true"><span class="about-orbit"></span><span class="about-orbit"></span><span class="about-emblem">A</span></div></div>'+
-  '<section class="section"><div class="mission-card"><div class="smallcaps">'+esc(launcherT('fileType'))+'</div><h2>'+esc(launcherT('installTitle'))+'</h2><p>'+esc(launcherT('installText'))+'</p>'+
-  '<div class="hero-actions"><button class="btn btn-outline" type="button" data-action="copy-launcher-command">'+icon('copy',16)+' '+esc(launcherT('copy'))+'</button></div><pre><code data-launcher-command>'+esc(commands)+'</code></pre><p><strong>'+esc(launcherT('shaLabel'))+':</strong> <code>74bf8f367b2058711f0f2329c7961369aee59a4c8070aa249b6e82f0da7e526b</code></p></div></section>'+
-  '<section class="section"><div class="saved-banner">'+icon('info',19)+'<span><strong>'+esc(launcherT('knownTitle'))+':</strong> '+esc(launcherT('knownIssue'))+'</span></div></section>'+
-  '<section class="section"><div class="mission-card"><h2>'+esc(launcherT('otherTitle'))+'</h2><p>'+esc(launcherT('otherText'))+'</p></div></section>';
-}
-
-
+function desktopPage(route){return downloadsPage(route)}
 function downloadsPage(route){
   const os=route.params.get('os')||'';
   const current=route.params.get('version')||'';
@@ -334,39 +322,66 @@ function downloadsPage(route){
   const selectedDistro=distros.find(x=>x.id===distro);
   const options=os==='linux'?(selectedDistro?.options||[]):(versions[os]||[]);
   const selectedVersion=options.find(x=>x.id===current);
-  const systemCards=systems.map(x=>'<a class="download-os-card'+(os===x.id?' is-selected':'')+'" href="#/downloads?os='+x.id+'">'+
+  const systemCards=systems.map(x=>'<a class="download-os-card" href="#/desktop?os='+x.id+'">'+
     '<span class="download-os-symbol" aria-hidden="true">'+x.symbol+'</span><span class="download-os-copy"><strong>'+x.label+'</strong><small>'+x.desc+'</small></span>'+
     '<span class="download-os-arrow" aria-hidden="true">'+icon('arrow',17)+'</span></a>').join('');
-  const distroCards=os==='linux'?'<div class="download-choice-list">'+distros.map(x=>
-    '<a class="download-choice-card'+(distro===x.id?' is-selected':'')+'" href="#/downloads?os=linux&distro='+x.id+'">'+
-    '<span><strong>'+x.name+'</strong><small>'+x.meta+'</small></span><span class="download-choice-status">'+t('downloadsComingSoon')+'</span></a>'
-  ).join('')+'</div>':'';
-  const optionCards=options.length?'<div class="download-choice-list">'+options.map(x=>{
-    const target=os==='linux'?'#/downloads?os=linux&distro='+distro+'&version='+encodeURIComponent(x.id):
-      '#/downloads?os='+os+'&version='+encodeURIComponent(x.id);
-    return '<a class="download-choice-card'+(current===x.id?' is-selected':'')+'" href="'+target+'">'+
-      '<span><strong>'+x.label+'</strong><small>'+x.meta+'</small></span><span class="download-choice-status">'+
-      (current===x.id?t('downloadsSelected'):t('downloadsComingSoon'))+'</span></a>';
+  const distroCards='<div class="download-choice-grid">'+distros.map(x=>
+    '<a class="download-choice-card download-distro-card" href="#/desktop?os=linux&distro='+x.id+'">'+
+    '<span><strong>'+x.name+'</strong><small>'+x.meta+'</small></span><span class="download-choice-status">'+icon('arrow',16)+'</span></a>'
+  ).join('')+'</div>';
+  const optionCards=options.length?'<div class="download-choice-grid">'+options.map(x=>{
+    const target=os==='linux'?'#/desktop?os=linux&distro='+distro+'&version='+encodeURIComponent(x.id):
+      '#/desktop?os='+os+'&version='+encodeURIComponent(x.id);
+    return '<a class="download-choice-card" href="'+target+'"><span><strong>'+x.label+'</strong><small>'+x.meta+'</small></span>'+
+      '<span class="download-choice-status">'+icon('arrow',16)+'</span></a>';
   }).join('')+'</div>':'';
-  const pending=selectedVersion?'<aside class="download-build-note"><span class="download-note-icon">'+icon('info',19)+'</span><div>'+
-    '<strong>'+t('downloadsBuildPending')+'</strong><p>'+t('downloadsBuildNotReady')+'</p>'+
-    (selectedVersion.legacy?'<p class="download-legacy-note">'+t('downloadsWindowsLegacy')+'</p>':'')+
-    (os==='ios'||os==='android'?'<p>'+t('downloadsMobileNote')+'</p>':'')+
-    '<span class="download-status-pill">'+t('downloadsPreparing')+'</span></div></aside>':'';
-  const panel=platform?'<section class="download-panel"><div class="download-panel-head"><div>'+
-    '<div class="smallcaps">'+t('downloadsSelected')+'</div><h2>'+platform.symbol+' '+platform.label+
-    (selectedDistro?' <span>· '+selectedDistro.name+'</span>':'')+'</h2><p>'+platform.desc+'</p></div>'+
-    '<a class="download-reset" href="#/downloads">'+t('downloadsAllSystems')+'</a></div>'+
-    (os==='linux'&&!selectedDistro?'<h3>'+t('downloadsChooseDistro')+'</h3>': '')+distroCards+
-    (os==='linux'&&selectedDistro?'<h3>'+t('downloadsChooseVersion')+'</h3>':'')+
-    (os!=='linux'?'<h3>'+t('downloadsChooseVersion')+'</h3>':'')+optionCards+pending+'</section>':'';
-  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('downloadsNav')+'</span></div>'+
-    '<section class="downloads-hero"><div class="downloads-hero-glow"></div><div class="smallcaps">AURVEX · DOWNLOADS</div>'+
-    '<h1>'+t('downloadsTitle')+'</h1><p>'+t('downloadsIntro')+'</p><span class="downloads-live-chip">'+icon('shield',15)+' '+t('downloadsPreparing')+'</span></section>'+
-    '<section class="downloads-section"><div class="downloads-section-head"><div><span class="smallcaps">'+t('downloadsPlatformLabel')+'</span>'+
-    '<h2>'+t('downloadsChoosePlatform')+'</h2></div></div><div class="download-os-grid">'+systemCards+'</div></section>'+panel;
+  const commands='cd ~/Downloads\nchmod +x '+launcherFile+'\n./'+launcherFile;
+  const linuxDownload='<section class="linux-launcher-download"><div class="linux-download-mark">'+icon('laptop',25)+'</div>'+
+    '<div class="linux-download-copy"><span class="smallcaps">'+esc(launcherT('fileType'))+'</span><h3>'+esc(launcherT('installTitle'))+'</h3>'+
+    '<p>'+esc(launcherT('installText'))+'</p><span class="download-status-pill">'+esc(launcherT('version'))+'</span></div>'+
+    '<div class="linux-download-actions"><a class="btn btn-primary" href="./desktop/updates/'+launcherFile+'" download>'+icon('arrow',16)+' '+esc(launcherT('download'))+'</a>'+
+    '<button class="btn btn-outline" type="button" data-action="copy-launcher-command">'+icon('copy',16)+' '+esc(launcherT('copy'))+'</button></div>'+
+    '<pre><code data-launcher-command>'+esc(commands)+'</code></pre><p class="download-sha"><strong>'+esc(launcherT('shaLabel'))+':</strong> '+
+    '<code>74bf8f367b2058711f0f2329c7961369aee59a4c8070aa249b6e82f0da7e526b</code></p></section>';
+  let stage='';
+  if(!platform){stage=''}else if(selectedVersion){
+    stage='<section class="download-release-detail"><div class="download-release-check">'+icon('shield',22)+'</div>'+
+      '<span class="smallcaps">'+t('downloadsSelected')+'</span><h2>'+selectedVersion.label+'</h2><p>'+selectedVersion.meta+'</p>'+
+      '<aside class="download-build-note"><span class="download-note-icon">'+icon('info',19)+'</span><div>'+
+      '<strong>'+t('downloadsBuildPending')+'</strong><p>'+t('downloadsBuildNotReady')+'</p>'+
+      (selectedVersion.legacy?'<p class="download-legacy-note">'+t('downloadsWindowsLegacy')+'</p>':'')+
+      ((os==='ios'||os==='android')?'<p>'+t('downloadsMobileNote')+'</p>':'')+
+      '<span class="download-status-pill">'+t('downloadsPreparing')+'</span></div></aside></section>';
+  }else if(os==='linux'&&selectedDistro){
+    stage='<section class="download-stage"><div class="download-stage-head"><span class="smallcaps">'+t('downloadsChooseVersion')+
+      '</span><h2>'+selectedDistro.name+'</h2><p>'+selectedDistro.meta+'</p></div>'+optionCards+'</section>';
+  }else if(os==='linux'){
+    stage='<section class="download-stage"><div class="download-stage-head"><span class="smallcaps">'+t('downloadsChooseDistro')+
+      '</span><h2>'+platform.label+'</h2><p>'+platform.desc+'</p></div>'+distroCards+'</section>';
+  }else{
+    stage='<section class="download-stage"><div class="download-stage-head"><span class="smallcaps">'+t('downloadsChooseVersion')+
+      '</span><h2>'+platform.label+'</h2><p>'+platform.desc+'</p></div>'+optionCards+'</section>';
+  }
+  const backUrl=!platform?'#/':selectedVersion?(os==='linux'?'#/desktop?os=linux&distro='+distro:'#/desktop?os='+os):
+    '#/desktop';
+  const backLabel=!platform?t('home'):selectedVersion?(os==='linux'?(selectedDistro?.name||t('downloadsLinux')):platform.label):t('downloadsAllSystems');
+  const screen=platform?
+    '<div class="download-screen-toolbar"><a class="download-back" href="'+backUrl+'">'+icon('arrow',16)+' '+backLabel+'</a>'+
+    '<span>'+t('downloadsSelected')+'</span></div>'+
+    '<section class="download-platform-hero"><div class="download-platform-icon">'+platform.symbol+'</div><div class="download-platform-heading">'+
+    '<span class="smallcaps">AURVEX · '+platform.label+'</span><h1>'+(selectedVersion?selectedVersion.label:(selectedDistro?selectedDistro.name:platform.label))+'</h1>'+
+    '<p>'+(selectedVersion?selectedVersion.meta:(selectedDistro?selectedDistro.meta:platform.desc))+'</p></div>'+
+    '<span class="download-platform-status">'+icon('shield',15)+' '+t('downloadsPreparing')+'</span></section>'+
+    (selectedVersion?(os==='linux'?linuxDownload:stage):(stage+(os==='windows'?'<p class="download-legacy-note">'+t('downloadsWindowsLegacy')+'</p>':'')))
+    :'<section class="downloads-hero launcher-downloads-hero"><div class="downloads-hero-glow"></div>'+
+    '<div class="smallcaps">'+esc(launcherT('eyebrow'))+'</div><h1>'+esc(launcherT('title'))+'</h1><p>'+esc(launcherT('intro'))+
+    '</p><span class="downloads-live-chip">'+icon('shield',15)+' '+t('downloadsPreparing')+'</span></section>'+
+    '<section class="downloads-section launcher-os-section"><div class="downloads-section-head"><div>'+
+    '<span class="smallcaps">'+t('downloadsPlatformLabel')+'</span><h2>'+t('downloadsChoosePlatform')+'</h2></div></div>'+
+    '<div class="download-os-grid">'+systemCards+'</div></section>';
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+esc(launcherT('nav'))+'</span></div>'+
+    '<main class="launcher-downloads">'+screen+'</main>';
 }
-
 function wishlistButton(){return '<button class="heart-btn'+(state.wished?' is-saved':'')+'" type="button" data-action="wishlist" aria-pressed="'+String(state.wished)+'" aria-label="'+t(state.wished?'removeWish':'addWish')+'" title="'+t(state.wished?'removeWish':'addWish')+'">'+icon('heart',17)+'</button>'}
 function gameCard(){
   return '<article class="game-card"><a href="#/game/devive" class="game-cover"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"><span class="cover-label">'+t('twoD')+'</span><span class="cover-logo">DEVIVE</span></a>'+
@@ -1531,8 +1546,8 @@ function render(keepScroll=false){
   document.documentElement.dataset.theme=state.theme;
   let page;
   if(route.path==='/')page=home();
-  else if(route.path==='/desktop')page=desktopPage();
-   else if(route.path==='/downloads')page=downloadsPage(route);
+  else if(route.path==='/desktop')page=desktopPage(route);
+   
   else if(route.path==='/game/devive')page=gamePage();
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
   else if(route.path==='/saved')page=savedPage();
