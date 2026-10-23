@@ -1875,6 +1875,9 @@ test('Game Library fills the viewport, scrolls only its item list, and uses them
  assert.ok(ui.includes("data?.apps)?data.apps:Array.isArray(data?.programs)?data.programs"),'Library accepts app records from the server');
  assert.ok(ui.includes("current.map(listRow)"),'Games and apps share one rendered list');
  assert.ok(!ui.includes("steam-content-section"),'Separate content sections are removed');
+ assert.ok(!ui.includes('<small>${esc(app?t(\'appsLabel\'):recent)}</small>'),'Library rows show only icon and name');
+ assert.ok(css.includes('min-height:38px;padding:3px 6px'),'Library rows stay compact');
+ assert.ok(css.includes('width:30px;height:30px'),'Library icons stay compact');
  for(const emptyCopy of ["noItems:'No games or apps","noItems:'У бібліотеці поки немає ігор або програм","noItems:'W bibliotece nie ma jeszcze gier ani aplikacji","noItems:'Noch keine Spiele oder Apps"]){
   assert.ok(ui.includes(emptyCopy),emptyCopy);
  }
