@@ -83,7 +83,7 @@ test('saved projects and selected languages persist in rendered UI',()=>{
   assert.equal(theme,'light');
   assert.ok(html.includes('Devive'));
   assert.ok(html.includes(translations.uk.savedTitle));
-  assert.ok(render('#/about','de').html.includes(translations.de.roadmap5));
+  assert.ok(!render('#/about','de').html.includes(translations.de.roadmap5));
   assert.ok(render('#/game/devive','pl').html.includes(translations.pl.share));
 });
 
@@ -195,17 +195,18 @@ test('filter parameters prefill the Browse Store controls and escape search inpu
 
 
 
-test('MORE section links to Team and Support the Team without removing About',()=>{
+test('MORE section links to Team and Support the Team with About removed',()=>{
   const html=render('#/').html;
   const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
   assert.ok(sidebar.includes('href="#/team"'));
   assert.ok(sidebar.includes('href="#/support"'));
-  assert.ok(sidebar.includes('href="#/about"'));
+  assert.ok(!sidebar.includes('href="#/about"'));
   const more=sidebar.split('<div class="side-label">'+translations.en.more+'</div>')[1]?.split('</div>')[0]||'';
   assert.ok(more.includes('href="#/team"'));
   assert.ok(more.includes('href="#/support"'));
   assert.ok(more.indexOf('href="#/team"')<more.indexOf('href="#/support"'));
-  assert.ok(more.indexOf('href="#/support"')<more.indexOf('href="#/about"'));
+  assert.ok(!more.includes('href="#/about"'));
+  assert.ok(!html.includes('href="#/about"'));
   assert.ok(html.includes('href="#/team"'));
   assert.ok(html.includes('href="#/support"'));
 });
