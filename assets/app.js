@@ -14,6 +14,7 @@ const state={
   query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview',profileNicknameDraft:null,profileNicknameOwner:''
 };
 let toastTimer=0;
+let notificationsOpen=false;
 const pathIcons={
  home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
  compass:'<circle cx="12" cy="12" r="9"/><path d="m15 9-2.2 5.2L9 15l2.2-5.2z"/>',
