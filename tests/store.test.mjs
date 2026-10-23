@@ -47,10 +47,10 @@ test('complete localized strings across the four supported languages',()=>{
 });
 
 test('store assets and referenced images exist',()=>{
-  for(const file of ['devive-scene.svg','devive-interior.svg','devive-hallway.svg','favicon.svg']){
+  for(const file of ['devive-scene.svg','devive-interior.svg','devive-hallway.svg','favicon-cosmic-red.svg']){
     assert.ok(existsSync(new URL('../assets/'+file,import.meta.url)),'Missing '+file);
   }
-  for(const target of ['assets/site.css','assets/app.js','assets/favicon.svg'])assert.ok(index.includes(target));
+  for(const target of ['assets/site.css','assets/app.js','assets/favicon-cosmic-red.svg'])assert.ok(index.includes(target));
   assert.ok(css.includes('@media(max-width:560px)'),'Missing compact mobile styling');
   assert.ok(css.includes('@media(prefers-reduced-motion:reduce)'),'Respect reduced motion');
 });
@@ -735,7 +735,7 @@ test('Only 2FA users can see inbox and online preference',()=>{
  assert.ok(!googleOnly.includes('data-social37-action="read"'));
 });
 
-test('Notifications include actionable friend requests and link-only family invitations',()=>{
+test('Notifications include actionable friend requests while online visibility stays in Profile',()=>{
  const a='44444444-4444-4444-8444-444444444444',b='55555555-5555-4555-8555-555555555555';
  const auth={user:{id:'33333333-3333-4333-8333-333333333333'},mfaVerified:true};
  const v={
@@ -752,7 +752,7 @@ test('Notifications include actionable friend requests and link-only family invi
   assert.ok(html.includes('data-social37-action="open-invite"'));
   assert.ok(html.includes('data-social37-action="read"'));
   assert.ok(html.includes('href="#/friends"'));
-  assert.ok(html.includes('data-social37-action="visibility"'));
+  assert.ok(!html.includes('data-social37-action="visibility"'));
   assert.ok(!html.includes('data-social37-action="family-join"'));
  }
 });
@@ -1105,6 +1105,7 @@ test('Profile has Overview and Links, Wishlist visibility in Overview, no Appear
   const start=html.indexOf('id="profile-panel-overview"'),end=html.indexOf('id="profile-panel-links"');
   assert.ok(start>=0&&end>start);
   assert.ok(html.slice(start,end).includes('id="wishlist-privacy-form"'));
+  assert.ok(html.slice(start,end).includes('data-social37-action="visibility"'));
   assert.ok(!html.slice(end).includes('name="wishlist_public"'));
  }
 });
