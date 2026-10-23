@@ -114,6 +114,12 @@ export async function getOwnWishlist(userId){
   if(error)throw error;
   return !!data;
 }
+export async function claimDeviveToLibrary(){
+  const client=await idClient();
+  const {data,error}=await client.rpc('aurvex_claim_devive');
+  if(error)throw error;
+  return data;
+}
 export function subscribeOwnWishlist(userId,onChange){
   let channel=null;
   let closed=false;
