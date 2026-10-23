@@ -1842,3 +1842,27 @@ test('Custom status writes require server auth/MFA and server-controlled expirat
  const profile=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
  assert.ok(profile.includes('profile_status_text,profile_status_emoji,profile_status_expires_at'));
 });
+
+
+test('Game Library fills its page, keeps filters and collections beside the game list, and has no milestones',()=>{
+ const ui=readFileSync(new URL('../assets/library-ui.js',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../assets/library-steam.css',import.meta.url),'utf8');
+ for(const fragment of ['steam-empty-library','steam-game-column','steam-filter-group',
+   'steam-category-list','steam-game-list-head',"navItem('installed'",'noCollections']){
+  assert.ok(ui.includes(fragment),fragment);
+ }
+ assert.ok(!ui.includes('steam-achievements'));
+ assert.ok(!ui.includes('steam-detail-achievements'));
+ assert.ok(css.includes('min-height:calc(100vh - 118px)'));
+ assert.ok(css.includes('grid-template-columns:minmax(0,1fr) minmax(272px,320px)'));
+ assert.ok(!css.includes('.steam-rail{'));
+ assert.ok(css.includes('--sl-accent:var(--accent'));
+ for(const entry of [
+  ['en','No collections yet. Create one to organize your games.'],
+  ['uk','Колекцій ще немає. Створи першу, щоб упорядкувати ігри.'],
+  ['pl','Nie masz jeszcze kolekcji. Utwórz pierwszą, aby uporządkować gry.'],
+  ['de','Noch keine Sammlungen. Erstelle eine, um deine Spiele zu ordnen.']
+ ]){
+  assert.ok(ui.includes("noCollections:'"+entry[1]+"'"),entry[0]);
+ }
+});
