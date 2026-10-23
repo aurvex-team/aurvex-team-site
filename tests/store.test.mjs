@@ -1844,29 +1844,24 @@ test('Custom status writes require server auth/MFA and server-controlled expirat
 });
 
 
-test('Game Library is compact, starts with no game selected, and offers a games/apps content picker',()=>{
+test('Game Library fills the viewport, scrolls only its item list, and uses themed selectors',()=>{
  const ui=readFileSync(new URL('../assets/library-ui.js',import.meta.url),'utf8');
  const css=readFileSync(new URL('../assets/library-steam.css',import.meta.url),'utf8');
- for(const fragment of ['steam-empty-library','steam-game-column','data-content-kind="games"',
-   'data-content-kind="apps"','chooseGame','noApps','browseApps']){
+ const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
+ for(const fragment of ['data-content-kind="games"','data-content-kind="apps"',
+   'data-sort-choice="recent"','data-sort-choice="name"','data-sort-choice="playtime"',
+   'steam-empty-library','document.addEventListener(\'aurvex:auth-changed\'']){
   assert.ok(ui.includes(fragment),fragment);
  }
- assert.ok(!ui.includes('steam-achievements'));
- assert.ok(!ui.includes('steam-detail-achievements'));
+ assert.ok(!ui.includes('steam-library-top'));
+ assert.ok(!ui.includes('steam-library-stats'));
+ assert.ok(!ui.includes('<select data-sort>'));
  assert.ok(!ui.includes('steam-game-progress'));
  assert.ok(!ui.includes('steam-collection-select'));
  assert.ok(!ui.includes('steam-icon-button'));
- assert.ok(!ui.includes('steam-category-list'));
- assert.ok(!ui.includes('steam-filter-group'));
- assert.ok(!ui.includes("t('details')"));
  assert.ok(ui.includes("selected=''"));
- assert.ok(css.includes('max-width:1280px'));
- assert.ok(css.includes('steam-content-picker'));
- assert.ok(css.includes('grid-template-columns:minmax(0,1fr) minmax(272px,320px)'));
- assert.ok(!css.includes('.steam-rail{'));
- for(const entry of [
-  ['en','Apps'],['uk','Програми'],['pl','Aplikacje'],['de','Apps']
- ]){
-  assert.ok(ui.includes("appsLabel:'"+entry[1]+"'"),entry[0]);
- }
+ assert.ok(app.includes("document.body.classList.toggle('library-fullscreen',route.path==='/library')"));
+ assert.ok(css.includes('body.library-fullscreen{height:100dvh;overflow:hidden'));
+ assert.ok(css.includes('body.library-fullscreen .steam-game-rows{flex:1;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto'));
+ assert.ok(css.includes('steam-sort-picker'));
 });
