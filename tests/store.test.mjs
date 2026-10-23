@@ -87,6 +87,21 @@ test('saved projects and selected languages persist in rendered UI',()=>{
   assert.ok(render('#/game/devive','pl').html.includes(translations.pl.share));
 });
 
+test('Devive can be added to the library and disappears from the wishlist when owned',()=>{
+  const signedIn={user:{id:'test-user'},mfaVerified:true,ownedGameIds:[]};
+  const browse=render('#/browse',null,false,null,signedIn).html;
+  assert.ok(browse.includes('data-action="claim-devive"'));
+  assert.ok(browse.includes(translations.en.addToLibrary));
+
+  const owned={...signedIn,ownedGameIds:['devive']};
+  const details=render('#/game/devive',null,true,null,owned).html;
+  assert.ok(details.includes(translations.en.inLibrary));
+  assert.ok(!details.includes('data-action="wishlist"'));
+  assert.ok(!details.includes(translations.en.addWish));
+  const wishlist=render('#/saved',null,true,null,owned).html;
+  assert.ok(!wishlist.includes('class="game-card"'));
+});
+
 test('catalog input is escaped and no fake checkout is available',()=>{
   const html=render('#/browse?q=%3Cscript%3E').html;
   assert.ok(html.includes('&lt;script&gt;'));
