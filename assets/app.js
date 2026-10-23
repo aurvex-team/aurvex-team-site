@@ -1533,6 +1533,7 @@ function footer(){
 function render(keepScroll=false){
   const pos=window.scrollY;
   const route=routeInfo();route.path=safeRoute(route.path);
+  document.body.classList.toggle('library-fullscreen',route.path==='/library');
   document.documentElement.lang=state.language;
   document.documentElement.dataset.theme=state.theme;
   let page;
