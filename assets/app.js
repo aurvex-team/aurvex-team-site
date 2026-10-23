@@ -185,7 +185,7 @@ function navLink(route,key,ico,path,counter){
 function notificationPopover(){
  const social=window.AURVEX_SOCIAL37||{},notes=Array.isArray(window.AURVEX_SOCIAL37?.notifications)?window.AURVEX_SOCIAL37.notifications:[];
  const unread=notes.filter(n=>!n.read).length;
- const items=notes.length?notes.map(n=>{
+ const items=notificationsOpen?(notes.length?notes.map(n=>{
   const family=n.kind==='family_invite';
   const avatar=n.avatarUrl?'<img src="'+esc(n.avatarUrl)+'" alt="">':icon('user',19);
   const actor=esc(n.nickname||t('friendsUnknown'));
@@ -201,7 +201,7 @@ function notificationPopover(){
     '<a class="notification-popover-action" href="#/friends">'+t('social37OpenFriends')+'</a>')+
    (!n.read?'<button type="button" class="notification-popover-read" data-social37-action="read" data-notification-id="'+esc(n.id)+'" title="'+t('social37Read')+'" aria-label="'+t('social37Read')+'"'+(social.busy?' disabled':'')+'>'+icon('check',14)+'</button>':'')+
    '</div></div></article>';
- }).join(''):'<div class="notification-popover-empty">'+icon('bell',23)+'<strong>'+t('social37Empty')+'</strong></div>';
+ }).join(''):'<div class="notification-popover-empty">'+icon('bell',23)+'<strong>'+t('social37Empty')+'</strong></div>':'');
  return '<section class="notification-popover" id="notifications-popover" role="dialog" aria-label="'+t('social37Nav')+'"'+(notificationsOpen?'':' hidden')+'>'+
   '<header class="notification-popover-header"><div><span class="smallcaps">AURVEX / SOCIAL</span><h2>'+t('social37Nav')+
   (notes.length?'<span class="notification-popover-count">'+notes.length+'</span>':'')+'</h2></div>'+
