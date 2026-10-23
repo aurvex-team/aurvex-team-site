@@ -171,7 +171,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards' ,'/saved','/team','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards' ,'/saved','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -231,8 +231,6 @@ function sidebar(path){
       navLink('/friends','friendsNav','users',path,
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/chat','chatNav','message',path)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
-    '<div class="side-group"><div class="side-label">'+t('more')+'</div>'+
-      navLink('/team','team','layers',path)+'</div>'+
     '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
     '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
 }
@@ -607,21 +605,6 @@ function savedPage(){
     heading('savedTitle','savedSub','savedKicker')+
     (state.wished?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
     '<div class="saved-banner">'+icon('shield',20)+t(window.AURVEX_ID?.user?'idWishlistSync':'localOnly')+'</div>';
-}
-function teamPage(){
-  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('team')+'</span></div>'+
-    '<section class="team-hero"><div class="team-hero-copy"><div class="smallcaps">'+t('teamEyebrow')+'</div>'+
-      '<h1>'+t('teamTitle')+'</h1><p>'+t('teamIntro')+'</p>'+
-      '<div class="team-hero-actions"><a class="btn btn-accent team-join-btn" href="https://discord.gg/KWD2rfy2Vh" target="_blank" rel="noopener noreferrer" aria-label="'+t('teamJoin')+' — Discord">'+
-        icon('arrowUp',17)+' '+t('teamJoin')+'</a>'+
-      '<a class="btn btn-soft" href="#/game/devive">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div>'+
-      '<p class="team-join-hint">'+t('teamJoinHint')+'</p></div>'+
-      '<div class="team-art" aria-hidden="true"><div class="team-orbit team-orbit-first"></div><div class="team-orbit team-orbit-second"></div>'+
-        '<div class="team-symbol">A</div><div class="team-symbol-badge badge-one">'+icon('gamepad',25)+'</div>'+
-        '<div class="team-symbol-badge badge-two">'+icon('sparkle',25)+'</div><div class="team-symbol-badge badge-three">'+icon('laptop',25)+'</div></div></section>'+
-    '<section class="team-project"><div class="team-project-image"><img src="'+sceneUrl+'" loading="lazy" alt="'+esc(t('conceptArtwork'))+'"></div>'+
-      '<div class="team-project-content"><span class="smallcaps">'+t('heroTag')+'</span><h2>'+t('teamWorkTitle')+'</h2>'+
-      '<p>'+t('teamWorkCopy')+'</p><a href="#/game/devive" class="btn btn-outline">'+t('teamVisitGame')+' '+icon('arrow',15)+'</a></div></section>';
 }
 function mfaGatePage(auth){
   const enrollment=auth.mfaEnrollment||null;
@@ -1451,21 +1434,31 @@ function familyPage(route){
       t('familyLeave')+'</button>')+'</section></div>';
 }
 
-function socialNotificationsPage(){
+function socialNotificationsPage(route){
   const auth=window.AURVEX_ID||{}, social=window.AURVEX_SOCIAL37||{};
   if(!auth.user||!auth.mfaVerified)return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('social37Nav')+'</div>'+
     '<section class="friends-lock"><div class="friends-lock-icon">'+icon('shield',36)+'</div><h1>'+t('social37Title')+'</h1>'+
       '<p>'+t('social37Login')+'</p><a class="btn btn-primary" href="#/id">'+t('friendsOpenProfile')+'</a></section>';
   const notes=Array.isArray(social.notifications)?social.notifications:[],blocked=Array.isArray(social.blocked)?social.blocked:[];
   const unread=notes.filter(n=>!n.read).length;
+  const familyNotes=notes.filter(n=>n.kind==='family_invite'),friendNotes=notes.filter(n=>n.kind!=='family_invite');
+  const filterValues=['all','unread','friends','family'];
+  const requested=route?.params?.get('filter')||'all';
+  const filter=filterValues.includes(requested)?requested:'all';
+  const visible=notes.filter(n=>filter==='unread'?!n.read:filter==='friends'?n.kind!=='family_invite':filter==='family'?n.kind==='family_invite':true);
+  const counts={all:notes.length,unread,friends:friendNotes.length,family:familyNotes.length};
+  const labels={all:t('social37AllFilter'),unread:t('social37UnreadFilter'),friends:t('social37FriendsFilter'),family:t('social37FamilyFilter')};
+  const filters=filterValues.map(key=>'<a class="notification-filter'+(filter===key?' active':'')+'" href="#/notifications?filter='+key+'"'+(filter===key?' aria-current="page"':'')+'>'+
+    '<span>'+labels[key]+'</span><span class="notification-filter-count">'+counts[key]+'</span></a>').join('');
   const msg=social.status?'<div class="friends-alert'+(social.error?' friends-error':'')+'" role="status">'+t(social.status)+'</div>':'';
-  const entries=notes.map(n=>{
+  const entries=visible.map(n=>{
     const family=n.kind==='family_invite',uid=esc(n.actor_id),nid=esc(n.id),avatar=n.avatarUrl?
       '<img src="'+esc(n.avatarUrl)+'" alt="">':icon('user',24);
     const title=family?'social37FamilyInvite':'social37FriendRequest';
     return '<article class="social-notification'+(n.read?' is-read':' is-unread')+'">'+
       '<div class="friends-avatar">'+avatar+'</div><div class="social-notification-copy">'+
-      '<strong><a href="#/player/'+uid+'">'+esc(n.nickname||t('friendsUnknown'))+'</a></strong>'+
+      '<div class="notification-item-heading"><strong><a href="#/player/'+uid+'">'+esc(n.nickname||t('friendsUnknown'))+'</a></strong>'+
+      (!n.read?'<span class="notification-unread-badge">'+t('social37Unread')+'</span>':'')+'</div>'+
       '<p>'+t(title)+'</p><div class="social-notification-actions">'+
       (family?'<button type="button" class="btn btn-accent" data-social37-action="open-invite" data-notification-id="'+nid+'"'+(social.busy?' disabled':'')+'>'+
        icon('home',15)+' '+t('social37OpenInvite')+'</button>':
@@ -1474,33 +1467,38 @@ function socialNotificationsPage(){
        icon('check',14)+' '+t('social37Read')+'</button>':'')+
       '</div></div></article>';
   }).join('');
+  const emptyMessage=filter==='unread'?t('social37CaughtUp'):(notes.length===0?t('social37Empty'):t('social37FilteredEmpty'));
+  const notificationList=entries||'<div class="notification-empty-state"><span class="empty-icon">'+icon('bell',24)+'</span><strong>'+emptyMessage+'</strong></div>';
   const blockedList=blocked.length?blocked.map(b=>'<div class="friends-player">'+
     '<div class="friends-player-info"><strong>'+esc(b.nickname||t('friendsUnknown'))+'</strong></div>'+
     '<button type="button" class="btn btn-outline" data-social37-action="unblock" data-player-id="'+esc(b.id)+'"'+(social.busy?' disabled':'')+'>'+
       icon('ban',14)+' '+t('social37Unblock')+'</button></div>').join(''):
     '<div class="friends-empty">'+t('social37BlockedEmpty')+'</div>';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('social37Nav')+'</span></div>'+
-    '<header class="friends-hero"><div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('social37Title')+'</h1>'+
-      '<p>'+t('social37Lead')+'</p><div class="friends-stats"><span>'+icon('bell',17)+' '+unread+' '+t('social37Unread')+'</span></div></header>'+msg+
-    '<div class="social-notifications-layout"><div class="social-notifications-main"><section class="friends-panel">'+
-      '<h2>'+t('social37Nav')+'</h2>'+
-      (entries||'<div class="friends-empty">'+icon('bell',24)+' '+t('social37Empty')+'</div>')+
+    '<header class="friends-hero notifications-hero"><div class="smallcaps">AURVEX SOCIAL</div><h1>'+t('social37Title')+'</h1>'+
+      '<p>'+t('social37Lead')+'</p><div class="notification-hero-stats"><span><strong>'+notes.length+'</strong> '+t('social37AllFilter')+'</span>'+
+      '<span><strong>'+unread+'</strong> '+t('social37Unread')+'</span></div></header>'+msg+
+    '<div class="social-notifications-layout"><div class="social-notifications-main"><section class="friends-panel notifications-panel">'+
+      '<div class="notifications-toolbar"><nav class="notification-filters" aria-label="'+t('social37Nav')+'">'+filters+'</nav>'+
+      (unread?'<button type="button" class="btn btn-outline notification-mark-all" data-social37-action="read-all"'+(social.busy?' disabled':'')+'>'+
+        icon('check',15)+' '+t('social37MarkAll')+'</button>':'<span class="notification-caught-up">'+icon('check',14)+' '+t('social37CaughtUp')+'</span>')+
+      '</div><div class="notifications-list">'+notificationList+'</div>'+
       '<p class="social-muted">'+t('social37FamilyInvitationHelp')+'</p></section></div>'+
-      '<aside class="social-notification-settings"><section class="friends-panel">'+
+      '<aside class="social-notification-settings"><section class="friends-panel notification-privacy-panel">'+
         '<div class="smallcaps">'+t('social37Settings')+'</div><h2>'+t('social37Settings')+'</h2>'+
         '<label class="social-wish-toggle social37-online-control">'+
         '<input type="checkbox" data-social37-action="visibility"'+(social.showOnline?' checked':'')+(social.busy?' disabled':'')+'>'+
         '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label>'+
-       '</section><section class="friends-panel"><div class="smallcaps">'+t('social37BlockedTitle')+'</div>'+
-        '<h2>'+t('social37BlockedTitle')+'</h2><div class="friends-list">'+blockedList+'</div>'+
-        '<p class="social-muted">'+t('social37BlockedNote')+'</p></section></aside></div>';
+       '</section><details class="friends-panel social-notifications-blocked"><summary><span>'+t('social37BlockedTitle')+'</span>'+
+        '<span class="notification-filter-count">'+blocked.length+'</span></summary><div class="friends-list">'+blockedList+'</div>'+
+        '<p class="social-muted">'+t('social37BlockedNote')+'</p></details></aside></div>';
 }
 function footer(){
   const year=new Date().getFullYear();
   return '<footer class="footer"><div class="footer-inner"><div><h3>AURVEX<span style="color:var(--accent)">.</span></h3>'+
     '<p>'+t('footerTag')+'</p></div><div class="footer-links"><a href="#/browse">'+t('footerExplore')+'</a>'+
     '<a href="#/games">'+t('games')+'</a><a href="#/apps">'+t('apps')+'</a>'+
-    '<a href="#/desktop">'+esc(launcherT('nav'))+'</a><a href="#/team">'+t('team')+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
+    '<a href="#/desktop">'+esc(launcherT('nav'))+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
     '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a></div></footer>';
 }
 function render(keepScroll=false){
@@ -1515,7 +1513,6 @@ function render(keepScroll=false){
   else if(route.path==='/game/devive')page=gamePage();
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
   else if(route.path==='/saved')page=savedPage();
-  else if(route.path==='/team')page=teamPage();
   else if(route.path==='/id')page=idPage(route);
   else if(route.path==='/shop')page=shopPage();
   else if(route.path==='/balance')page=balancePage();
@@ -1525,11 +1522,11 @@ function render(keepScroll=false){
   else if(route.path==='/library')page='<section id="aurvex-library" class="library-page"></section>';
   else if(route.path==='/friends')page=friendsPage();
   else if(route.path==='/chat')page=communityChatPage();
-  else if(route.path==='/notifications')page=socialNotificationsPage();
+  else if(route.path==='/notifications')page=socialNotificationsPage(route);
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/team'?t('team'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/chat'?t('chatNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/chat'?t('chatNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
