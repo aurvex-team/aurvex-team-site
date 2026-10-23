@@ -630,7 +630,7 @@ function savedPage(){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('saved')+'</div>'+
     heading('savedTitle','savedSub','savedKicker')+
     (state.wished&&!isDeviveOwned()?'<div class="catalog-results">'+gameCard()+'</div>':'<div class="empty-state"><div class="empty-icon">'+icon('heart',30)+'</div><h3>'+t('savedEmpty')+'</h3><p>'+t('savedEmptyDesc')+'</p><a href="#/browse" class="btn btn-accent">'+t('exploreStore')+' '+icon('arrow',15)+'</a></div>')+
-    '<div class="saved-banner">'+icon('shield',20)+t(window.AURVEX_ID?.user?'idWishlistSync':'localOnly')+'</div>';
+    (window.AURVEX_ID?.user?'':'<div class="saved-banner">'+icon('shield',20)+t('idWishlistSync')+'</div>');
 }
 function mfaGatePage(auth){
   const enrollment=auth.mfaEnrollment||null;
