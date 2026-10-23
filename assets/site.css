@@ -1963,3 +1963,22 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
  .notification-item-heading{align-items:flex-start}
  .social-notifications-main .friends-panel{padding:15px}
 }
+
+.btn-primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.btn-primary:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover);color:#fff}
+.btn-accent{color:#fff}
+.notifications-auth-gate{
+ max-width:590px;margin:clamp(28px,8vh,88px) auto;padding:clamp(24px,5vw,42px);
+ text-align:center;border:1px solid #ff3b5e58;border-radius:23px;
+ background:radial-gradient(circle at 50% 0,#ff204728,transparent 60%),var(--surface);
+ box-shadow:0 28px 85px #25030b55
+}
+.notifications-auth-gate .friends-lock-icon{margin:0 auto 18px;color:var(--accent)}
+.notifications-auth-gate h1{margin:0 0 12px}
+.notifications-auth-gate p{max-width:390px;margin:0 auto 18px;color:var(--muted)}
+.notification-item-meta{display:inline-flex;align-items:center;justify-content:flex-end;gap:9px;flex-shrink:0}
+.notification-time{color:var(--subtle);font-size:10px;white-space:nowrap}
+@media(max-width:560px){
+ .notifications-auth-gate{margin:26px auto;padding:26px 20px}
+ .notification-item-meta{flex-wrap:wrap}
+}
