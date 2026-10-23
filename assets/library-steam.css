@@ -21,7 +21,7 @@
 
 /* Keep the game selector below the selected game and size it to its results. */
 .steam-library-layout{grid-template-columns:208px minmax(0,1fr);grid-template-rows:auto auto}
-.steam-game-column{grid-column:1/-1;grid-row:2;justify-self:center;width:min(calc(100% - 32px),max(300px,calc(var(--game-count,1)*176px + 42px)));max-width:100%;min-width:0;margin:16px 0 20px;padding:14px 16px 12px;border:1px solid #2a3b4e;border-radius:20px;background:linear-gradient(160deg,#141f2b,#101821 70%);box-shadow:0 12px 30px #0003}
+.steam-game-column{grid-column:1/-1;grid-row:2;justify-self:center;width:min(calc(100% - 32px),var(--game-width,300px));max-width:100%;min-width:0;margin:16px 0 20px;padding:14px 16px 12px;border:1px solid #2a3b4e;border-radius:20px;background:linear-gradient(160deg,#141f2b,#101821 70%);box-shadow:0 12px 30px #0003}
 .steam-game-column-head{margin:0 2px 10px}
 .steam-search{max-width:none;width:100%;border-radius:10px}
 .steam-sort{margin:8px 2px 10px}
@@ -32,5 +32,5 @@
 .steam-row-title small{font-size:9px}
 .steam-game-column .steam-list-empty{min-width:200px;padding:18px}
 @media(max-width:1120px){.steam-library-layout{grid-template-columns:180px minmax(0,1fr)}}
-@media(max-width:850px){.steam-library-layout{grid-template-columns:155px minmax(0,1fr)}.steam-game-column{grid-column:1/-1;grid-row:2;width:min(calc(100% - 24px),max(300px,calc(var(--game-count,1)*176px + 42px)))}.steam-game-rows{grid-template-columns:none}}
-@media(max-width:560px){.steam-library-layout{grid-template-columns:minmax(0,1fr)}.steam-game-column{width:min(calc(100% - 20px),max(270px,calc(var(--game-count,1)*150px + 36px)));padding:12px;border-radius:17px}.steam-game-row{flex-basis:150px;width:150px;max-width:150px}.steam-game-rows{grid-template-columns:none}}
+@media(max-width:850px){.steam-library-layout{grid-template-columns:155px minmax(0,1fr)}.steam-game-column{grid-column:1/-1;grid-row:2;width:min(calc(100% - 24px),var(--game-width,300px))}.steam-game-rows{grid-template-columns:none}}
+@media(max-width:560px){.steam-library-layout{grid-template-columns:minmax(0,1fr)}.steam-game-column{width:min(calc(100% - 20px),var(--game-width-mobile,270px));padding:12px;border-radius:17px}.steam-game-row{flex-basis:150px;width:150px;max-width:150px}.steam-game-rows{grid-template-columns:none}}
