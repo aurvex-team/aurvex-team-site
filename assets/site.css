@@ -2354,12 +2354,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .mfa-panel{width:100%;max-width:470px;justify-self:end;padding:clamp(20px,3vw,30px);border:1px solid var(--line-strong);border-radius:20px;background:color-mix(in srgb,var(--surface) 96%,#210d13);box-shadow:0 22px 70px #0006}
 .mfa-panel>.smallcaps{font-size:9px;letter-spacing:1.5px}
 .mfa-panel h2{margin:7px 0 20px;font-size:22px;letter-spacing:-.45px}
-.mfa-panel .mfa-code-form{gap:10px}
+.mfa-panel,.mfa-panel *{min-width:0}
+.mfa-panel .mfa-code-form{width:100%;max-width:100%;gap:10px}
 .mfa-panel .mfa-code-form label{color:var(--muted);font-size:11px;font-weight:750}
-.mfa-panel .mfa-code-form input{height:54px;border:1px solid var(--line-strong);border-radius:11px;background:var(--bg);font-size:22px;font-weight:800;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums}
+.mfa-panel .mfa-code-form input{display:block;width:100%;max-width:100%;height:54px;border:1px solid var(--line-strong);border-radius:11px;background:var(--bg);font-size:22px;font-weight:800;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums}
 .mfa-panel .mfa-code-form input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .mfa-panel .mfa-code-form input::placeholder{color:var(--subtle);letter-spacing:.3em}
-.mfa-panel .mfa-code-form .btn,.mfa-panel>.mfa-begin-btn{justify-content:center;min-height:45px;margin-top:3px}
+.mfa-panel .mfa-code-form .btn,.mfa-panel>.mfa-begin-btn{display:flex;width:100%;max-width:100%;min-width:0;box-sizing:border-box;justify-content:center;min-height:45px;margin-top:3px;padding-inline:12px;white-space:normal;text-align:center;line-height:1.35}
 .mfa-qr-wrap{display:grid;justify-items:center;gap:14px;margin:5px 0 17px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
 .mfa-qr-open{padding:9px!important;border:1px solid #e8dfe2!important;border-radius:10px!important;background:#fff!important}
 .mfa-qr{width:220px;height:220px;max-width:min(58vw,220px);max-height:min(58vw,220px);padding:0!important;box-shadow:none!important}
