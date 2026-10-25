@@ -322,7 +322,7 @@ test('AURVEX ID has a visible account entry, sign-in and registration screens',(
     assert.ok(signup.html.includes('data-mode="register"'));
     assert.ok(login.html.includes('id="id-email-form"'));
     assert.ok(login.html.includes('data-id-action="google"'));
-    assert.ok(login.html.includes(translations[lang].idXoni));
+    assert.ok(login.html.includes(translations[lang].idFmail));
   }
 });
 test('AURVEX ID sign-in methods are clearly gated per provider',()=>{
@@ -332,8 +332,8 @@ test('AURVEX ID sign-in methods are clearly gated per provider',()=>{
   assert.match(html,/data-id-action="google" disabled aria-disabled="true"/);// No auth model has initialized in the isolated renderer
   assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
   assert.match(html,/id="id-email-form"[^>]*data-mode="signin"/);
-  assert.ok(html.includes('id-xoni'));
-  assert.match(html,/id-xoni[^"]*" type="button" disabled/);
+  assert.ok(html.includes('id-fmail'));
+  assert.match(html,/id-fmail[^"]*" type="button" disabled/);
   assert.ok(!html.includes('href="https://discord.gg'));
 });
 test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user data',()=>{
@@ -347,7 +347,7 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
   assert.ok(/supabasePublishableKey:'sb_publishable_[A-Za-z0-9_-]+'/.test(config));
   assert.ok(config.includes("googleEnabled:true"));
   assert.ok(config.includes("emailEnabled:false"));
-  assert.ok(config.includes("xoniEnabled:false"));
+  assert.ok(config.includes("fmailEnabled:false"));
   assert.ok(ui.includes("window.AURVEX_ID=model"));
   assert.ok(ui.includes("data-id-action"));
   assert.ok(!service.includes('service_role'));
@@ -363,7 +363,7 @@ test('AURVEX ID remains isolated, publishable-only and ready for verified provid
   const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_wishlist_permissions.sql',import.meta.url),'utf8');
   assert.match(config,/googleEnabled:true/);
   assert.match(config,/emailEnabled:false/);
-  assert.match(config,/xoniEnabled:false/);
+  assert.match(config,/fmailEnabled:false/);
   assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled)'));
   assert.ok(service.includes('ignoreDuplicates:true'));
   assert.match(migration,/revoke update on public.id_wishlist from authenticated/);
@@ -386,7 +386,7 @@ test('OAuth return URL lands on AURVEX ID without a custom domain',()=>{
 });
 
 
-test('Google sign-in is enabled when the verified Google provider config loads, while email and XONI remain unavailable',()=>{
+test('Google sign-in is enabled when the verified Google provider config loads, while email and fmail remain unavailable',()=>{
   const client={configured:true,googleEnabled:true,emailEnabled:false,ready:true,busy:false,user:null,pendingEmail:''};
   for(const lang of supportedLanguages){
     const html=render('#/id',lang,false,null,client).html;
@@ -394,8 +394,8 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
     assert.ok(html.includes(translations[lang].idGoogle));
     assert.ok(!html.includes(translations[lang].idSetupTitle));
     assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
-    assert.ok(html.includes('id-xoni'));
-    assert.match(html,/id-xoni[^"]*" type="button" disabled/);
+    assert.ok(html.includes('id-fmail'));
+    assert.match(html,/id-fmail[^"]*" type="button" disabled/);
   }
 });
 
