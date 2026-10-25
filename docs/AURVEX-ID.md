@@ -1,27 +1,31 @@
 # AURVEX ID — identity architecture and setup
 
-Status: **separate Supabase project and RLS schema active; Google OAuth provider enabled in Supabase and Google sign-in frontend enabled for testing, not yet verified end-to-end**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from XONI Mail. The site contains ONLY a publishable key. Google provider and Google frontend switch are ON for testing; email and XONI frontend switches remain OFF pending verified email delivery, proper delegated authentication and end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
+Status: **separate Supabase project and RLS schema active; Google OAuth provider enabled in Supabase and Google sign-in frontend enabled for testing, not yet verified end-to-end**. Project `aurvex-id` (`zalzsgfufvppvgvqfocf`, region `eu-central-1`) is entirely separate from fmail. The site contains ONLY a publishable key. Google provider and Google frontend switch are ON for testing; email and fmail frontend switches remain OFF pending verified email delivery, proper delegated authentication and end-to-end tests. A public API key and disabled UI controls are not a replacement for configuring provider-level signup and abuse restrictions in Supabase.
+
+### fmail sign-in readiness
+
+The AURVEX profile page has a branded fmail sign-in option, but it stays disabled until a secure provider flow is available. To enable it, fmail must expose a trusted OIDC issuer with authorization-code + PKCE, stable subject IDs, signing keys/JWKS and exact callback registration. AURVEX must verify issuer, audience, signature, nonce/state and expiry on a trusted server before mapping a fmail subject to an AURVEX account. Linking requires an already authenticated AURVEX account, explicit consent and reauthentication. Never collect a fmail password in AURVEX or automatically link accounts by matching email. Keep provider credentials and verification keys on trusted server infrastructure, not in this static site.
 
 ## Ownership boundaries
 
-AURVEX ID is a NEW, independent Supabase Auth project and database. Do not reuse the existing **XONI Mail** Supabase project, Neon databases for VELTRIX/VYLOQ, or copy users/password hashes between apps. XONI Mail remains a separate service and an optional future identity provider.
+AURVEX ID is a NEW, independent Supabase Auth project and database. Do not reuse the existing **fmail** Supabase project, Neon databases for VELTRIX/VYLOQ, or copy users/password hashes between apps. fmail remains a separate service and an optional future identity provider.
 
 - AURVEX Store: the public browser client; only a public Supabase publishable key, with RLS on all per-user data.
 - AURVEX ID: Supabase Auth service issues verified session tokens and stable UUID identity; Google OAuth (authorization code + PKCE) and email one-time-code authentication.
 - AURVEX Launcher (later): trusted OIDC Authorization Code + PKCE in the system browser. The launcher must use a registered public client and NEVER embed service-role credentials or a client secret. The new Supabase Auth OAuth 2.1 server can be evaluated to act as the OIDC provider for the launcher, or a dedicated backend can validate tokens and issue an app session. Do not assume website tokens automatically authenticate a native application.
-- XONI Mail (later): must implement an independently audited, trusted OIDC identity-provider flow or equivalent server-verified delegation. A raw email address, inbox message, a client-provided "XONI token" or a password entered on AURVEX **must not** create/link an account. Only link an XONI provider subject to the *already authenticated* AURVEX user with reauthentication and explicit consent. Prevent automatic account linking by matching email addresses.
+- fmail (later): must implement an independently audited, trusted OIDC identity-provider flow or equivalent server-verified delegation. A raw email address, inbox message, a client-provided "fmail token" or a password entered on AURVEX **must not** create/link an account. Only link an fmail provider subject to the *already authenticated* AURVEX user with reauthentication and explicit consent. Prevent automatic account linking by matching email addresses.
 - Game entitlements: payment/download permissions must be granted by a trusted server after confirming legitimate transactions; never by UI/localStorage.
 
 ## Activation checklist
 
-1. ✅ Created separate project **aurvex-id**, project ref `zalzsgfufvppvgvqfocf`, under the same organization as XONI Mail; price quoted for project creation was $0/month. Region: Frankfurt (`eu-central-1`).
+1. ✅ Created separate project **aurvex-id**, project ref `zalzsgfufvppvgvqfocf`, under the same organization as fmail; price quoted for project creation was $0/month. Region: Frankfurt (`eu-central-1`).
 2. ✅ Applied `supabase/migrations/20261017_aurvex_id_core.sql` and `supabase/migrations/20261017_aurvex_id_wishlist_permissions.sql` on AURVEX ID only; verified all three RLS tables, no anon read/write access, and authenticated users cannot insert or update entitlements.
 3. In Supabase Auth configuration, set the Site URL to `https://aurvex-team.github.io/aurvex-team-site/id.html`. Allow the exact GitHub Pages return URL `https://aurvex-team.github.io/aurvex-team-site/id.html` (and optional `store.html` if used). The PKCE callback adds `?code=...` to `id.html`; configure Supabase's normal URL allowlist according to its rules. The SPA then opens `#/id` without moving code into the hash. Never redirect to an arbitrary URL from a request parameter.
 4. Configure Google provider in Google Cloud OAuth and Supabase. Restrict authorized redirect URIs to the verified Supabase callback, set correct authorized origins, consent screen and audience. Put Google **client secrets** only in Supabase/Google dashboard, never the git repo.
 5. Configure a real transactional email sender/SMTP for Supabase Auth, verified sender/domain, rate limits/CAPTCHA or equivalent anti-abuse controls. Update the Supabase email template to include \`{{ .Token }}\` to send 6-digit OTP; optionally also send \`{{ .ConfirmationURL }}\` for a magic link. Test both sign-in and registration with real mailboxes. Limit email abuse/credential-stuffing using provider rate limits and monitoring; never show if a user exists.
-6. ✅ `assets/id-config.js` contains only the project URL and a Supabase `sb_publishable_` key. Keep `googleEnabled` and `emailEnabled` set to `false` until their provider flows have been tested. Do not enable signup on the public site until email abuse limits, authorized redirect URLs, and sender configuration are reviewed. The repo and deployed site are public. Do not put service-role keys, JWT secrets, Google client secrets, SMTP credentials, XONI integration keys, or PostgreSQL URLs into frontend code.
+6. ✅ `assets/id-config.js` contains only the project URL and a Supabase `sb_publishable_` key. Keep `googleEnabled` and `emailEnabled` set to `false` until their provider flows have been tested. Do not enable signup on the public site until email abuse limits, authorized redirect URLs, and sender configuration are reviewed. The repo and deployed site are public. Do not put service-role keys, JWT secrets, Google client secrets, SMTP credentials, fmail integration keys, or PostgreSQL URLs into frontend code.
 7. Test on a fresh browser/device: new OTP account, existing account, Google sign in, verification, sign out, nickname length/uniqueness, RLS between accounts, wishlist sync, loading the same account on a second computer.
-8. Enable XONI only AFTER completing the secure delegated identity protocol. It is intentionally disabled in the current frontend.
+8. Enable fmail only AFTER completing the secure delegated identity protocol. It is intentionally disabled in the current frontend.
 
 ## Current frontend structure
 
@@ -43,7 +47,7 @@ Before sign-in the user keeps their wishlist in localStorage. On a verified sign
 - Add per-user deletion/export flows, privacy notice, terms, abuse monitoring, and email recovery.
 - Use multi-factor authentication for sensitive account changes, and reauthenticate to link providers.
 - Give the future launcher tokens limited scopes with expiry, refresh-token rotation and protected local storage.
-- Never expose payment data, service keys, or private XONI messages to the client.
+- Never expose payment data, service keys, or private fmail messages to the client.
 - If enabling profile search/social features, add a separate explicitly opt-in public view — private email/profile tables should not become searchable.
 
 
@@ -64,7 +68,7 @@ These are **three different URLs with different purposes**:
 4. Enable new user signups in Supabase **only after Google is verified and tested**. If initially launching Google-only, consider disabling the Email sign-in provider until a real outbound sender exists, since an unconfigured email provider can otherwise invite abuse.
 5. ✅ The public frontend `googleEnabled` flag has been enabled **for testing** after the Google provider was enabled in Supabase. This is *not* confirmation that login works or that public signups are safe. The existing browser login code already uses Google + PKCE, and redirects back to \`id.html\`.
 6. Later, enable ordinary email signup via a **custom SMTP** provider and branded verification email. A custom DNS domain is strongly recommended for a public service, but an SMTP provider that can send from an authorized mailbox (e.g. a dedicated Gmail address with a Google app password) can be used for **small internal testing**, if the provider's terms and limits allow. Do not use a personal account for production mail. Supabase's default mailer is restricted to project-team addresses and is not suitable for public signups.
-7. XONI Mail will not authenticate via raw email strings; it needs a secure identity provider and explicit account linking.
+7. fmail will not authenticate via raw email strings; it needs a secure identity provider and explicit account linking.
 
 **Important:** AURVEX Launcher later uses its own OAuth 2.1/OIDC client registration and system-browser PKCE. The Google browser Client ID is **not** an app credential embedded in native builds.
 
@@ -86,7 +90,7 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 
 ## Player profiles, avatars, animated banners and cross-device wishlist (v3.3)
 
-- ✅ `aurvex_profile_media_realtime` migration is applied to the standalone AURVEX ID project, not XONI Mail.
+- ✅ `aurvex_profile_media_realtime` migration is applied to the standalone AURVEX ID project, not fmail.
 - ✅ `id_profiles.avatar_path` and `banner_path` are constrained to objects in the profile owner's UUID folder.
 - ✅ Supabase Storage public bucket `aurvex-profile-media` allows JPG/PNG/WebP/GIF with an 8 MiB server limit. Avatar uploads limit to 3 MiB and disallow GIF; banners support animated GIF up to 8 MiB. `storage.objects` RLS only permits the signed-in owner to insert/delete own files.
 - ✅ Public media URLs are accessible by others: users should remove GPS/EXIF and avoid uploading sensitive photos. Before shipping public social profiles, add moderation/reporting and a content policy.
@@ -134,7 +138,7 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - ⚠️ No completed payment processing, purchased inventory, gifts or launched paid games exist in AURVEX at this point. Friend Gift button deliberately displays `coming soon` and is disabled. A future checkout/gifting implementation requires payment verification webhooks, fraud controls, chargeback/refund revocation, gift acceptance, ownership policy and publisher consent. Never mark a gift delivered until purchase is proven server-side.
 - ⚠️ `aurvex_family_access` is a protected **server-side rights-query foundation**, not yet integrated with game download/play in a released AURVEX Launcher. The future launcher/backend must revalidate this access every download and launch and respect license and concurrency restrictions.
 - ⚠️ User-facing family and profile views have automated tests, but verify invitation joining, six-person capacity, preview after editing, public Wishlist privacy, and family share revocation with two or more actual test users before broader deployment.
-- Existing XONI Mail infrastructure remains completely separate.
+- Existing fmail infrastructure remains completely separate.
 
 
 ## Social Update v3.7 — friends-only presence, blocks, notifications
@@ -159,5 +163,5 @@ Google Cloud OAuth client \`AURVEX ID Web\` was created and added to Supabase. A
 - Official AURVEX CEO and Website & Launcher Developer badges can be individually hidden/unhidden in Profile Studio. Assignment never changes. Private grants were removed from the underlying title table; server RPC `aurvex_visible_titles` returns only shown badges to all visitors and `aurvex_own_titles` requires 2FA to retrieve the owner's assigned badges.
 - Appearance and badge display settings live in `id_profiles.profile_appearance` / `id_profiles.hidden_title_codes` and are only writable through existing owner-only, mandatory AAL2 RLS. Public appearance read uses `aurvex_public_appearance` and never returns private account settings.
 - Removed the redundant Friends / Family / Notifications promotional cards from the personal profile; those separate sections still exist in global navigation. Kept account management, Wishlist and 2FA card.
-- Supabase migrations: `supabase/migrations/20261018_profile_customization.sql` and `supabase/migrations/20261018_profile_titles_private.sql`; source of truth remains the AURVEX ID project, not XONI Mail.
+- Supabase migrations: `supabase/migrations/20261018_profile_customization.sql` and `supabase/migrations/20261018_profile_titles_private.sql`; source of truth remains the AURVEX ID project, not fmail.
 - Verify with two users and in two browsers: make theme changes, save, reload, open public URL, hide and unhide one badge, reorder links and change areas/alignment. Scripted tests and deployment checks don't replace manual end-to-end QA.
