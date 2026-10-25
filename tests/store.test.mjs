@@ -111,6 +111,24 @@ test('Wishlist sync notice is shown only while signed out',()=>{
   assert.ok(!signedIn.includes(translations.en.localOnly));
 });
 
+test('Guest Profile tab has a complete sign-in UI and a safely disabled fmail provider',()=>{
+ const config=readFileSync(new URL('../assets/id-config.js',import.meta.url),'utf8');
+ const idUi=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
+ for(const lang of supportedLanguages){
+  const html=render('#/id',lang).html;
+  assert.ok(html.includes('class="id-page"'),lang+': guest ID page is present');
+  assert.ok(html.includes(translations[lang].idFmail),lang+': fmail sign-in is localized');
+  assert.ok(html.includes(translations[lang].idFmailHint),lang+': fmail availability is explained');
+  assert.ok(html.includes('id-fmail-icon'),lang+': fmail button has a distinct mark');
+ }
+ assert.ok(appCode.includes('idFmail'));
+ assert.ok(appCode.includes('disabled aria-disabled="true"'),'fmail stays disabled until secure SSO is implemented');
+ assert.ok(config.includes('fmailEnabled:false'));
+ assert.ok(idUi.includes('ID_CONFIG.googleEnabled'));
+ assert.ok(css.includes('.id-page{')&&css.includes('.id-panel{'),'profile sign-in page has dedicated styling');
+ assert.ok(css.includes('@media(max-width:560px){.id-page{'),'profile sign-in layout adapts to mobile');
+});
+
 test('catalog input is escaped and no fake checkout is available',()=>{
   const html=render('#/browse?q=%3Cscript%3E').html;
   assert.ok(html.includes('&lt;script&gt;'));
