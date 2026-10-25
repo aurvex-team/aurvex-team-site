@@ -957,9 +957,9 @@ function idPage(route){
         '<button class="btn btn-primary" type="submit"'+disabledEmail+isBusy+'>'+icon('mail',17)+' '+t('idEmailAction')+'</button>'+
         '<p class="id-field-hint">'+t('idEmailHint')+'</p></form>'
     ))+
-    '<button class="id-provider-btn id-fmail" type="button" disabled aria-disabled="true"><span class="id-fmail-icon" aria-hidden="true">f</span>'+
-      '<span>'+t('idFmail')+'</span><span class="id-soon">'+t('idAvailableSoon')+'</span></button>'+
-    '<p class="id-method-note">'+t('idFmailHint')+'</p>'+
+    '<button class="id-provider-btn id-fmail" type="button" data-id-action="fmail"'+(auth.fmailEnabled?'':' disabled aria-disabled="true"')+isBusy+'><span class="id-fmail-icon" aria-hidden="true">f</span>'+
+      '<span>'+t('idFmail')+'</span><span class="id-soon">'+(auth.fmailEnabled?'→':t('idAvailableSoon'))+'</span></button>'+
+    '<p class="id-method-note">'+t(auth.fmailEnabled?'idFmailConnectedHint':'idFmailHint')+'</p>'+
     '<p class="id-mode-switch">'+t(mode==='register'?'idHaveAccount':'idNoAccountYet')+' <a href="'+(mode==='register'?'#/id':'#/id?mode=register')+'">'+t(mode==='register'?'idStartLogin':'idStartRegister')+'</a></p>'
   );
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
