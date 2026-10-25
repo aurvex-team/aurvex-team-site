@@ -3,7 +3,7 @@
 import { translations } from './i18n.js?v=20261025-810';
 import { ID_CONFIG,isIdConfigured } from './id-config.js?v=20261025-800';
 import {
- idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,
+ idClient,requestEmailCode,verifyEmailCode,beginGoogleLogin,beginFmailLogin,
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,claimDeviveToLibrary,
  getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
@@ -12,8 +12,8 @@ import {
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,mfaQrExpanded:false,
  profileTitles:[],ownedGameIds:[],claimingGame:'',
- configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled),
- emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled};
+ configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled||ID_CONFIG.fmailEnabled),
+ emailEnabled:ID_CONFIG.emailEnabled,googleEnabled:ID_CONFIG.googleEnabled,fmailEnabled:ID_CONFIG.fmailEnabled};
 window.AURVEX_ID=model;
 if(window.location.pathname.endsWith('/id.html')&&!window.location.hash)window.location.hash='#/id';
 
@@ -236,7 +236,7 @@ async function reload(){
   }
 }
 async function initialize(){
-  if(!isIdConfigured()||(!ID_CONFIG.emailEnabled&&!ID_CONFIG.googleEnabled)){
+  if(!isIdConfigured()||(!ID_CONFIG.emailEnabled&&!ID_CONFIG.googleEnabled&&!ID_CONFIG.fmailEnabled)){
     model.ready=true;notify();return;
   }
   try{
@@ -336,6 +336,12 @@ document.addEventListener('click',async function(event){
     if(!secret)return;
     try{await navigator.clipboard.writeText(secret);status('mfaSecretCopied')}
     catch{window.prompt(t('mfaManual'),secret)}
+  }else if(action==='fmail'){
+    if(!isIdConfigured()||!ID_CONFIG.fmailEnabled){status('idProviderUnavailable',true);return}
+    if(model.busy)return;
+    model.busy=true;
+    try{const {error}=await beginFmailLogin();if(error)throw error}
+    catch(error){fail(error,'idOperationError')}
   }else if(action==='google'){
     if(!isIdConfigured()||!ID_CONFIG.googleEnabled){status('idProviderUnavailable',true);return}
     if(model.busy)return;
