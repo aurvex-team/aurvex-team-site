@@ -411,6 +411,9 @@ test('Authenticator screen is calm, localized and responsive',()=>{
  assert.ok(!html.includes(translations.uk.mfaNoBackup.includes('назавжди')?'назавжди':'permanently'));
  assert.ok(css.includes('.mfa-layout{'));
  assert.ok(css.includes('.mfa-panel .mfa-code-form input{'));
+ assert.ok(css.includes('.mfa-panel,.mfa-panel *{min-width:0}'));
+ assert.ok(css.includes('width:100%;max-width:100%;min-width:0;box-sizing:border-box;justify-content:center'));
+ assert.ok(css.includes('white-space:normal;text-align:center;line-height:1.35'));
  assert.ok(css.includes('@media(max-width:560px){.mfa-layout{'));
 });
 
