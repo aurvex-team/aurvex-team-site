@@ -401,6 +401,19 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
 
 
 
+test('Authenticator screen is calm, localized and responsive',()=>{
+ const auth={configured:true,user:{id:'mfa-user'},mfaVerified:false,mfaHasFactors:true,mfaFactors:[]};
+ const html=render('#/id','uk',false,null,auth).html;
+ assert.ok(html.includes(translations.uk.mfaChallengeTitle));
+ assert.ok(html.includes(translations.uk.mfaChallengeIntro));
+ assert.ok(html.includes(translations.uk.mfaSignedIn));
+ assert.ok(!html.includes('Google OAuth'));
+ assert.ok(!html.includes(translations.uk.mfaNoBackup.includes('назавжди')?'назавжди':'permanently'));
+ assert.ok(css.includes('.mfa-layout{'));
+ assert.ok(css.includes('.mfa-panel .mfa-code-form input{'));
+ assert.ok(css.includes('@media(max-width:560px){.mfa-layout{'));
+});
+
 test('signed-in AURVEX ID renders a beautiful avatar and animated banner profile',()=>{
   const auth={
     configured:true,googleEnabled:true,emailEnabled:false,busy:false,
