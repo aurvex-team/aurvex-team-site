@@ -45,6 +45,13 @@ export async function verifyEmailCode(email,token){
   const client=await idClient();
   return client.auth.verifyOtp({email,token,type:'email'});
 }
+export async function beginFmailLogin(){
+ if(!ID_CONFIG.fmailEnabled)throw new Error('AURVEX_FMAIL_PROVIDER_NOT_ENABLED');
+ const client=await idClient();
+ return client.auth.signInWithOAuth({
+  provider:'custom:fmail',options:{redirectTo:idReturnUrl()}
+ });
+}
 export async function beginGoogleLogin(){
   const client=await idClient();
   return client.auth.signInWithOAuth({
