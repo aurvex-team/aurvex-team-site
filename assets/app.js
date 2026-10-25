@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261025-800';
+import { translations, supportedLanguages } from './i18n.js?v=20261025-810';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -665,9 +665,9 @@ function mfaGatePage(auth){
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('profileNav')+'</span></div>'+
     '<div class="mfa-layout">'+
       '<section class="mfa-cover"><div class="id-brand-pill">'+icon('shield',17)+' AURVEX ID</div>'+
-        '<div class="mfa-lock-symbol">'+icon('shield',75)+'</div>'+
+        '<div class="mfa-lock-symbol">'+icon('user',48)+'</div>'+
         '<h1>'+title+'</h1><p>'+description+'</p>'+
-        '<div class="mfa-level-row"><span>'+icon('check',17)+' Google OAuth</span>'+
+        '<div class="mfa-level-row"><span>'+icon('check',17)+' '+t('mfaSignedIn')+'</span>'+
           '<span>'+icon('shield',17)+' '+t('mfaPendingBadge')+'</span></div>'+
         '<p class="mfa-help">'+t('mfaHelp')+'</p>'+
       '</section>'+
