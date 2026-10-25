@@ -146,3 +146,11 @@ const newStarsItemStrings={
  de:{shopItem_avatar_nebula:"Nebel-Halo",shopItem_avatar_aurora:"Aurora-Glanz",shopItem_profile_solarflare:"Sonnenflare",shopItem_profile_voidglass:"Leerglas"}
 };
 for(const lang of supportedLanguages)Object.assign(translations[lang],newStarsItemStrings[lang]);
+
+const fmailConnectedStrings={
+ en:"Continue with your fmail account. Your fmail password and 2FA codes stay with fmail. AURVEX still requires its own verified 2FA.",
+ uk:"Увійдіть через свій акаунт fmail. Пароль і коди 2FA залишаються у fmail. AURVEX окремо перевіряє власну 2FA.",
+ pl:"Zaloguj się kontem fmail. Hasło i kody 2FA pozostają w fmail. AURVEX osobno wymaga weryfikacji 2FA.",
+ de:"Melde dich mit deinem fmail-Konto an. Passwort und 2FA-Codes bleiben bei fmail. AURVEX verlangt eine eigene 2FA-Bestätigung."
+};
+for(const [lang,message] of Object.entries(fmailConnectedStrings))translations[lang].idFmailConnectedHint=message;
