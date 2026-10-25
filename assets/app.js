@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261023-624';
+import { translations, supportedLanguages } from './i18n.js?v=20261025-800';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -957,9 +957,9 @@ function idPage(route){
         '<button class="btn btn-primary" type="submit"'+disabledEmail+isBusy+'>'+icon('mail',17)+' '+t('idEmailAction')+'</button>'+
         '<p class="id-field-hint">'+t('idEmailHint')+'</p></form>'
     ))+
-    '<button class="id-provider-btn id-xoni" type="button" disabled aria-disabled="true"><span class="id-xoni-icon">'+icon('shield',21)+'</span>'+
-      '<span>'+t('idXoni')+'</span><span class="id-soon">'+t('idAvailableSoon')+'</span></button>'+
-    '<p class="id-method-note">'+t('idXoniHint')+'</p>'+
+    '<button class="id-provider-btn id-fmail" type="button" disabled aria-disabled="true"><span class="id-fmail-icon" aria-hidden="true">f</span>'+
+      '<span>'+t('idFmail')+'</span><span class="id-soon">'+t('idAvailableSoon')+'</span></button>'+
+    '<p class="id-method-note">'+t('idFmailHint')+'</p>'+
     '<p class="id-mode-switch">'+t(mode==='register'?'idHaveAccount':'idNoAccountYet')+' <a href="'+(mode==='register'?'#/id':'#/id?mode=register')+'">'+t(mode==='register'?'idStartLogin':'idStartRegister')+'</a></p>'
   );
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
