@@ -30,6 +30,7 @@ jobs:
       - name: Test storefront
         run: |
           node --check assets/app.js
+          node --check assets/weekly-rewards-ui.js
           node --check assets/id-ui.js
           node --check assets/id-service.js
           node --check assets/desktop-connect.js
