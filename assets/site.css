@@ -3196,3 +3196,32 @@ body.home-fullscreen .content>.footer{display:none}
  .public-profile-stats>div{padding:8px 6px}
  .public-profile-stats span{font-size:9px}
 }
+
+
+/* Profile overview pages stay inside the viewport; only profile content can scroll. */
+body:has(.public-profile),body:has(.steam-profile-page){height:100dvh;overflow:hidden;overscroll-behavior:none}
+body:has(.public-profile) #app,body:has(.steam-profile-page) #app{height:100dvh;min-height:0;overflow:hidden}
+body:has(.public-profile) .main,body:has(.steam-profile-page) .main{height:calc(100dvh - 72px);min-height:0;overflow:hidden;box-sizing:border-box}
+body:has(.public-profile) .content,body:has(.steam-profile-page) .content{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;max-width:none;margin:0;padding:10px clamp(14px,3vw,38px);overflow:hidden}
+body:has(.public-profile) .content>.footer,body:has(.steam-profile-page) .content>.footer{display:none}
+body:has(.public-profile) .breadcrumb,body:has(.steam-profile-page) .breadcrumb{flex:0 0 auto;margin:0 0 6px}
+body:has(.public-profile) .player-profile.public-profile,body:has(.steam-profile-page) .steam-profile-page{display:flex;flex:1 1 0;flex-direction:column;min-height:0;overflow:hidden}
+body:has(.public-profile) .public-profile .player-cover{flex:0 0 clamp(130px,22dvh,220px);height:auto;min-height:0}
+body:has(.public-profile) .public-profile-body{display:flex;flex:1 1 0;flex-direction:column;min-height:0;padding:10px 0 0;overflow:hidden}
+body:has(.public-profile) .public-profile-actions{flex:0 0 auto;margin:0 0 8px}
+body:has(.public-profile) .public-profile-columns{display:grid;flex:1 1 0;grid-template-columns:minmax(0,1fr) minmax(230px,290px);min-height:0;overflow:hidden}
+body:has(.public-profile) .public-profile-main,body:has(.public-profile) .public-profile-side{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+body:has(.steam-profile-page) .steam-profile-hero{flex:0 0 clamp(205px,34dvh,320px);min-height:0}
+body:has(.steam-profile-page) .steam-profile-layout{display:grid;flex:1 1 0;grid-template-columns:minmax(0,1fr) minmax(240px,300px);align-items:stretch;min-height:0;overflow:hidden}
+body:has(.steam-profile-page) .steam-profile-main,body:has(.steam-profile-page) .steam-profile-side{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+@media(max-width:820px){
+ body:has(.steam-profile-page) .steam-profile-layout{display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+ body:has(.steam-profile-page) .steam-profile-main,body:has(.steam-profile-page) .steam-profile-side{flex:0 0 auto;overflow:visible}
+}
+@media(max-width:760px){
+ body:has(.public-profile) .main,body:has(.steam-profile-page) .main{height:calc(100dvh - 72px);padding-bottom:88px}
+ body:has(.public-profile) .content,body:has(.steam-profile-page) .content{padding:8px 9px}
+ body:has(.public-profile) .public-profile-body{padding-top:6px}
+ body:has(.public-profile) .public-profile-columns{display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+ body:has(.public-profile) .public-profile-main,body:has(.public-profile) .public-profile-side{flex:0 0 auto;overflow:visible}
+}
