@@ -477,7 +477,7 @@ function home(){
     '<section class="home-feature" aria-label="'+esc(t('heroTitle')+' '+t('heroTitleAccent'))+'">'+
       '<img class="home-feature-art" src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'" fetchpriority="high">'+
       '<div class="home-feature-shade" aria-hidden="true"></div>'+
-      '<div class="home-feature-copy"><div class="home-feature-kicker"><span>'+t('eyebrow')+'</span><i></i><span>'+t('inDevelopment')+'</span></div>'+
+      '<div class="home-feature-copy"><div class="home-feature-kicker"><span>'+t('eyebrow')+'</span><i></i></div>'+
         '<span class="home-feature-series">'+t('firstRelease')+'</span><h2 class="home-feature-wordmark">DEVIVE</h2>'+
         '<h3>'+t('heroTitle')+' '+t('heroTitleAccent')+'</h3><p class="home-feature-description">'+t('heroCopy')+'</p>'+
         '<div class="home-feature-actions"><a class="btn btn-primary" href="#/game/devive">'+t('exploreDevive')+' '+icon('arrow',16)+'</a>'+
