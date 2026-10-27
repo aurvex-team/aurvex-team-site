@@ -467,7 +467,7 @@ function home(){
     {route:'/rewards',icon:'gift',key:'freeRewards'}
   ];
   const cards=links.map(function(item,index){
-    return '<a class="home-explore-card" href="'+href(item.route)+'"><span class="home-explore-index">0'+(index+1)+'</span>'+
+    return '<a class="home-explore-card" href="'+href(item.route)+'">'+
       '<span class="home-explore-icon">'+icon(item.icon,21)+'</span><strong>'+t(item.key)+'</strong>'+
       '<span class="home-explore-arrow">'+icon('arrow',16)+'</span></a>';
   }).join('');
@@ -484,7 +484,6 @@ function home(){
           libraryAction('btn btn-soft')+'</div>'+
         '<div class="home-feature-facts"><span>'+icon('gift',14)+' '+t('freeAtLaunch')+'</span><span>'+icon('gamepad',14)+' '+t('twoD')+'</span>'+
           '<span>'+icon('clock',14)+' '+t('inDevelopment')+'</span></div></div>'+
-      '<div class="home-feature-art-label"><span class="home-art-orbit">'+icon('sparkle',19)+'</span><span>01</span><small>'+t('conceptArtwork')+'</small></div>'+
     '</section>'+
     '<section class="home-explore"><nav class="home-explore-grid" aria-label="'+t('browse')+'">'+cards+'</nav></section>'+
   '</div>';
