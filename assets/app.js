@@ -1564,6 +1564,7 @@ function render(keepScroll=false){
   const pos=window.scrollY;
   const route=routeInfo();route.path=safeRoute(route.path);
   document.body.classList.toggle('library-fullscreen',route.path==='/library');
+  document.body.classList.toggle('friends-fullscreen',route.path==='/friends');
   document.body.classList.toggle('family-fullscreen',route.path==='/family');
   document.body.classList.toggle('notifications-fullscreen',route.path==='/notifications');
   document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory');

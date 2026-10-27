@@ -2738,3 +2738,47 @@ body.notifications-fullscreen .friends-lock{flex:1;min-height:0;overflow:auto}
  body.notifications-fullscreen .social-notification-settings{overflow:hidden}
  body.notifications-fullscreen .social-notifications-blocked{max-height:100%;overflow:auto}
 }
+
+/* Friends: keep the route fixed while friend and request lists scroll independently. */
+body.friends-fullscreen{height:100dvh;overflow:hidden;overscroll-behavior:none}
+body.friends-fullscreen #app{height:100dvh;min-height:0;overflow:hidden}
+body.friends-fullscreen .main{height:calc(100dvh - 72px);min-height:0;overflow:hidden;box-sizing:border-box}
+body.friends-fullscreen .content{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;max-width:none;margin:0;padding:16px clamp(14px,3vw,38px) 18px;overflow:hidden}
+body.friends-fullscreen .content>.footer{display:none}
+body.friends-fullscreen .breadcrumb,body.friends-fullscreen .friends-hero,body.friends-fullscreen .friends-alert{flex:0 0 auto}
+body.friends-fullscreen .friends-hero{padding:clamp(14px,2.2vw,24px);margin:6px 0 10px}
+body.friends-fullscreen .friends-hero h1{font-size:clamp(24px,3vw,34px)}
+body.friends-fullscreen .friends-stats{margin-top:10px}
+body.friends-fullscreen .friends-columns{flex:1;min-height:0;overflow:hidden;align-items:stretch}
+body.friends-fullscreen .friends-main{min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;overflow:hidden}
+body.friends-fullscreen .friends-panel{display:flex;flex-direction:column;min-height:0;overflow:hidden;padding:12px 15px}
+body.friends-fullscreen .friends-panel h2{flex:0 0 auto;margin:3px 0 6px;font-size:14px}
+body.friends-fullscreen .friends-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+body.friends-fullscreen .friends-search-panel{position:static;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+body.friends-fullscreen .friends-search-panel .friends-results{flex:1;min-height:0;overflow-y:auto}
+body.friends-fullscreen .friends-lock{flex:1;min-height:0;overflow:auto}
+@media(max-width:850px){
+ body.friends-fullscreen .friends-columns{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+ body.friends-fullscreen .friends-main{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
+ body.friends-fullscreen .friends-search-panel{max-height:190px}
+ body.friends-fullscreen .friends-search-panel .friends-results{max-height:75px}
+}
+@media(max-width:690px){
+ body.friends-fullscreen .main{height:calc(100dvh - 72px);padding-bottom:88px}
+ body.friends-fullscreen .content{padding:8px 9px}
+ body.friends-fullscreen .friends-hero{padding:12px 13px;margin:4px 0 7px}
+ body.friends-fullscreen .friends-hero h1{font-size:22px}
+ body.friends-fullscreen .friends-hero>p{font-size:10px}
+ body.friends-fullscreen .friends-stats{gap:5px;margin-top:8px}
+ body.friends-fullscreen .friends-stats>span{padding:6px 8px;font-size:9px}
+ body.friends-fullscreen .friends-columns{grid-template-rows:minmax(0,1fr) minmax(145px,34%);gap:7px}
+ body.friends-fullscreen .friends-main{grid-template-columns:repeat(3,minmax(0,88%));grid-template-rows:minmax(0,1fr);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;scrollbar-width:thin}
+ body.friends-fullscreen .friends-main .friends-panel{scroll-snap-align:start;padding:10px}
+ body.friends-fullscreen .friends-main .friends-list{margin-top:5px}
+ body.friends-fullscreen .friends-search-panel{max-height:none;padding:10px}
+ body.friends-fullscreen .friends-search-panel>p{margin:4px 0}
+ body.friends-fullscreen .friends-search-panel form{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px}
+ body.friends-fullscreen .friends-search-panel form>label{grid-column:1/-1}
+ body.friends-fullscreen .friends-search-panel form>.btn{min-height:38px;padding:7px}
+ body.friends-fullscreen .friends-search-panel .friends-results{max-height:54px}
+}
