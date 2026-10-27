@@ -1,11 +1,5 @@
 alter table public.id_profiles add column if not exists profile_comments_visibility text not null default 'friends' check (profile_comments_visibility in ('off','friends','everyone'));
-create table if not exists public.id_profile_comments (
- id uuid primary key default gen_random_uuid(),
- profile_id uuid not null references auth.users(id) on delete cascade,
- author_id uuid not null references auth.users(id) on delete cascade,
- body text not null check (char_length(body) between 1 and 500 and body=btrim(body)),
- created_at timestamptz not null default now()
-);
+create table if not exists public.id_profile_comments (id uuid primary key default gen_random_uuid(),profile_id uuid not null references auth.users(id) on delete cascade,author_id uuid not null references auth.users(id) on delete cascade,body text not null check (char_length(body) between 1 and 500 and body=btrim(body)),created_at timestamptz not null default now());
 create index if not exists id_profile_comments_profile_created_idx on public.id_profile_comments(profile_id,created_at desc);
 create index if not exists id_profile_comments_author_created_idx on public.id_profile_comments(author_id,created_at desc);
 alter table public.id_profile_comments enable row level security;
@@ -34,6 +28,7 @@ begin
  return jsonb_build_object('visibility',v_mode,'visible',v_visible,'can_comment',v_can_comment,'comments',v_items);
 end $function$;
 
+revoke all on function public.aurvex_profile_comments(uuid) from public;grant execute on function public.aurvex_profile_comments(uuid) to anon,authenticated;
 create or replace function public.aurvex_profile_comment_add(target_player uuid, comment_body text)
 returns uuid language plpgsql security definer set search_path=''
 as $function$
