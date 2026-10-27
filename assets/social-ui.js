@@ -1,11 +1,11 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
-import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,getFamilyOverview,createFamily,
+import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,setGameActivityVisibility,loadOwnGameActivity,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
  from './social-service.js?v=20261018-410';
 import {normalizePublicLinks} from './social-links.js?v=20261018-410';
 
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
- family:null,familyLibrary:[],familyReady:false,familyLoading:false,
+ family:null,familyLibrary:[],familyReady:false,familyLoading:false,gameActivity:null,
  inviteUrl:'',busy:false,message:'',error:false,userId:'',
  socialDraft:null,draftUserId:'',aboutDraft:null,aboutDraftUser:'',customDraft:null,customDraftUser:''};
 window.AURVEX_SOCIAL=m;
@@ -40,6 +40,12 @@ async function showProfile(id){
    m.profileLoading=false;m.profileError=true;fire();
  }
 }
+async function refreshGameActivity(){
+ if(!isSecure()){m.gameActivity=null;fire();return}
+ const who=owner();
+ try{const data=await loadOwnGameActivity(who);if(owner()!==who)return;m.gameActivity=data;fire()}
+ catch(e){console.warn('AURVEX activity state:',e?.code||'error')}
+}
 async function refreshFamily(){
  if(!isSecure())return;
  const run=++familySeq;const who=owner();
@@ -66,9 +72,10 @@ window.addEventListener('hashchange',onRoute);
 window.addEventListener('aurvex:id-state',()=>{
  scheduleCustomStatusExpiration();
  const current=owner();
+ if(current)void refreshGameActivity();
  if(!current){
    if(m.userId||m.draftUserId||m.aboutDraftUser||m.customDraftUser){m.userId='';m.family=null;m.familyLibrary=[];
-     m.familyReady=false;m.inviteUrl='';m.message='';m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';fire();}
+     m.familyReady=false;m.inviteUrl='';m.message='';m.gameActivity=null;m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';fire();}
  }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)||
     (m.aboutDraftUser&&m.aboutDraftUser!==current)||(m.customDraftUser&&m.customDraftUser!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
@@ -184,6 +191,14 @@ document.addEventListener('submit',event=>{
        }
      }finally{if(m.busy){m.busy=false;fire()}}
    })();
+ }else if(form.id==='profile-game-activity-form'){
+   const visible=data.has('game_activity_public');m.busy=true;
+   const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
+   void(async()=>{try{
+     await setGameActivityVisibility(visible);
+     await refreshGameActivity();message('profileActivitySaved');
+   }catch(error){console.warn('AURVEX activity visibility:',error?.code||'error');message('profileActivityFailed',true)}
+   finally{if(m.busy){m.busy=false;fire()}}})();
  }else if(form.id==='profile-appearance-form'){
    const appearance={
      profile_theme:String(data.get('profile_theme')||'galaxy'),
