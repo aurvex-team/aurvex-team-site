@@ -92,7 +92,7 @@ export async function getPublicAppearance(userId){
 export async function ownProfile(userId){
   const client=await idClient();
   const {data,error}=await client.from('id_profiles')
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').eq('id',userId).maybeSingle();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').eq('id',userId).maybeSingle();
   if(error)throw error;
   return data;
 }
@@ -108,7 +108,7 @@ export async function saveOwnNickname(userId,nickname){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({nickname}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
   return {data,error};
 }
 // Server wishlist is authoritative for signed-in accounts. In particular,
@@ -187,7 +187,7 @@ export async function uploadProfileMedia(userId,kind,file,existingPath){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({[column]:path}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
   if(error){
     await client.storage.from(MEDIA_BUCKET).remove([path]).catch(()=>{});
     throw error;
@@ -206,7 +206,7 @@ export async function removeProfileMedia(userId,kind,existingPath){
   await ensureOwnProfile(client,userId);
   const {data,error}=await client.from('id_profiles')
     .update({[column]:null}).eq('id',userId)
-    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+    .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
   if(error)throw error;
   if(existingPath&&existingPath.startsWith(userId+'/'+kind+'-')){
     await client.storage.from(MEDIA_BUCKET).remove([existingPath]).catch(()=>{});
