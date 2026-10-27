@@ -3,16 +3,17 @@ import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-s
 import {loadPublicShopEquipped} from './shop-service.js?v=20261018-391';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles,shopEquipped,about]=await Promise.all([
+ const [{data,error},titles,shopEquipped,about,appearance]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
    getProfileTitles(id),loadPublicShopEquipped(id),
-   client.rpc('aurvex_public_profile_about',{target_player:id}).then(({data})=>data||{}).catch(()=>({}))
+   client.rpc('aurvex_public_profile_about',{target_player:id}).then(({data})=>data||{}).catch(()=>({})),
+   client.rpc('aurvex_public_appearance',{target_player:id}).then(({data})=>data||{}).catch(()=>({}))
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
  return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),
    profile_status_text:String(about?.customText||''),profile_status_emoji:String(about?.customEmoji||''),
-   profile_status_expires_at:about?.customExpiresAt||null,
+   profile_status_expires_at:about?.customExpiresAt||null,profile_appearance:appearance,
     profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
 }
