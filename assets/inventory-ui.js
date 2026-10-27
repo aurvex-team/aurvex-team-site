@@ -130,6 +130,7 @@ document.addEventListener('input',event=>{
  const search=event.target.closest?.('[data-inventory-search]');
  if(!search)return;
  m.search=search.value.trim().slice(0,90);
+ const clear=document.querySelector('.si-shell [data-inventory-action="clear-search"]');if(clear)clear.hidden=!m.search;
  const term=m.search.toLowerCase();
  document.querySelectorAll('.si-grid [data-si-search]').forEach(tile=>{
   tile.hidden=!String(tile.dataset.siSearch||'').includes(term);
