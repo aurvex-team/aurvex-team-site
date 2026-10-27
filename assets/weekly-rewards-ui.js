@@ -31,12 +31,12 @@ document.addEventListener('click',async event=>{
   const client=await idClient();
   const {error}=await client.rpc('aurvex_weekly_star_claim');
   if(error)throw error;
-  state.message='claimed';state.error=false;
   await refresh();
+  state.message='claimed';state.error=false;
  }catch(error){
   const code=String(error?.message||error?.code||'');
   state.message=code.includes('WEEKLY_REWARD_WALLET_LIMIT')?'wallet':code.includes('WEEKLY_REWARD_ALREADY_CLAIMED')?'claimed':'error';
-  state.error=state.message==='error';
+  state.error=true;
   console.warn('Weekly Stars claim:',error?.code||'unavailable');
  }finally{state.busy=false;notify()}
 });
