@@ -617,7 +617,7 @@ function catalog(route){
   const count=catalogMatches(route).length;
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('browse')+'</span></div>'+
     '<div class="catalog-heading-row">'+heading(title,subtitle,'browseKicker')+
-    '<details class="catalog-submit"><summary class="btn btn-soft">'+icon('plus',16)+' '+t('catalogSubmitCta')+'</summary><div class="catalog-submit-panel"><span class="smallcaps">'+t('catalogSubmitEyebrow')+'</span><h2>'+t('catalogSubmitTitle')+'</h2><p>'+t('catalogSubmitText')+'</p><a class="btn btn-primary" href="https://t.me/flekusik" target="_blank" rel="noopener noreferrer">'+icon('send',15)+' '+t('catalogSubmitTelegram')+'</a><a class="catalog-submit-rules" href="#/legal">'+t('catalogSubmitRules')+'</a></div></details></div>+
+    '<details class="catalog-submit"><summary class="btn btn-soft">'+icon('plus',16)+' '+t('catalogSubmitCta')+'</summary><div class="catalog-submit-panel"><span class="smallcaps">'+t('catalogSubmitEyebrow')+'</span><h2>'+t('catalogSubmitTitle')+'</h2><p>'+t('catalogSubmitText')+'</p><a class="btn btn-primary" href="https://t.me/flekusik" target="_blank" rel="noopener noreferrer">'+icon('send',15)+' '+t('catalogSubmitTelegram')+'</a><a class="catalog-submit-rules" href="#/legal">'+t('catalogSubmitRules')+'</a></div></details></div>'+
     '<div class="catalog-search-row"><label class="catalog-search catalog-search-large">'+icon('search',20)+
       '<input type="search" id="catalog-search" value="'+esc(state.query)+'" placeholder="'+t('searchCatalog')+'" aria-label="'+t('search')+'" autocomplete="off" maxlength="120"></label></div>'+
     '<div class="advanced-filters" aria-label="'+t('filters')+'">'+
