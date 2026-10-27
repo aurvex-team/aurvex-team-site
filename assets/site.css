@@ -3147,3 +3147,8 @@ body.home-fullscreen .content>.footer{display:none}
  .home-explore{min-height:105px}
  .home-explore-card{height:49px}
 }
+
+
+/* The redesigned home uses a single row of direct navigation cards. */
+.home-explore{min-height:57px}
+@media(max-width:700px){.home-explore{min-height:87px}}
