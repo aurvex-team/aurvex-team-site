@@ -2013,3 +2013,12 @@ test('Signed-in profile opens a Steam-style overview and sends editing to its ow
  assert.ok(editor.includes('href="#/id"'));
  assert.ok(editor.includes(translations.uk.profileViewButton));
 });
+
+
+test('Browse store uses five desktop columns and omits the obsolete release note and footer',()=>{
+ assert.ok(css.includes('.catalog-results{grid-template-columns:repeat(5,minmax(0,1fr))}'));
+ assert.ok(css.includes('@media(max-width:1300px){.catalog-results{grid-template-columns:repeat(4,minmax(0,1fr))}}'));
+ assert.ok(!appCode.includes("t('onlyDevive')"));
+ assert.ok(!appCode.includes('function footer()'));
+ assert.ok(!appCode.includes('footer()'));
+});
