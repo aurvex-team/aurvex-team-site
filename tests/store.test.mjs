@@ -117,7 +117,7 @@ test('Guest Profile tab has a complete sign-in UI and a safely disabled fmail pr
  const config=readFileSync(new URL('../assets/id-config.js',import.meta.url),'utf8');
  const idUi=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang).html;
+  const html=render('#/id?mode=edit',lang).html;
   assert.ok(html.includes('class="id-page"'),lang+': guest ID page is present');
   assert.ok(html.includes(translations[lang].idFmail),lang+': fmail sign-in is localized');
   assert.ok(html.includes(translations[lang].idFmailHint),lang+': fmail availability is explained');
@@ -317,7 +317,7 @@ test('AURVEX ID has a visible account entry, sign-in and registration screens',(
     const home=render('#/',lang);
     assert.ok(home.html.includes('href="#/id"'));
     assert.ok(home.html.includes(translations[lang].aurvexId));
-    const login=render('#/id',lang);
+    const login=render('#/id?mode=edit',lang);
     const signup=render('#/id?mode=register',lang);
     assert.ok(login.html.includes(translations[lang].idHeading));
     assert.ok(login.html.includes(translations[lang].idSignIn));
@@ -329,7 +329,7 @@ test('AURVEX ID has a visible account entry, sign-in and registration screens',(
   }
 });
 test('AURVEX ID sign-in methods are clearly gated per provider',()=>{
-  const html=render('#/id').html;
+  const html=render('#/id?mode=edit').html;
   assert.ok(html.includes(translations.en.idSetupTitle));
   assert.ok(html.includes(translations.en.idSetupBody));
   assert.match(html,/data-id-action="google" disabled aria-disabled="true"/);// No auth model has initialized in the isolated renderer
@@ -392,7 +392,7 @@ test('OAuth return URL lands on AURVEX ID without a custom domain',()=>{
 test('Google sign-in is enabled when the verified Google provider config loads, while email and fmail remain unavailable',()=>{
   const client={configured:true,googleEnabled:true,emailEnabled:false,ready:true,busy:false,user:null,pendingEmail:''};
   for(const lang of supportedLanguages){
-    const html=render('#/id',lang,false,null,client).html;
+    const html=render('#/id?mode=edit',lang,false,null,client).html;
     assert.match(html,/<button[^>]*data-id-action="google"(?![^>]*disabled)/);
     assert.ok(html.includes(translations[lang].idGoogle));
     assert.ok(!html.includes(translations[lang].idSetupTitle));
@@ -406,7 +406,7 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
 
 test('Authenticator screen is calm, localized and responsive',()=>{
  const auth={configured:true,user:{id:'mfa-user'},mfaVerified:false,mfaHasFactors:true,mfaFactors:[]};
- const html=render('#/id','uk',false,null,auth).html;
+ const html=render('#/id?mode=edit','uk',false,null,auth).html;
  assert.ok(html.includes(translations.uk.mfaChallengeTitle));
  assert.ok(html.includes(translations.uk.mfaChallengeIntro));
  assert.ok(html.includes(translations.uk.mfaSignedIn));
@@ -434,7 +434,7 @@ test('signed-in AURVEX ID renders a beautiful avatar and animated banner profile
     bannerUrl:'https://example.test/public/banner.gif'
   };
   for(const lang of supportedLanguages){
-    const html=render('#/id',lang,false,null,auth).html;
+    const html=render('#/id?mode=edit',lang,false,null,auth).html;
     assert.ok(html.includes('class="player-profile"'));
     assert.ok(html.includes('class="player-cover-image"'));
     assert.ok(html.includes('https://example.test/public/banner.gif'));
@@ -459,7 +459,7 @@ test('signed-in profile escapes nickname and email rather than inserting HTML',(
     user:{email:'<script>alert(1)</script>',created_at:'2026-10-17T00:00:00Z'},
     profile:{nickname:'<img src=x onerror=alert(1)>'}
   };
-  const html=render('#/id','en',false,null,auth).html;
+  const html=render('#/id?mode=edit','en',false,null,auth).html;
   assert.ok(html.includes('&lt;img'));
   assert.ok(html.includes('&lt;script&gt;'));
   assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
@@ -511,7 +511,7 @@ test('AURVEX ID navigation is Profile, not AURVEX ID in the left sidebar',()=>{
 test('Google-only session cannot see verified badge or enter protected profile before MFA',()=>{
   const user={id:'u',email:'user@example.com',created_at:'2026-10-17T10:10:00Z'};
   for(const lang of supportedLanguages){
-    const page=render('#/id',lang,false,null,{
+    const page=render('#/id?mode=edit',lang,false,null,{
       user,mfaVerified:false,mfaHasFactors:false,mfaFactors:[],ready:true
     }).html;
     assert.ok(page.includes(translations[lang].mfaSetupTitle));
@@ -524,7 +524,7 @@ test('Google-only session cannot see verified badge or enter protected profile b
 });
 
 test('Previously enrolled MFA requires a TOTP code before viewing AURVEX ID',()=>{
-  const page=render('#/id','uk',false,null,{
+  const page=render('#/id?mode=edit','uk',false,null,{
     user:{id:'u',email:'user@example.com'},mfaVerified:false,
     mfaHasFactors:true,mfaFactors:[{id:'second-factor',status:'verified'}],ready:true
   }).html;
@@ -536,7 +536,7 @@ test('Previously enrolled MFA requires a TOTP code before viewing AURVEX ID',()=
 });
 
 test('Enrollment shows a QR code and manual secret only in the MFA setup flow',()=>{
-  const page=render('#/id','en',false,null,{
+  const page=render('#/id?mode=edit','en',false,null,{
     user:{id:'u',email:'test@example.com'},mfaVerified:false,mfaHasFactors:false,
     mfaEnrollment:{
       factorId:'pending',qr:'data:image/svg+xml;base64,PHN2Zy8+',secret:'EXAMPLESECRET'
@@ -549,7 +549,7 @@ test('Enrollment shows a QR code and manual secret only in the MFA setup flow',(
 });
 
 test('Verified profile explicitly requires aal2 and offers a backup authenticator',()=>{
-  const profile=render('#/id','en',false,null,{
+  const profile=render('#/id?mode=edit','en',false,null,{
     user:{id:'u',email:'user@example.com',created_at:'2026-10-17T00:00:00Z'},
     mfaVerified:true,mfaHasFactors:true,mfaFactors:[{id:'factor',status:'verified'}],
     profile:{nickname:'player'},statusKey:''
@@ -558,7 +558,7 @@ test('Verified profile explicitly requires aal2 and offers a backup authenticato
   assert.ok(profile.includes(translations.en.mfaVerifiedLabel));
   assert.ok(profile.includes('data-id-action="mfa-backup"'));
   assert.ok(profile.includes(translations.en.mfaBackupDesc));
-  const twice=render('#/id','en',false,null,{
+  const twice=render('#/id?mode=edit','en',false,null,{
     user:{id:'u'},mfaVerified:true,mfaHasFactors:true,
     mfaFactors:[{id:'a',status:'verified'},{id:'b',status:'verified'}],profile:{nickname:'player'}
   }).html;
@@ -674,7 +674,7 @@ test('Profile has public viewer, HTTPS links editor, and private-by-default wish
   mfaVerified:true,mfaHasFactors:true,mfaFactors:[{id:'factor'}],
   profile:{nickname:'fleki',public_links:[{title:'GitHub',url:'https://github.com/fleki'}],wishlist_public:false}};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,auth).html;
+  const html=render('#/id?mode=edit',lang,false,null,auth).html;
   assert.ok(html.includes('href="#/player/9fe33ef1-0f84-4bce-acbb-ae5b5883377f"'));
   assert.ok(html.includes('id="social-profile-form"'));
   assert.ok(html.includes('name="wishlist_public"'));
@@ -1017,7 +1017,7 @@ test('Profile links editor survives external redraws and works with URL-only inp
    {title:'',url:''}
  ],wishlistPublic:true}};
  for(const lang of supportedLanguages){
-   const html=render('#/id',lang,false,null,auth,null,draft).html;
+   const html=render('#/id?mode=edit',lang,false,null,auth,null,draft).html;
    assert.ok(html.includes('id="social-profile-form"'));
    assert.ok(html.includes('name="url1" type="text"'));
    assert.ok(html.includes('value="github.com/flekiii"'));
@@ -1027,7 +1027,7 @@ test('Profile links editor survives external redraws and works with URL-only inp
    assert.ok(html.includes(translations[lang].socialLinkTip));
  }
  const staleDraft={...draft,draftUserId:'someone-else'};
- const html=render('#/id','en',false,null,auth,null,staleDraft).html;
+ const html=render('#/id?mode=edit','en',false,null,auth,null,staleDraft).html;
  assert.ok(!html.includes('value="github.com/flekiii"'));
  assert.ok(!html.includes('name="wishlist_public" checked'));
 });
@@ -1060,7 +1060,7 @@ test('Official AURVEX CEO and site/launcher developer badges render only when gr
    mfaVerified:true,mfaFactors:[{id:'ok'}]
  };
  for(const lang of supportedLanguages){
-   const html=render('#/id',lang,false,null,auth).html;
+   const html=render('#/id?mode=edit',lang,false,null,auth).html;
    assert.ok(html.includes('official-profile-title-aurvex_ceo'));
    assert.ok(html.includes('official-profile-title-site_launcher_developer'));
    assert.ok(html.includes(translations[lang].profileTitleCeo));
@@ -1086,7 +1086,7 @@ test('Other player profiles cannot fake AURVEX official team badge via nickname'
    profileTitles:[],
    mfaVerified:true
  };
- const html=render('#/id','en',false,null,auth).html;
+ const html=render('#/id?mode=edit','en',false,null,auth).html;
  assert.ok(!html.includes('official-profile-titles'));
  assert.ok(!html.includes('official-profile-title-aurvex_ceo'));
  const visitor=render('#/player/'+other,'en',false,null,null,null,{
@@ -1129,7 +1129,7 @@ test('AURVEX founder shows site-launch membership instead of October 2026 in bot
    public_links:[],wishlist_visible:false
  }};
  for(const lang of supportedLanguages){
-   const mine=render('#/id',lang,false,null,auth).html;
+   const mine=render('#/id?mode=edit',lang,false,null,auth).html;
    const visitor=render('#/player/'+founder,lang,false,null,null,null,publicData).html;
    for(const html of [mine,visitor]){
      assert.ok(html.includes(translations[lang].profileFounderSince),lang);
@@ -1142,7 +1142,7 @@ test('AURVEX founder shows site-launch membership instead of October 2026 in bot
 test('Other players keep real membership dates even when using founder-like nicknames',()=>{
  const id='8badce8c-c12b-4d04-b12c-344553928fe1',date='2026-10-17T10:00:00Z';
  const own={user:{id,created_at:date},profile:{nickname:'fleki'},profileTitles:[],mfaVerified:true};
- const html=render('#/id','en',false,null,own).html;
+ const html=render('#/id?mode=edit','en',false,null,own).html;
  assert.ok(html.includes('Member since October 2026'));
  assert.ok(!html.includes(translations.en.profileFounderSince));
  const publicHtml=render('#/player/'+id,'en',false,null,null,null,{
@@ -1158,7 +1158,7 @@ test('Profile has Overview and Links while theme editor is removed',()=>{
  const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
  const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[],wishlist_public:true},profileTitles:['aurvex_ceo']};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,auth).html;
+  const html=render('#/id?mode=edit',lang,false,null,auth).html;
   assert.ok(!html.includes('profile-appearance-form'));
   assert.ok(!html.includes('profile-tab-appearance'));
   assert.ok(!html.includes('data-pf-'));
@@ -1173,7 +1173,7 @@ test('Profile has Overview and Links while theme editor is removed',()=>{
 test('Profile removes redundant Friends, Family and Notifications sidebar cards without losing navigation',()=>{
  const id='33333333-3333-4333-8333-333333333333';
  const account={user:{id},profile:{nickname:'player'},profileTitles:[],mfaVerified:true};
- const html=render('#/id','en',false,null,account).html;
+ const html=render('#/id?mode=edit','en',false,null,account).html;
  assert.ok(!html.includes('id="profile-appearance-form"'));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.friendsNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.familyNav));
@@ -1195,7 +1195,7 @@ test('Each social link can be ordered and placed at header, center profile or bo
  const normalized=normalizePublicLinks(links);
  assert.deepEqual(normalized,links);
  const own={user:{id},profile:{nickname:'tester',public_links:links},profileTitles:[],mfaVerified:true};
- const html=render('#/id','en',false,null,own).html;
+ const html=render('#/id?mode=edit','en',false,null,own).html;
  for(const index of [1,2,3]) {
   assert.ok(html.includes('name="slot'+index+'"'));
   assert.ok(html.includes('name="align'+index+'"'));
@@ -1253,7 +1253,7 @@ test('Profile Studio has two localized accessible editor tabs and no theme edito
   mfaVerified:true,profile:{nickname:'tester',public_links:[]},profileTitles:[]
  };
  for(const lang of supportedLanguages){
-  const {html}=render('#/id',lang,false,null,account);
+  const {html}=render('#/id?mode=edit',lang,false,null,account);
   assert.ok(html.includes('class="profile-tabs" role="tablist"'),lang);
   assert.ok(html.includes('aria-label="'+translations[lang].profileTabsLabel+'"'),lang);
   for(const [name,key] of [['overview','profileTabOverview'],['links','profileTabLinks']]){
@@ -1313,7 +1313,7 @@ test('View as others is always available outside Profile Studio tabs, never trap
  const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
  const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[]},profileTitles:[]};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,auth).html;
+  const html=render('#/id?mode=edit',lang,false,null,auth).html;
   const toolbar=html.indexOf('class="profile-tab-toolbar"');
   const preview=html.indexOf('class="btn btn-accent profile-preview-action"');
   const firstPanel=html.indexOf('id="profile-panel-overview"');
@@ -1334,7 +1334,7 @@ test('View as others is always available outside Profile Studio tabs, never trap
 
 test('Preview remains separate from editor controls, and public profile has no preview shortcut',()=>{
  const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
- const mine=render('#/id','en',false,null,
+ const mine=render('#/id?mode=edit','en',false,null,
   {user:{id:user},mfaVerified:true,profile:{nickname:'fleki'},profileTitles:[]}).html;
  assert.ok(mine.includes('class="profile-tab-toolbar"'));
  assert.ok(mine.includes('id="social-profile-form"'));
@@ -1404,7 +1404,7 @@ test('Stars wallet inventory equipping and try-on are visible only to signed-in 
 
 test('Equipped cosmetics decorate own and public profile without exposing wallet or inventory',()=>{
  const user='b08b4ee1-49e4-4d2b-b166-56b4a6e35112';
- const privateProfile=render('#/id','en',false,null,
+ const privateProfile=render('#/id?mode=edit','en',false,null,
   {user:{id:user},mfaVerified:true,profile:{nickname:'tester'},profileTitles:[]},
   null,null,null,null,{userId:user,equipped:{avatar:'avatar_cyan',profile:'profile_cosmic'}}
  ).html;
@@ -1731,7 +1731,7 @@ test('Profile keeps its core editor without the summary dashboard or theme edito
     profile_status_expires_at:null,avatar_path:'avatar.jpg',banner_path:'banner.jpg',
     public_links:[{title:'GitHub',url:'https://github.com/aurvex-team'}],wishlist_public:false}};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,auth).html;
+  const html=render('#/id?mode=edit',lang,false,null,auth).html;
   assert.ok(!html.includes('class="profile-command-center"'),lang+': summary panel remains');
   assert.ok(!html.includes('class="profile-progress-bar"'),lang+': completion bar remains');
   for(const required of ['id="profile-about-form"','name="bio"','maxlength="240"',
@@ -1776,11 +1776,11 @@ test('Profile bio edits survive redraws and are not shown for the wrong signed-i
   profile:{nickname:'creator',profile_bio:'Saved value',profile_status:'building',
     profile_status_text:'Saved status',profile_status_emoji:'💻',public_links:[]}};
  const draft={aboutDraftUser:id,aboutDraft:{bio:'Unsaved editor description',status:'busy'}};
- const html=render('#/id','en',false,null,auth,null,draft).html;
+ const html=render('#/id?mode=edit','en',false,null,auth,null,draft).html;
  assert.ok(html.includes('Unsaved editor description'));
  assert.ok(html.includes('Saved status'),'Current status stays visible while editing biography');
  assert.ok(html.includes('data-profile-emoji="💻" aria-label="💻" aria-pressed="true"'));
- const stale=render('#/id','en',false,null,auth,null,
+ const stale=render('#/id?mode=edit','en',false,null,auth,null,
   {...draft,aboutDraftUser:'other-user'}).html;
  assert.ok(!stale.includes('Unsaved editor description'));
  assert.ok(stale.includes('Saved value'));
@@ -1813,7 +1813,7 @@ test('Profile biography storage has AAL2, public field allowlist and server inpu
 
 test('Sidebar promo is static, shows only AURVEX and message with no legacy roadmap or version',()=>{
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang).html;
+  const html=render('#/id?mode=edit',lang).html;
   const sidebar=html.match(/<aside class="sidebar"[\s\S]*?<\/aside>/)?.[0]||'';
   const promo=sidebar.match(/<div class="side-promo"[\s\S]*?<\/div><\/aside>/)?.[0]||'';
   assert.ok(sidebar.includes('class="side-promo"'));
@@ -1834,7 +1834,7 @@ test('Custom Discord-style profile status: 20 emoji, text, six expiration option
    profile:{nickname:'Creator',profile_status_text:'Debugging 🌙',profile_status_emoji:'🛠️',
      profile_status_expires_at:'2099-10-18T11:00:00Z'}};
  for(const lang of supportedLanguages){
-  const html=render('#/id',lang,false,null,auth).html;
+  const html=render('#/id?mode=edit',lang,false,null,auth).html;
   for(const k of ['profile-custom-status-form','profile-custom-status-text','data-profile-emoji="',
     'name="custom_text"','name="custom_emoji"','name="duration"','data-profile-clear-status',
     'profile-status-char-count','value="1h"','value="4h"','value="1d"','value="7d"',
@@ -1860,7 +1860,7 @@ test('Custom Discord-style profile status: 20 emoji, text, six expiration option
  const never=render('#/player/'+uuid,'en',false,null,null,null,
   {...p,profile:{...p.profile,profile_status_expires_at:null}}).html;
  assert.ok(never.includes('profile-custom-status'));
- const ownExpired=render('#/id','en',false,null,{
+ const ownExpired=render('#/id?mode=edit','en',false,null,{
    ...auth,profile:{...auth.profile,profile_status_expires_at:'2020-01-01T00:00:00Z'}
  }).html;
  assert.ok(ownExpired.includes(translations.en.profileStatusEmpty));
@@ -1938,7 +1938,7 @@ test('Previously saved profile themes and accents no longer render on own or pub
  const oldAppearance={profile_theme:'summer',inner_color:'rose',transparent:true};
  const auth={user:{id:'11111111-2222-4333-8444-555555555555'},mfaVerified:true,
    profile:{nickname:'tester',profile_appearance:oldAppearance},profileTitles:[]};
- const own=render('#/id','en',false,null,auth).html;
+ const own=render('#/id?mode=edit','en',false,null,auth).html;
  const player='22222222-2222-4333-8444-555555555555';
  const publicView=render('#/player/'+player,'en',false,null,null,null,{
    profileTarget:player,profile:{player_id:player,nickname:'other',profile_appearance:oldAppearance,public_links:[],profileTitles:[],wishlist_visible:false}
@@ -1999,4 +1999,27 @@ test('Only Wallet locks page scrolling and scrolls overflowing wallet lists insi
  assert.ok(css.includes('body.balance-fullscreen{height:100dvh;overflow:hidden'));
  assert.ok(css.includes('body.balance-fullscreen .money-content{display:grid'));
  assert.ok(css.includes('body.balance-fullscreen .money-history .money-ledger-list{flex:1;min-height:0;overflow-y:auto'));
+});
+
+
+test('Signed-in profile opens a Steam-style overview and sends editing to its own screen',()=>{
+ const user='4fc26253-27c0-4fc1-96bb-a6dbcf567777';
+ const auth={user:{id:user,created_at:'2026-10-17T12:00:00Z'},mfaVerified:true,
+  profile:{nickname:'fleki',profile_bio:'Playing and building games',public_links:[],wishlist_public:true},
+  profileTitles:[]};
+ const social={gameActivity:{visible:true,recent_30_days_seconds:7200,games:[{
+  game_id:'devive',recent_seconds:3600,last_played_at:'2026-10-26T12:00:00Z'
+ }]}};
+ const view=render('#/id','uk',false,null,auth,null,social).html;
+ assert.ok(view.includes('class="steam-profile-page"'));
+ assert.ok(view.includes('href="#/id?mode=edit"'));
+ assert.ok(view.includes(translations.uk.profileEditButton));
+ assert.ok(view.includes(translations.uk.profileActivityLast30Days));
+ assert.ok(view.includes('Playing and building games'));
+ assert.ok(view.includes('Devive'));
+ assert.ok(!view.includes('id="id-nickname-form"'));
+ const editor=render('#/id?mode=edit','uk',false,null,auth).html;
+ assert.ok(editor.includes('id="id-nickname-form"'));
+ assert.ok(editor.includes('href="#/id"'));
+ assert.ok(editor.includes(translations.uk.profileViewButton));
 });

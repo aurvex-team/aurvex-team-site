@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261027-013';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-014';
 import './weekly-rewards-ui.js?v=20261027-002';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
@@ -785,6 +785,63 @@ function profileMemberSince(joined,titles){
     ? t('profileFounderSince')
     : t('profileMemberSince')+' '+esc(joined);
 }
+function steamProfilePage(auth){
+  const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
+  const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
+  const banner=auth.bannerUrl?'<img class="steam-profile-banner-image" src="'+esc(auth.bannerUrl)+'" alt="'+esc(t('profileProfileArt'))+'" decoding="async">':
+    '<div class="steam-profile-banner-placeholder"><span>AURVEX</span></div>';
+  let joined=t('profileSinceUnknown');
+  if(auth.user?.created_at){
+    const date=new Date(auth.user.created_at);
+    if(!Number.isNaN(date.valueOf()))joined=date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{month:'long',year:'numeric'});
+  }
+  const titles=auth.profileTitles||[];
+  const profile=auth.profile||{};
+  const status=currentCustomStatus(profile);
+  const bio=profile.profile_bio||'';
+  const activity=window.AURVEX_SOCIAL?.gameActivity||{visible:false,games:[],recent_30_days_seconds:0};
+  const recent=Array.isArray(activity.games)?activity.games:[];
+  const friends=(window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='friend'&&x.peer_id).length;
+  const locale={en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US';
+  const recentRows=recent.length?recent.map(g=>{
+    const name=g.game_id==='devive'?'Devive':String(g.game_id||t('profileActivityEmpty'));
+    const timestamp=Date.parse(g.last_played_at||'');
+    const last=Number.isFinite(timestamp)?new Date(timestamp).toLocaleDateString(locale,{day:'numeric',month:'short'}):'';
+    return '<li class="steam-profile-game"><span class="steam-profile-game-icon">'+icon('gamepad',19)+'</span>'+
+      '<span class="steam-profile-game-name"><strong>'+esc(name)+'</strong><small>'+t('profileActivityLastPlayed')+' '+esc(last)+'</small></span>'+
+      '<b>'+esc(formatProfileTime(g.recent_seconds||0))+'</b></li>';
+  }).join(''):'<div class="steam-profile-empty">'+icon('gamepad',23)+'<span>'+t('profileActivityEmpty')+'</span></div>';
+  const visibleLinks=Array.isArray(profile.public_links)?profile.public_links:[];
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('profileNav')+'</span></div>'+
+    '<div class="player-profile steam-profile-page"'+shopStyleAttrs(window.AURVEX_SHOP?.userId===auth.user?.id?window.AURVEX_SHOP?.equipped:null)+'>'+
+      '<section class="steam-profile-hero">'+banner+'<div class="steam-profile-cover-shade"></div>'+
+        '<div class="steam-profile-hero-top"><span class="steam-profile-label">'+icon('user',15)+' AURVEX ID</span>'+
+          '<div class="steam-profile-actions"><a class="btn btn-primary" href="#/id?mode=edit">'+icon('pencil',16)+' '+t('profileEditButton')+'</a>'+
+          '<a class="btn btn-soft steam-profile-view-others" href="#/player/'+esc(auth.user.id)+'">'+icon('eye',16)+' '+t('viewAsOthers')+'</a></div></div>'+
+        '<div class="steam-profile-identity"><div class="player-avatar-frame steam-profile-avatar">'+avatar+'</div>'+
+          '<div class="steam-profile-name"><span class="smallcaps">'+t('profileProfileId')+'</span><h1>'+esc(nickname)+'</h1>'+
+            officialProfileBadges(titles)+'<p>'+icon('calendar',14)+' '+profileMemberSince(joined,titles)+'</p>'+
+            (status?customStatusPill(status):'')+renderProfileLinks(visibleLinks,'header')+
+          '</div></div></section>'+
+      '<div class="steam-profile-layout"><main class="steam-profile-main">'+
+        '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span>'+
+          '<h2>'+t('profileActivityIntro')+'</h2></div></div>'+
+          '<div class="steam-profile-stats"><div><strong>'+esc(formatProfileTime(activity.recent_30_days_seconds||0))+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
+            '<div><strong>'+recent.length+'</strong><span>'+t('profileRecentGamesCount')+'</span></div>'+
+            '<div><strong>'+friends+'</strong><span>'+t('friendsNav')+'</span></div></div>'+
+          '<ul class="steam-profile-games">'+recentRows+'</ul></section>'+
+        (bio?'<section class="steam-profile-panel steam-profile-about"><span class="smallcaps">'+t('profileAboutTitle')+'</span><p>'+esc(bio)+'</p></section>':'')+
+        (visibleLinks.some(x=>(x.slot||'main')==='main')?'<section class="steam-profile-panel"><span class="smallcaps">'+t('socialLinksTitle')+'</span>'+renderProfileLinks(visibleLinks,'main')+'</section>':'')+
+      '</main><aside class="steam-profile-side">'+
+        '<section class="steam-profile-panel steam-profile-side-card"><span class="smallcaps">'+t('profileYourIdentity')+'</span>'+
+          '<div class="steam-profile-level"><span>'+icon('shield',20)+'</span><div><strong>'+t('mfaVerifiedLabel')+'</strong><small>'+t('profileMemberSince')+' '+esc(joined)+'</small></div></div>'+
+          '<a class="steam-profile-side-link" href="#/friends">'+icon('users',17)+'<span>'+t('friendsNav')+'</span><b>'+friends+'</b></a>'+
+        '</section>'+
+        '<section class="steam-profile-panel steam-profile-side-card"><span class="smallcaps">'+t('profileWishlist')+'</span>'+
+          '<p>'+t(profile.wishlist_public?'socialWishlistPublic':'socialWishlistPrivate')+'</p>'+
+          '<a class="btn btn-outline" href="#/saved">'+icon('heart',16)+' '+t('profileWishlistView')+'</a></section>'+
+      '</aside></div>'+renderProfileLinks(visibleLinks,'footer')+'</div>';
+}
 function playerProfilePage(auth){
   const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
   const avatar=auth.avatarUrl?'<img src="'+esc(auth.avatarUrl)+'" alt="'+esc(t('profileAvatarUpload'))+'" loading="eager" decoding="async">':icon('user',48);
@@ -831,7 +888,8 @@ function playerProfilePage(auth){
         ' aria-selected="'+(activeTab===tab)+'" aria-controls="profile-panel-'+tab+'" tabindex="'+(activeTab===tab?'0':'-1')+'" data-profile-tab="'+tab+'">'+
         icon(iconName,17)+'<span>'+t(textKey)+'</span></button>').join('')+'</nav>';
   // Always visible alongside the tabs, regardless of which editor section is open.
-  const publicPreview='<a class="btn btn-outline profile-shop-action" href="#/shop">'+icon('sparkle',16)+
+  const publicPreview='<a class="btn btn-outline steam-editor-back" href="#/id">'+icon('back',15)+' '+t('profileViewButton')+'</a>'+
+    '<a class="btn btn-outline profile-shop-action" href="#/shop">'+icon('sparkle',16)+
     '<span>'+t('shopNav')+'</span></a>'+
     '<a class="btn btn-accent profile-preview-action" href="#/player/'+esc(auth.user.id)+'"'+
     ' aria-label="'+esc(t('viewAsOthers'))+'">'+icon('eye',17)+'<span>'+t('viewAsOthers')+'</span></a>';
@@ -979,7 +1037,7 @@ function idPage(route){
   const signedIn=!!auth.user;
   if(signedIn){
     if(!auth.mfaVerified||auth.mfaEnrollment)return mfaGatePage(auth);
-    return playerProfilePage(auth);
+    return route.params.get('mode')==='edit'?playerProfilePage(auth):steamProfilePage(auth);
   }
   const mode=route.params.get('mode')==='register'?'register':'signin';
   const disabledEmail=(!configured||!auth.emailEnabled)?' disabled aria-disabled="true"':'';
