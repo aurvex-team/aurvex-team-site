@@ -2043,3 +2043,9 @@ test('Russian Spanish and French have complete translation key sets for the inte
   }
  }
 });
+
+
+test('Catalog submission panel stays above search and filters when open',()=>{
+ assert.ok(css.includes('.catalog-heading-row{position:relative;z-index:30;'));
+ assert.ok(css.includes('z-index:12'));
+});
