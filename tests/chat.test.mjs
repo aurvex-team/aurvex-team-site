@@ -18,24 +18,20 @@ function view(hash,lang='en'){
  (translations,supportedLanguages,document,window,location,localStorage);
  return holder.innerHTML;
 }
-test('Community chat route, navigation and mobile entry exist in every language',()=>{
+test('Community chat page, route and navigation are fully removed',()=>{
  for(const lang of supportedLanguages){
   const html=view('#/chat',lang);
-  for(const part of ['href="#/chat"','id="chat-message-feed"','id="chat-compose-slot"',
-   'class="chat-layout"','class="chat-guidelines"','id="chat-notice"',
-   translations[lang].chatTitle,translations[lang].chatRules,
-   translations[lang].chatReadOnly,translations[lang].chatVerifyRule])
-   assert.ok(html.includes(part),lang+': '+part);
-  assert.ok(html.includes('href="#/id"')||html.includes('account-header-btn'));
-  assert.ok(!html.includes('id="community-chat-form"'),'HTML shell must not expose send before verified auth adapter runs');
+  assert.ok(!html.includes('id="chat-message-feed"'));
+  assert.ok(!html.includes('class="chat-layout"'));
+  assert.ok(!html.includes('href="#/chat"'));
  }
- const home=view('#/');
- assert.ok(home.includes('href="#/chat"'));
  const app=read('assets/app.js');
- assert.ok(app.includes("route.path==='/chat'"));
- assert.ok(app.includes("window.AURVEX_CHAT_MOUNT?.()"));
+ assert.ok(!app.includes("route.path==='/chat'"));
+ assert.ok(!app.includes('communityChatPage'));
+ assert.ok(!app.includes('AURVEX_CHAT_MOUNT'));
  const index=read('index.html');
- assert.ok(index.includes('assets/chat-ui.js?v='));
+ assert.ok(!index.includes('assets/chat-ui.js'));
+ assert.ok(!index.includes('assets/chat-admin-ui.js'));
  const workflow=read('.github/workflows/pages.yml');
  assert.ok(workflow.includes('node --check assets/chat-ui.js'));
 });

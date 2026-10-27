@@ -3,38 +3,15 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {translations,supportedLanguages} from '../assets/i18n.js';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
-test('AURVEX 3.17 ships moderator panel and secured per-message actions',()=>{
- const app=read('assets/app.js'),chat=read('assets/chat-ui.js'),admin=read('assets/chat-admin-ui.js');
- const index=read('index.html'),workflow=read('.github/workflows/pages.yml');
- for(const token of ['id="chat-admin-panel"','AURVEX_CHAT_ADMIN_MOUNT?.()'])
-   assert.ok(app.includes(token),token);
- assert.ok(chat.includes('window.AURVEX_CHAT_ADMIN_POST_TOOLS?.(x)'));
- assert.ok(chat.includes('window.AURVEX_CHAT_RENDER=renderMessages'));
- assert.ok(chat.includes('window.AURVEX_CHAT_RELOAD=load'));
- assert.ok(admin.includes("rpc('aurvex_chat_staff_state'"));
- assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf('class="chat-side-column"'));
- assert.ok(app.includes('data-mod-mobile-open'));
- assert.ok(app.includes('class="chat-admin-backdrop"'));
- assert.ok(admin.includes('data-mod-tab="members"'));
- assert.ok(admin.includes('data-mod-tab="reports"'));
- assert.ok(admin.includes('data-mod-pick-user'));
- assert.ok(admin.includes('data-mod-select-message'));
- assert.ok(admin.includes('data-mod-mobile-close'));
- assert.ok(!admin.includes('data-mod-toggle'));
- assert.ok(!admin.includes('<details class="mod-message-menu"'));
- assert.ok(read('assets/site.css').includes('.chat-admin-slot.is-mobile-open'));
- assert.ok(read('assets/site.css').includes('.chat-side-column{display:flex'));
- assert.ok(admin.includes("rpc('aurvex_chat_staff_roster'"));
- assert.ok(admin.includes("rpc('aurvex_chat_moderation_queue'"));
+test('Community moderation interface is no longer loaded after chat page removal',()=>{
+ const app=read('assets/app.js'),index=read('index.html'),workflow=read('.github/workflows/pages.yml');
+ assert.ok(!app.includes('id="chat-admin-panel"'));
+ assert.ok(!app.includes('AURVEX_CHAT_ADMIN_MOUNT'));
+ assert.ok(!index.includes('assets/chat-admin-ui.js'));
+ assert.ok(workflow.includes('node --check assets/chat-admin-ui.js'));
+ const admin=read('assets/chat-admin-ui.js');
  assert.ok(admin.includes("rpc('aurvex_chat_moderate_user'"));
  assert.ok(admin.includes("rpc('aurvex_chat_moderate_message'"));
- assert.ok(admin.includes("functions.invoke('aurvex-chat-admin'"));
- assert.ok(admin.includes('window.AURVEX_ID?.mfaVerified===true'));
- assert.ok(admin.includes('mod.siteAdmin'));
- assert.ok(admin.includes("if(!window.confirm("));
- assert.ok(!admin.includes('SUPABASE_SERVICE_ROLE_KEY'));
- assert.ok(index.includes('assets/chat-admin-ui.js?v=20261018-480'));
- assert.ok(workflow.includes('node --check assets/chat-admin-ui.js'));
 });
 test('Staff actions support durations, full account suspension and restore',()=>{
  const functions=[
@@ -107,27 +84,9 @@ test('Staff can search account by nickname or UUID without exposing email data',
  }
 });
 
-test('Right-side moderation controls are localized, maintain selection and use privileged RPCs',()=>{
- const admin=read('assets/chat-admin-ui.js');
- const css=read('assets/site.css');
- const app=read('assets/app.js');
- assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf('class="chat-side-column"'));
- assert.ok(app.indexOf('id="chat-admin-panel"')>app.indexOf("'</section>'")||app.includes('class="chat-side-column"'));
- for(const text of ["selectedUser:","selectedMessage:","tab:'members'","mobileOpen:false",
-   "data-mod-tab=","data-mod-mobile-open","data-mod-mobile-close",
-   "data-mod-select-message=","mod.selectedUser=target","mod.tab='members'",
-   "data-mod-clear-message"]){
-   // selectedUser is assigned in multiple paths; actual saved select target comes from change events.
-   if(text==="mod.selectedUser=target")continue;
-   assert.ok(admin.includes(text)||app.includes(text),text);
- }
- assert.ok(css.includes(".chat-side-column{display:flex"));
- assert.ok(css.includes(".chat-admin-slot:not(:empty){display:block;position:fixed"));
- assert.ok(css.includes("body.chat-admin-drawer-open .chat-admin-backdrop"));
- for(const locale of supportedLanguages){
-  for(const key of ['modUsersTab','modReportsTab','modSelectedMessage',
-    'modClearSelection','modManageAccount','modSelectMember','modUnknownPlayer']){
-   assert.ok(translations[locale][key],locale+' '+key);
-  }
- }
+test('Moderation controls are unreachable from the site shell',()=>{
+ const app=read('assets/app.js'),index=read('index.html');
+ assert.ok(!app.includes('id="chat-admin-panel"'));
+ assert.ok(!app.includes('class="chat-side-column"'));
+ assert.ok(!index.includes('assets/chat-admin-ui.js'));
 });

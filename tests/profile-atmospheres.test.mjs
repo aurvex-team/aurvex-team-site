@@ -9,16 +9,15 @@ const accents=['rose','violet','blue','gold','emerald','cyan','red','orange','wh
 const shopItems=['avatar_violet','avatar_ruby','avatar_cyan','avatar_gold','avatar_summer','avatar_frostnova','avatar_galaxy','avatar_nebula','avatar_aurora',
  'profile_emerald','profile_cosmic','profile_frost','profile_flame','profile_summer','profile_winter','profile_galaxy','profile_neon','profile_solarflare','profile_voidglass'];
 
-test('All profile themes and accents are available, visually distinct and translated',()=>{
+test('Profile theme customization editor is removed while profile cosmetics remain styled',()=>{
  const app=read('assets/app.js'),css=read('assets/site.css'),i18n=read('assets/i18n.js');
+ assert.ok(!app.includes('profile-appearance-form'));
  for(const theme of themes){
-  assert.ok(app.includes("'"+theme+"','profileTheme"),'missing choice '+theme);
   assert.ok(css.includes('data-profile-theme="'+theme+'"'),'missing visual theme '+theme);
   const key='profileTheme'+theme[0].toUpperCase()+theme.slice(1);
   for(const lang of supportedLanguages)assert.ok(translations[lang][key],lang+': '+key);
  }
  for(const color of accents){
-  assert.ok(app.includes("'"+color+"','profileColor"),'missing accent choice '+color);
   assert.ok(css.includes('data-profile-color="'+color+'"'),'missing accent style '+color);
   const key='profileColor'+color[0].toUpperCase()+color.slice(1);
   for(const lang of supportedLanguages)assert.ok(translations[lang][key],lang+': '+key);
@@ -28,7 +27,6 @@ test('All profile themes and accents are available, visually distinct and transl
  assert.ok(css.includes("url('./profile-summer-beach.png')"));
  assert.ok(existsSync(new URL('../assets/profile-summer-beach.png',import.meta.url)));
 });
-
 test('Every active Stars cosmetic applies to avatars or full profile frames',()=>{
  const app=read('assets/app.js'),css=read('assets/site.css');
  const helper=app.slice(app.indexOf('function shopStyleAttrs'),app.indexOf('function profilePresentationAttrs'));

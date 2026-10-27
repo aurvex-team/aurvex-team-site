@@ -867,6 +867,8 @@ function playerProfilePage(auth){
       tabToolbar+
       '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
         panelStart('overview')+
+        '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
+          '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
         '<div class="player-edit-layout">'+
           '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
             '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
@@ -1241,7 +1243,7 @@ function inventoryPage(){
      icon(cat==='frames'?'sparkle':cat==='games'?'gamepad':cat==='tradable'?'arrow':'layers',17)+'<span>'+t(label)+'</span><b>'+count+'</b></button>').join('')+
    '</aside><section class="si-browser"><div class="si-browser-toolbar"><div><span class="smallcaps">'+t('siYourItems')+'</span>'+
    '<h2>'+t('siInventoryTab')+' <span>'+visible.length+' / '+owned.length+'</span></h2></div>'+
-   '<label class="si-search">'+icon('search',16)+'<input data-inventory-search type="search" aria-label="'+esc(t('siSearch'))+'" value="'+esc(m.search||'')+'" placeholder="'+esc(t('siSearch'))+'" autocomplete="off">'+(m.search?'<button type="button" data-inventory-action="clear-search" aria-label="'+esc(t('siClear'))+'" title="'+esc(t('siClear'))+'">×</button>':'')+'</label></div>'+
+   '<label class="si-search">'+icon('search',16)+'<input data-inventory-search type="search" value="'+esc(m.search||'')+'" placeholder="'+esc(t('siSearch'))+'" autocomplete="off"></label></div>'+
    '<div class="si-browser-scroll">'+cards+'</div></section><aside class="si-details-col">'+detail+'</aside></div>';
  const giveItems=owned.filter(x=>x.tradable);
  const giveCount=selectedGive.length,takeCount=selectedTake.length;

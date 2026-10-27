@@ -1153,12 +1153,12 @@ test('Other players keep real membership dates even when using founder-like nick
 });
 
 
-test('Profile has Overview and Links, Wishlist visibility, and saved appearance controls',()=>{
+test('Profile has Overview and Links while theme editor is removed',()=>{
  const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
  const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[],wishlist_public:true},profileTitles:['aurvex_ceo']};
  for(const lang of supportedLanguages){
   const html=render('#/id',lang,false,null,auth).html;
-  assert.ok(html.includes('profile-appearance-form'));
+  assert.ok(!html.includes('profile-appearance-form'));
   assert.ok(!html.includes('profile-tab-appearance'));
   assert.ok(!html.includes('data-pf-'));
   assert.ok(html.includes('official-profile-title-aurvex_ceo'));
@@ -1173,7 +1173,7 @@ test('Profile removes redundant Friends, Family and Notifications sidebar cards 
  const id='33333333-3333-4333-8333-333333333333';
  const account={user:{id},profile:{nickname:'player'},profileTitles:[],mfaVerified:true};
  const html=render('#/id','en',false,null,account).html;
- assert.ok(html.includes('id="profile-appearance-form"'));
+ assert.ok(!html.includes('id="profile-appearance-form"'));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.friendsNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.familyNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.social37Nav));
@@ -1237,16 +1237,16 @@ test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
  assert.ok(!view.includes('data-pf-font='));
 });
 
-test('Appearance and Wishlist privacy both use protected account saving',()=>{
+test('Wishlist privacy keeps protected account saving and the theme editor is removed',()=>{
  const ui=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
  const service=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
  assert.ok(!ui.includes('readAppearanceDraft'));
- assert.ok(ui.includes('profile-appearance-form'));
+ assert.ok(!ui.includes('profile-appearance-form'));
  assert.ok(ui.includes('wishlist-privacy-form'));
  assert.ok(ui.includes('saveWishlistVisibility'));
  assert.ok(service.includes('saveWishlistVisibility'));
 });
-test('Compact Profile Studio has two localized accessible editor tabs instead of a tall form stack',()=>{
+test('Profile Studio has two localized accessible editor tabs and no theme editor',()=>{
  const account={
   user:{id:'11111111-2222-4333-8444-555555555555'},
   mfaVerified:true,profile:{nickname:'tester',public_links:[]},profileTitles:[]
@@ -1267,7 +1267,7 @@ test('Compact Profile Studio has two localized accessible editor tabs instead of
   // Hidden panels stay mounted, so their in-progress FormData and event handlers survive tab switches.
   assert.ok(html.includes('id="id-nickname-form"'));
   assert.ok(html.includes('id="social-profile-form"'));
-  assert.ok(html.includes('id="profile-appearance-form"'));
+  assert.ok(!html.includes('id="profile-appearance-form"'));
   assert.ok(html.includes('id="id-avatar-upload"'));
   assert.ok(html.includes('id="id-banner-upload"'));
  }
@@ -1337,7 +1337,7 @@ test('Preview remains separate from editor controls, and public profile has no p
   {user:{id:user},mfaVerified:true,profile:{nickname:'fleki'},profileTitles:[]}).html;
  assert.ok(mine.includes('class="profile-tab-toolbar"'));
  assert.ok(mine.includes('id="social-profile-form"'));
- assert.ok(mine.includes('id="profile-appearance-form"'));
+ assert.ok(!mine.includes('id="profile-appearance-form"'));
  assert.ok(mine.includes('data-social-action="copy-profile"'));
  const publicView=render('#/player/'+user,'en',false,null,null,null,{
   profileTarget:user,profile:{nickname:'fleki',public_links:[],wishlist_visible:false,profileTitles:[]}
@@ -1721,7 +1721,7 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
 });
 
 
-test('Profile keeps its editor without the summary dashboard in all locales',()=>{
+test('Profile keeps its core editor without the summary dashboard or theme editor in all locales',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},
   mfaVerified:true,mfaFactors:[{id:'verified'}],
@@ -1741,7 +1741,7 @@ test('Profile keeps its editor without the summary dashboard in all locales',()=
    assert.ok(html.includes(required),lang+': '+required);
   }
   assert.ok(html.includes('Building a scary game'));
-  assert.ok(html.includes('id="profile-appearance-form"'));
+  assert.ok(!html.includes('id="profile-appearance-form"'));
  }
 });
 test('Public profile bio is escaped, optional, and contains no private account information',()=>{
