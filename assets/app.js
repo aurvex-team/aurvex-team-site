@@ -728,6 +728,12 @@ function shopStyleAttrs(equipped){
  const profile=['profile_emerald','profile_cosmic','profile_frost','profile_flame'].includes(e.profile)?e.profile:'none';
  return ' data-shop-avatar="'+avatar+'" data-shop-profile="'+profile+'"';
 }
+function profilePresentationAttrs(raw){
+ const safe=raw&&typeof raw==='object'?raw:{};
+ const theme=['galaxy','summer','winter','aurora','neon'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
+ const color=['rose','violet','blue','gold'].includes(safe.inner_color)?safe.inner_color:'violet';
+ return ' data-profile-theme="'+theme+'" data-profile-color="'+color+'" data-profile-transparent="'+(safe.transparent===true?'true':'false')+'"';
+}
 function renderProfileLinks(links,slot){
  const chosen=(Array.isArray(links)?links:[]).filter(l=>
   (['header','main','footer'].includes(l?.slot)?l.slot:'main')===slot);
@@ -837,7 +843,7 @@ function playerProfilePage(auth){
   const bannerRemove=auth.profile?.banner_path?
     '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
-    '<div class="player-profile"'+shopStyleAttrs(window.AURVEX_SHOP?.userId&&window.AURVEX_SHOP.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+'>'+
+    '<div class="player-profile"'+shopStyleAttrs(window.AURVEX_SHOP?.userId&&window.AURVEX_SHOP.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+profilePresentationAttrs(auth.profile?.profile_appearance)+'>'+
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
@@ -862,6 +868,13 @@ function playerProfilePage(auth){
         panelStart('overview')+
         '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
           '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
+        '<form id="profile-appearance-form" class="player-edit-card profile-appearance-editor">'+
+          '<h3>'+icon('sparkle',19)+' '+t('profileThemeLabel')+'</h3>'+
+          '<div class="profile-appearance-fields">'+
+           '<label>'+t('profileThemeLabel')+'<select name="profile_theme">'+appearanceOptions([['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon']],auth.profile?.profile_appearance?.profile_theme||'galaxy')+'</select></label>'+
+           '<label>'+t('profileInnerColorLabel')+'<select name="inner_color">'+appearanceOptions([['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold']],auth.profile?.profile_appearance?.inner_color||'violet')+'</select></label>'+
+           '<label class="social-wish-toggle"><input type="checkbox" name="transparent"'+(auth.profile?.profile_appearance?.transparent===true?' checked':'')+'><span><strong>'+t('profileTransparentLabel')+'</strong></span></label>'+
+          '</div><button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileAppearanceSave')+'</button></form>'+
         '<div class="player-edit-layout">'+
           '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
             '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
@@ -1126,7 +1139,7 @@ function publicPlayerPage(path){
  const date=new Date(p.joined_at);
  const joined=Number.isFinite(date.getTime())?date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{year:'numeric',month:'long'}):'';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
-  '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+'>'+
+  '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+profilePresentationAttrs(p.profile_appearance)+'>'+
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
