@@ -1,7 +1,7 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
 import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,setGameActivityVisibility,loadOwnGameActivity,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
- from './social-service.js?v=20261018-410';
+ from './social-service.js?v=20261027-002';
 import {normalizePublicLinks} from './social-links.js?v=20261018-410';
 
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
