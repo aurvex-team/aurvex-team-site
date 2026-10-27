@@ -187,3 +187,7 @@ const newLocaleStrings={
 for(const lang of ["en","uk","pl","de"])Object.assign(translations[lang],completionStrings[lang]);
 for(const [lang,strings] of Object.entries(newLocaleStrings))translations[lang]={...translations.en,...strings};
 supportedLanguages.push("ru","es","fr");
+
+translations.ru.idFmailConnectedHint="Продолжить с аккаунтом Fmail. Пароль и коды 2FA остаются в Fmail. Для AURVEX также требуется отдельная проверка 2FA.";
+translations.es.idFmailConnectedHint="Continúa con tu cuenta de Fmail. Tu contraseña y códigos 2FA permanecen en Fmail. AURVEX requiere además su propia verificación 2FA.";
+translations.fr.idFmailConnectedHint="Continuer avec votre compte Fmail. Votre mot de passe et vos codes 2FA restent chez Fmail. AURVEX exige également sa propre vérification 2FA.";
