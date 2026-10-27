@@ -460,22 +460,36 @@ function features(){
   return '<div class="feature-columns">'+names.map(function(x){return '<article class="feature-column"><div class="feature-icon">'+icon(x[0],23)+'</div><h3>'+t(x[1])+'</h3><p>'+t(x[2])+'</p></article>'}).join('')+'</div>';
 }
 function home(){
-  return '<div class="welcome-bar"><div><div class="smallcaps">'+t('beta')+'</div><h1>'+t('welcomeTitle')+'</h1><p>'+t('welcomeText')+'</p></div><span class="round-badge">✦ AURVEX STORE v2.0</span></div>'+
-  '<section class="hero" aria-label="Devive game spotlight"><img class="hero-background" src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'" fetchpriority="high">'+
-    '<div class="hero-content"><div class="hero-label">'+t('eyebrow')+'</div><div class="hero-wordmark">DEVIVE</div>'+
-    '<h2 class="hero-headline">'+t('heroTitle')+'<br>'+t('heroTitleAccent')+'</h2><p class="hero-description">'+t('heroCopy')+'</p>'+
-    '<div class="hero-actions"><a class="btn btn-primary" href="#/game/devive">'+t('exploreDevive')+' '+icon('arrow',16)+'</a>'+
-    libraryAction('btn btn-soft')+'</div>'+
-    '<div class="hero-facts"><span>'+icon('gift',15)+' '+t('freeAtLaunch')+'</span><span>'+icon('clock',15)+' '+t('inDevelopment')+'</span><span>'+icon('gamepad',15)+' '+t('twoD')+'</span></div></div>'+
-    '<span class="art-note">'+t('conceptArtwork')+'</span></section>'+
-  '<section class="section">'+sectionHead('selectionKicker','selectionTitle','selectionSubtitle','showAll','/browse')+
-    '<div class="editorial-grid">'+gameCard()+upcomingCard()+'</div></section>'+
-  '<section class="section">'+sectionHead('whyKicker','whyTitle','whyText',null,null)+features()+'</section>'+
-  '<section class="section">'+sectionHead('editorialKicker','editorialTitle','editorialDesc',null,null)+
-    '<div class="feature-story"><div class="story-content"><div class="smallcaps">'+t('firstRelease')+'</div><h2>'+t('deviveQuote')+'</h2><p>'+t('deviveLong')+'</p>'+
-    '<a href="#/game/devive" class="btn btn-soft">'+t('editorialLink')+' '+icon('arrow',16)+'</a></div></div></section>'+
-  '<section class="section">'+sectionHead('whatsNext','announcing','announcementDesc',null,null)+
-    '<div class="announcement-grid"><a href="#/game/devive" class="announcement-card"><small>'+t('firstRelease')+'</small><h3>'+t('updateDevive')+'</h3><p>'+t('updateDeviveDesc')+'</p></a></div></section>';
+  const links=[
+    {route:'/browse',icon:'compass',key:'browse'},
+    {route:'/games',icon:'gamepad',key:'games'},
+    {route:'/apps',icon:'apps',key:'apps'},
+    {route:'/rewards',icon:'gift',key:'freeRewards'}
+  ];
+  const cards=links.map(function(item,index){
+    return '<a class="home-explore-card" href="'+href(item.route)+'"><span class="home-explore-index">0'+(index+1)+'</span>'+
+      '<span class="home-explore-icon">'+icon(item.icon,21)+'</span><strong>'+t(item.key)+'</strong>'+
+      '<span class="home-explore-arrow">'+icon('arrow',16)+'</span></a>';
+  }).join('');
+  return '<div class="home-redesign">'+
+    '<header class="home-topline"><div class="home-intro"><span class="smallcaps">'+t('beta')+'</span>'+
+      '<h1>'+t('welcomeTitle')+'</h1><p>'+t('welcomeText')+'</p></div>'+
+      '<a class="home-top-link" href="#/browse">'+icon('compass',16)+' '+t('showAll')+' '+icon('arrow',14)+'</a></header>'+
+    '<section class="home-feature" aria-label="'+esc(t('heroTitle')+' '+t('heroTitleAccent'))+'">'+
+      '<img class="home-feature-art" src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'" fetchpriority="high">'+
+      '<div class="home-feature-shade" aria-hidden="true"></div>'+
+      '<div class="home-feature-copy"><div class="home-feature-kicker"><span>'+t('eyebrow')+'</span><i></i><span>'+t('inDevelopment')+'</span></div>'+
+        '<span class="home-feature-series">'+t('firstRelease')+'</span><h2 class="home-feature-wordmark">DEVIVE</h2>'+
+        '<h3>'+t('heroTitle')+' '+t('heroTitleAccent')+'</h3><p class="home-feature-description">'+t('heroCopy')+'</p>'+
+        '<div class="home-feature-actions"><a class="btn btn-primary" href="#/game/devive">'+t('exploreDevive')+' '+icon('arrow',16)+'</a>'+
+          libraryAction('btn btn-soft')+'</div>'+
+        '<div class="home-feature-facts"><span>'+icon('gift',14)+' '+t('freeAtLaunch')+'</span><span>'+icon('gamepad',14)+' '+t('twoD')+'</span>'+
+          '<span>'+icon('clock',14)+' '+t('inDevelopment')+'</span></div></div>'+
+      '<div class="home-feature-art-label"><span class="home-art-orbit">'+icon('sparkle',19)+'</span><span>01</span><small>'+t('conceptArtwork')+'</small></div>'+
+    '</section>'+
+    '<section class="home-explore"><div class="home-explore-heading"><div><span class="smallcaps">'+t('selectionKicker')+'</span>'+
+      '<h2>'+t('selectionTitle')+'</h2></div><p>'+t('selectionSubtitle')+'</p></div><nav class="home-explore-grid" aria-label="'+t('browse')+'">'+cards+'</nav></section>'+
+  '</div>';
 }
 function heading(title,sub,kicker){
   return '<div class="heading-block"><div class="smallcaps">'+t(kicker)+'</div><h1>'+t(title)+'</h1><p>'+t(sub)+'</p></div>';
@@ -1592,6 +1606,7 @@ function render(keepScroll=false){
   document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory');
   document.body.classList.toggle('rewards-fullscreen',route.path==='/rewards'||route.path==='/free');
   document.body.classList.toggle('desktop-fullscreen',route.path==='/desktop');
+  document.body.classList.toggle('home-fullscreen',route.path==='/');
   document.documentElement.lang=state.language;
   document.documentElement.dataset.theme=state.theme;
   let page;
