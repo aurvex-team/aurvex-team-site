@@ -1353,7 +1353,7 @@ function shopPage(){
      }).join('')+'</div>':'<p>'+t('shopCollectionEmpty')+'</p>')+
      (Array.isArray(m.history)&&m.history.length?'<details><summary>'+t('shopHistory')+'</summary>'+
        '<div class="shop-history">'+m.history.slice(0,10).map(h=>
-         '<div><span>'+(h.reason==='welcome'?t('shopWelcomeTransaction'):h.reason==='sale_payout'?t('shopSalePayout'):t('shopPurchaseTransaction'))+
+         '<div><span>'+(h.reason==='welcome'?t('shopWelcomeTransaction'):h.reason==='sale_payout'?t('shopSalePayout'):h.reason==='developer_grant'?t('shopDeveloperGrant'):h.reason==='weekly_reward'?t('weeklyRewardTitle'):t('shopPurchaseTransaction'))+
          (h.item_id?' · '+esc(t('shopItem_'+h.item_id)):'')+'</span><strong>'+
          (h.points_delta>0?'+':'')+Number(h.points_delta||0)+' '+t('shopPoints')+'</strong></div>').join('')+'</div></details>':'')+
      '</section>':'')+
