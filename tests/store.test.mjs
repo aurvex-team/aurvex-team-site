@@ -1722,25 +1722,22 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
 });
 
 
-test('Profile keeps its core editor without the summary dashboard or theme editor in all locales',()=>{
+test('Profile keeps its core editor without the summary dashboard, theme editor or custom statuses in all locales',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},
   mfaVerified:true,mfaFactors:[{id:'verified'}],
   profile:{nickname:'Creator',profile_bio:'Building a scary game',
-    profile_status:'open',profile_status_text:'Building Devive',profile_status_emoji:'💻',
-    profile_status_expires_at:null,avatar_path:'avatar.jpg',banner_path:'banner.jpg',
+    profile_status:'open',avatar_path:'avatar.jpg',banner_path:'banner.jpg',
     public_links:[{title:'GitHub',url:'https://github.com/aurvex-team'}],wishlist_public:false}};
  for(const lang of supportedLanguages){
   const html=render('#/id?mode=edit',lang,false,null,auth).html;
   assert.ok(!html.includes('class="profile-command-center"'),lang+': summary panel remains');
   assert.ok(!html.includes('class="profile-progress-bar"'),lang+': completion bar remains');
   for(const required of ['id="profile-about-form"','name="bio"','maxlength="240"',
-    'name="duration"','name="custom_text"','name="custom_emoji"',
-    'id="profile-custom-status-form"','profile-custom-status','data-profile-emoji="💻"',
-    'data-profile-clear-status','data-profile-tab="links"',
-    translations[lang].profileAboutTitle,translations[lang].profileCustomStatus]){
+    'data-profile-tab="links"',translations[lang].profileAboutTitle]){
    assert.ok(html.includes(required),lang+': '+required);
   }
+  assert.ok(!html.includes('profile-custom-status'),lang+': custom status UI remains');
   assert.ok(html.includes('Building a scary game'));
   assert.ok(!html.includes('id="profile-appearance-form"'));
  }
@@ -1755,9 +1752,9 @@ test('Public profile bio is escaped, optional, and contains no private account i
  const html=render('#/player/'+id,'en',false,null,null,null,model).html;
  assert.ok(html.includes('class="public-block profile-about-public"'));
  assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
- assert.ok(html.includes('profile-custom-status'));
- assert.ok(html.includes('Working on Devive'));
- assert.ok(html.includes('🎮'));
+ assert.ok(!html.includes('profile-custom-status'));
+ assert.ok(!html.includes('Working on Devive'));
+ assert.ok(!html.includes('🎮'));
  assert.ok(html.includes(translations.en.profileAboutTitle));
  assert.ok(!html.includes('<img src=x onerror=alert(1)>'));
  assert.ok(!html.includes('name="bio"'));
@@ -1768,7 +1765,7 @@ test('Public profile bio is escaped, optional, and contains no private account i
  const hostile=render('#/player/'+id,'en',false,null,null,null,
   {...model,profile:{...model.profile,profile_status_emoji:'<svg/onload=alert(1)>'}}).html;
  assert.ok(!hostile.includes('<svg/onload=alert(1)>'));
- assert.ok(hostile.includes('Working on Devive'));
+ assert.ok(!hostile.includes('Working on Devive'));
 });
 test('Profile bio edits survive redraws and are not shown for the wrong signed-in account',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
@@ -1778,8 +1775,8 @@ test('Profile bio edits survive redraws and are not shown for the wrong signed-i
  const draft={aboutDraftUser:id,aboutDraft:{bio:'Unsaved editor description',status:'busy'}};
  const html=render('#/id?mode=edit','en',false,null,auth,null,draft).html;
  assert.ok(html.includes('Unsaved editor description'));
- assert.ok(html.includes('Saved status'),'Current status stays visible while editing biography');
- assert.ok(html.includes('data-profile-emoji="💻" aria-label="💻" aria-pressed="true"'));
+ assert.ok(!html.includes('Saved status'));
+ assert.ok(!html.includes('data-profile-emoji="💻"'));
  const stale=render('#/id?mode=edit','en',false,null,auth,null,
   {...draft,aboutDraftUser:'other-user'}).html;
  assert.ok(!stale.includes('Unsaved editor description'));
