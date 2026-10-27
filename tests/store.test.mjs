@@ -2045,7 +2045,9 @@ test('Russian Spanish and French have complete translation key sets for the inte
 });
 
 
-test('Catalog submission panel stays above search and filters when open',()=>{
+test('Catalog submission panel floats above search and filters without moving them',()=>{
  assert.ok(css.includes('.catalog-heading-row{position:relative;z-index:30;'));
  assert.ok(css.includes('z-index:12'));
+ assert.ok(css.includes('.catalog-submit-panel{position:absolute;'));
+ assert.ok(css.includes('.catalog-submit[open]{flex:0 0 auto;display:block}'));
 });
