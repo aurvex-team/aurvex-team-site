@@ -87,3 +87,10 @@ export async function getFamilyLibrary(){
  const {data,error}=await client.rpc('aurvex_family_access');
  if(error)throw error;return data||[];
 }
+
+export async function saveProfileAppearance(userId,appearance){
+ const client=await idClient();await ensureOwnProfile(client,userId);
+ const {data,error}=await client.from('id_profiles').update({profile_appearance:appearance}).eq('id',userId)
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status,profile_status_text,profile_status_emoji,profile_status_expires_at').single();
+ if(error)throw error;return data;
+}
