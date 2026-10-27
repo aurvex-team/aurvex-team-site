@@ -1240,8 +1240,8 @@ test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
 test('Wishlist privacy keeps protected account saving and the theme editor is removed',()=>{
  const ui=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
  const service=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ assert.ok(!appCode.includes('profile-appearance-form'));
  assert.ok(!ui.includes('readAppearanceDraft'));
- assert.ok(!ui.includes('profile-appearance-form'));
  assert.ok(ui.includes('wishlist-privacy-form'));
  assert.ok(ui.includes('saveWishlistVisibility'));
  assert.ok(service.includes('saveWishlistVisibility'));
