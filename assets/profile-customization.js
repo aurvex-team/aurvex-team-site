@@ -1,15 +1,18 @@
 // Safe visual presets — no user-supplied CSS, HTML, fonts or arbitrary colors.
 export const PROFILE_DEFAULTS=Object.freeze({
  font:'system',avatar_frame:'violet',profile_frame:'none',glow_color:'violet',
+ profile_theme:'galaxy',inner_color:'violet',transparent:false,
  glow_avatar:false,glow_banner:false,glow_name:false,glow_links:false,glow_profile:false
 });
 const choices={
  font:['system','modern','rounded','mono','serif'],
+ profile_theme:['galaxy','summer','winter','aurora','neon'],
+ inner_color:['rose','violet','blue','gold'],
  avatar_frame:['none','violet','red','cyan','emerald','gold'],
  profile_frame:['none','violet','red','cyan','emerald','gold'],
  glow_color:['violet','red','cyan','emerald','gold']
 };
-const booleanKeys=['glow_avatar','glow_banner','glow_name','glow_links','glow_profile'];
+const booleanKeys=['glow_avatar','glow_banner','glow_name','glow_links','glow_profile','transparent'];
 export function normalizeAppearance(raw={}){
  if(raw===null||typeof raw!=='object'||Array.isArray(raw))throw new Error('INVALID_APPEARANCE');
  const result={...PROFILE_DEFAULTS};
