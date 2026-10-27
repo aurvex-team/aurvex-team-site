@@ -1,58 +1,69 @@
 # AURVEX Store
 
-**AURVEX Store** — an original, responsive games-and-software discovery storefront for the AURVEX team, built for GitHub Pages.
+AURVEX is a responsive storefront and community site for games and software, published with GitHub Pages.
 
-🌐 Website: **https://aurvex-team.github.io/aurvex-team-site/**
+**Live site:** https://aurvex-team.github.io/aurvex-team-site/
 
-## Features (v2)
+## Current features
 
-- Premium desktop storefront inspired by game discovery platforms, with its own AURVEX branding and original artwork.
-- **English by default**, with complete Ukrainian, Polish, and German localization.
-- Dark theme by default, optional light theme.
-- Responsive desktop sidebar and mobile navigation.
-- Hash-based single-page routes: Home, Browse, Games (legacy), Software (legacy), Free Rewards, Wishlist, Devive, About & roadmap.
-- Browse Store with centered search, 26 localized game genres, product-type filter, minimum/maximum price in UAH (₴), release year, clear filters, and helpful empty states. Filter selections are shareable through the address bar.
-- The sidebar links only to Home, Browse Store, Free Rewards, Wishlist and About; the Free Rewards section is a placeholder until real rewards are announced.
-- **Wishlist saved in the current browser using localStorage**; works without an account. Secure cloud syncing is scaffolded for when AURVEX ID launches.
-- **AURVEX ID** at `#/id`: Google PKCE login enabled for testing, account profile and wishlist syncing scaffolding. Google signups require Audience test users and Supabase signup permission; normal Email and fmail are not available yet. No successful end-to-end signup has been verified.
-- Dedicated **Devive** product page: concept art, description, planned controls, status, and game features.
-- Original vector artwork in assets/devive-scene.svg. Images are **concept art**, not gameplay screenshots.
-- Project roadmap clarifies what works today vs. what is planned.
+- Searchable, filterable store catalog and wishlist.
+- AURVEX ID account/profile screens, friends, family, notifications, library, inventory and Stars features.
+- Global visual themes and language selection.
+- Download information for desktop and mobile operating systems. A listing does not mean an installer or mobile app is available.
+- Browse Store submission panel. Creators can introduce a game or app and offer a demo/test build through Telegram at [@flekusik](https://t.me/flekusik). The site does not upload files; share a description, screenshots/video and a safe test link in Telegram.
+- Help & policies page covering privacy notes, account use, checkout status and creator submissions.
 
-## Current catalog
+## Languages
 
-| Product | Category | Planned price | Status |
-| --- | --- | --- | --- |
-| **Devive** | 2D side-view horror game set in an old two-storey house | Free | In development; no downloadable build yet |
+The language selector includes English, Ukrainian, Polish, German, Russian, Spanish and French. English, Ukrainian, Polish and German are the established site-wide translations. Russian, Spanish and French include translated navigation, account entry and submission/policy screens; older feature copy still needs review and translation before these three can be described as fully localized.
 
-**Important:** This is a storefront preview, **not a functional checkout or distribution service**. No payment processing, live website registration or executable game downloads exist yet. AURVEX ID now has a separate, healthy Supabase project with RLS-protected profile/wishlist tables. Google OAuth is enabled in Supabase and the website Google sign-in button is on for **controlled testing**. It has not yet passed a real sign-in test; Google Audience test users and Supabase signup settings must be checked. Email and fmail sign-in remain disabled. fmail remains a separate product. Don't represent Devive as released before its release build is available.
+## Accounts and sign-in
 
-## Files
+AURVEX ID uses Supabase Auth and RLS-protected data. Browser code must contain only the Supabase project URL and publishable key. Never commit a service-role key, OAuth client secret or Fmail secret.
 
-- index.html — lightweight entry point, default language en
-- assets/site.css — all themes, typography, desktop/mobile layouts
-- assets/app.js — navigation, filtering, wishlists, rendering and interactions
-- assets/i18n.js — EN / UK / PL / DE translations
-- assets/id-config.js — publishable auth configuration (deliberately blank)
-- assets/id-service.js — Supabase Auth PKCE, OTP and profile/wishlist adapter
-- assets/id-ui.js — auth interactions and verified session UI
-- supabase/migrations/20261017_aurvex_id_core.sql — RLS-protected AURVEX ID schema
-- docs/AURVEX-ID.md — security architecture and provider activation steps
-- assets/devive-scene.svg — original horror concept illustration
-- assets/favicon.svg — AURVEX brand mark
-- .github/workflows/pages.yml — automatic GitHub Pages deployment
+Current public settings are in `assets/id-config.js`. Google sign-in is enabled; email OTP and Fmail are disabled until provider setup and end-to-end checks are complete. Do not set `fmailEnabled` to `true` before registering Fmail as a Supabase custom OAuth provider.
 
-## Deploy
+### Fmail activation checklist
 
-Push to main. The GitHub Actions workflow publishes the site automatically.
+The Fmail OAuth server is maintained in the separate `flekiii/xoni-mail` project. Before enabling Fmail in AURVEX:
 
-In Settings → Pages → Build and deployment, make sure **GitHub Actions** is selected. The site is served from the repository's own base path.
+1. Set a long random `FMAIL_AURVEX_OAUTH_SECRET` on the private Render service running XONI Mail. Keep it private.
+2. Register the confidential client `aurvex-supabase` in Supabase Auth as a custom OAuth provider with this exact callback URL: `https://zalzsgfufvppvgvqfocf.supabase.co/auth/v1/callback`.
+3. Configure the provider endpoints:
+   - Authorization: `https://xoni-mail.onrender.com/oauth/authorize`
+   - Token: `https://xoni-mail.onrender.com/oauth/token`
+   - User information: `https://xoni-mail.onrender.com/oauth/userinfo`
+4. Use the same client secret in Render and Supabase provider settings. Never put it in GitHub or browser JavaScript.
+5. Test sign-in and first-time AURVEX account creation, consent, cancellation, MFA, sign-out and return-to-site behavior.
+6. Only after those checks, enable `fmailEnabled` in `assets/id-config.js`.
 
-## Next releases
+Fmail login should send users to Fmail to authenticate and approve AURVEX; AURVEX must never collect a Fmail password. AURVEX's own 2FA remains separate.
 
-1. Add tested build files and verified platforms for Devive after the game is ready.
-2. Add new **actual** games and applications to the data-driven catalog. Do not publish invented products.
-3. Activate **separate** AURVEX ID Supabase Auth (Google + email OTP) after setup and provider testing, then integrate verified fmail ID. Secure purchases need a separate backend, payment provider and entitlement verification.
-4. Add real product screenshots and publisher tools when available.
+## Payments and downloads
 
-AURVEX Store is not affiliated with Valve or Epic Games.
+The Stars balance and checkout UI do not by themselves represent a payment processor. Real-money purchases must remain unavailable until a payment provider, server-side order validation, refunds and entitlement checks are implemented and tested. Devive is in development; do not advertise a game download unless a verified release build is published.
+
+## Main files
+
+- `assets/app.js` — routes, storefront, filters and page rendering.
+- `assets/i18n.js` — interface translations.
+- `assets/site.css` — themes, layout and responsive styling.
+- `assets/id-config.js`, `assets/id-service.js`, `assets/id-ui.js` — AURVEX ID client integration.
+- `supabase/migrations/` — database schema and security policies.
+- `tests/store.test.mjs` — UI and localization regression checks.
+- `.github/workflows/pages.yml` — tests and GitHub Pages deployment.
+
+## Development
+
+Use Node.js 20 or newer:
+
+```sh
+npm install
+npm test
+```
+
+GitHub Pages deploys through the repository's Actions workflow after changes reach `main`. Check the workflow run before sharing a change as live.
+
+## Creator submissions
+
+A submission invites the AURVEX team to review a project; it does not promise a listing, funding or purchase. The creator retains ownership. Publication, distribution or sale requires a separate agreement. Do not send passwords, private keys, personal documents or confidential user data with a test build.
