@@ -6,8 +6,8 @@ export const PROFILE_DEFAULTS=Object.freeze({
 });
 const choices={
  font:['system','modern','rounded','mono','serif'],
- profile_theme:['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight'],
- inner_color:['rose','violet','blue','gold','emerald','cyan','red','orange','white'],
+ profile_theme:['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight','sakura','desert','autumn','arctic','volcanic','starlight'],
+ inner_color:['rose','violet','blue','gold','emerald','cyan','red','orange','white','mint','teal','indigo','coral','lavender','silver'],
  avatar_frame:['none','violet','red','cyan','emerald','gold'],
  profile_frame:['none','violet','red','cyan','emerald','gold'],
  glow_color:['violet','red','cyan','emerald','gold']
