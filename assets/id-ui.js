@@ -7,7 +7,7 @@ import {
  currentVerifiedUser,ownProfile,saveOwnNickname,getOwnWishlist,setOwnWishlist,
  subscribeOwnWishlist,profileMediaUrl,uploadProfileMedia,removeProfileMedia,claimDeviveToLibrary,
  getMfaState,beginMfaEnrollment,verifyMfaCode,getOwnProfileTitles
-} from './id-service.js?v=20261027-015';
+} from './id-service.js?v=20261027-016';
 
 const model={user:null,profile:null,avatarUrl:'',bannerUrl:'',pendingEmail:'',statusKey:'',statusError:false,busy:false,ready:false,
  mfaVerified:false,mfaHasFactors:false,mfaFactors:[],mfaEnrollment:null,mfaQrExpanded:false,
