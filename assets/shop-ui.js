@@ -2,7 +2,7 @@
 // UAH payments are NOT enabled here: no client can mint entitlements.
 import {loadShopCatalog,loadShopState,buyShopItemPoints,equipShopItem}
  from './shop-service.js?v=20261018-411';
-import {translations} from './i18n.js?v=20261023-600';
+import {translations} from './i18n.js?v=20261027-001';
 
 const model={catalog:[],catalogReady:false,catalogError:false,
   balance:null,inventory:[],equipped:{avatar:null,profile:null},history:[],
