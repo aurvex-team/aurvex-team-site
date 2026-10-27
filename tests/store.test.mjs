@@ -35,8 +35,8 @@ function render(route='#/',lang=null,wished=false,theme=null,auth=null,friends=n
   return {html:holder.innerHTML,lang:document.documentElement.lang,theme:document.documentElement.dataset.theme,title:document.title};
 }
 
-test('complete localized strings across the four supported languages',()=>{
-  assert.deepEqual(supportedLanguages,['en','uk','pl','de']);
+test('complete translation keys across the seven supported languages',()=>{
+  assert.deepEqual(supportedLanguages,['en','uk','pl','de','ru','es','fr']);
   const base=Object.keys(translations.en).sort();
   assert.ok(base.length>190);
   for(const code of supportedLanguages){
