@@ -809,13 +809,13 @@ function steamProfilePage(auth){
           '</div></div></section>'+
       '<div class="steam-profile-layout"><main class="steam-profile-main">'+
         '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span></div>'+
-          '<button type="button" class="btn '+(window.AURVEX_SOCIAL37?.showOnline?'btn-primary':'btn-outline')+' profile-online-visibility-btn" data-social37-action="visibility" aria-label="'+esc(t('social37ShowOnline'))+'" aria-pressed="'+String(!!window.AURVEX_SOCIAL37?.showOnline)+'"'+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+icon('eye',16)+' '+t('social37ShowOnline')+'</button></div>'+
+          '</div>'+
           '<div class="steam-profile-stats"><div><strong>'+esc(formatProfileTime(activity.recent_30_days_seconds||0))+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
             '<div><strong>'+recent.length+'</strong><span>'+t('profileRecentGamesCount')+'</span></div>'+
             '<div><strong>'+friends+'</strong><span>'+t('friendsNav')+'</span></div></div>'+
           '<ul class="steam-profile-games">'+recentRows+'</ul></section>'+
         (bio?'<section class="steam-profile-panel steam-profile-about"><span class="smallcaps">'+t('profileAboutTitle')+'</span><p>'+esc(bio)+'</p></section>':'')+
-        (visibleLinks.some(x=>(x.slot||'main')==='main')?'<section class="steam-profile-panel"><span class="smallcaps">'+t('socialLinksTitle')+'</span>'+renderProfileLinks(visibleLinks,'main')+'</section>':'')+
+        (visibleLinks.some(x=>(x.slot||'main')==='main')?renderProfileLinks(visibleLinks,'main'):'')+
       '</main><aside class="steam-profile-side">'+
         '<section class="steam-profile-panel steam-profile-side-card"><span class="smallcaps">'+t('profileYourIdentity')+'</span>'+
           '<div class="steam-profile-level"><span>'+icon('shield',20)+'</span><div><strong>'+t('mfaVerifiedLabel')+'</strong><small>'+t('profileMemberSince')+' '+esc(joined)+'</small></div></div>'+
@@ -934,6 +934,7 @@ function playerProfilePage(auth){
            '<label class="social-wish-toggle"><input type="checkbox" name="game_activity_public"'+(activity.visible?' checked':'')+'>'+
              '<span><strong>'+t('profileActivityPublic')+'</strong><small>'+t('profileActivityPrivacy')+'</small></span></label>'+
            '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileActivitySave')+'</button></form></section>'+
+        '<label class="social-wish-toggle social37-online-control"><input type="checkbox" data-social37-action="visibility"'+(window.AURVEX_SOCIAL37?.showOnline?' checked':'')+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'><span><strong>'+t('social37ShowOnline')+'</strong></span></label>'+
 
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
           '<form id="wishlist-privacy-form" class="id-form">'+
@@ -1149,9 +1150,7 @@ function publicPlayerPage(path){
      ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
     (p.profile_bio?'<section class="public-block profile-about-public"><div class="smallcaps">AURVEX PLAYER</div>'+
        '<h2>'+t('profileAboutTitle')+'</h2><p>'+esc(p.profile_bio)+'</p></section>':'')+
-    (links.some(l=>(l.slot||'main')==='main')?
-      '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
-      renderProfileLinks(links,'main')+'</section>':'')+
+    (links.some(l=>(l.slot||'main')==='main')?renderProfileLinks(links,'main'):'')+
     (p.game_activity?.visible?'<section class="public-block profile-game-activity-public"><h2>'+t('profileActivityTitle')+'</h2>'+
       '<div class="profile-activity-total"><strong>'+formatProfileTime(p.game_activity.recent_30_days_seconds||0)+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
       ((p.game_activity.games||[]).length?'<ul class="profile-activity-games">'+p.game_activity.games.map(g=>'<li><span>'+esc(g.game_id==='devive'?'Devive':g.game_id)+'</span><small>'+formatProfileTime(g.recent_seconds||0)+' · '+new Date(g.last_played_at).toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US')+'</small></li>').join('')+'</ul>':'')+'</section>':'')+
