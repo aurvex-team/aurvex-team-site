@@ -1,5 +1,5 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261027-001';
-import './weekly-rewards-ui.js?v=20261027-001';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-002';
+import './weekly-rewards-ui.js?v=20261027-002';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
