@@ -627,7 +627,7 @@ function catalog(route){
     '<div class="catalog-tools"><strong id="catalog-count">'+count+' '+t(count===1?'oneResult':'results')+'</strong>'+
     '<div class="sort-block"><span>'+t('sort')+'</span>'+customChoice('sort-select','',[['featured',t('sortFeatured')],['name',t('sortName')],['free',t('sortFree')]],state.sort,'sort','sort-dropdown')+'</div></div>'+
     '<div class="catalog-results" id="catalog-results">'+resultHTML(route)+'</div>'+
-    '<div class="catalog-tip">'+icon('info',19)+'<span>'+t('onlyDevive')+'</span></div>';
+    '';
 }
 function rewardsPage(){
   const reward=window.AURVEX_WEEKLY_REWARDS||{};
@@ -1612,14 +1612,6 @@ function socialNotificationsPage(route){
         '<span class="notification-filter-count">'+blocked.length+'</span></summary><div class="friends-list">'+blockedList+'</div>'+
         '<p class="social-muted">'+t('social37BlockedNote')+'</p></details></aside></div>';
 }
-function footer(){
-  const year=new Date().getFullYear();
-  return '<footer class="footer"><div class="footer-inner"><div><h3>AURVEX<span style="color:var(--accent)">.</span></h3>'+
-    '<p>'+t('footerTag')+'</p></div><div class="footer-links"><a href="#/browse">'+t('footerExplore')+'</a>'+
-    '<a href="#/games">'+t('games')+'</a><a href="#/apps">'+t('apps')+'</a>'+
-    '<a href="#/desktop">'+esc(launcherT('nav'))+'</a><a href="'+repoUrl+'" target="_blank" rel="noopener noreferrer">'+t('github')+' '+icon('arrowUp',13)+'</a></div></div>'+
-    '<div class="footer-bottom"><span>© '+year+' AURVEX Team. '+t('footerRights')+'</span><span>'+t('footerLegal')+'</span><a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">Rates By Exchange Rate API</a></div></footer>';
-}
 function render(keepScroll=false){
   const pos=window.scrollY;
   const route=routeInfo();route.path=safeRoute(route.path);
@@ -1656,7 +1648,7 @@ function render(keepScroll=false){
   const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=snowfallOverlay()+header(route.path)+sidebar(route.path)+mobileNav(route.path)+
-    '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
+    '<main class="main" id="main-content"><div class="content">'+page+'</div></main>';
   if(route.path==='/library')window.dispatchEvent(new Event('aurvex:library-route'));
   document.body.classList.remove('menu-open');
   if(keepScroll)window.scrollTo(0,pos);
