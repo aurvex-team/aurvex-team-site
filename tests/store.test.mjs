@@ -1967,7 +1967,8 @@ test('Only the Friends route locks page scrolling and scrolls its overflow lists
  assert.ok(css.includes('body.friends-fullscreen{height:100dvh;overflow:hidden'));
 });
 
-\ntest('Winter theme and inventory explanations are translated in every supported language',()=>{
+
+test('Winter theme and inventory explanations are translated in every supported language',()=>{
  for(const lang of supportedLanguages){
   assert.ok(translations[lang].themeWinter,'Missing winter theme label: '+lang);
   for(const key of ['siPurpose','siChanges','siAvatarFramePurpose','siAvatarFrameChanges','siProfileFramePurpose','siProfileFrameChanges','siGameItemPurpose','siGameItemChanges','siEquipStatus','siEquipped','siUnequipped']){
