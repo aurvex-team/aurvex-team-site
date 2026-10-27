@@ -12,19 +12,9 @@ export async function loadPlayerProfile(id){
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
- return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),
-   profile_status_text:String(about?.customText||''),profile_status_emoji:String(about?.customEmoji||''),
-   profile_status_expires_at:about?.customExpiresAt||null,profile_appearance:appearance,game_activity:gameActivity,
+ return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),profile_appearance:appearance,game_activity:gameActivity,
     profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
-}
-export async function saveCustomProfileStatus(text,emoji,duration){
- const client=await idClient();
- const {data,error}=await client.rpc('aurvex_profile_set_custom_status',{
-   new_text:text,new_emoji:emoji,duration
- });
- if(error)throw error;
- return data;
 }
 export async function saveProfileAbout(bio,status){
  const client=await idClient();
@@ -37,14 +27,14 @@ export async function saveSocialProfile(userId,links,wishlistPublic){
  await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles')
    .update({public_links:links,wishlist_public:!!wishlistPublic}).eq('id',userId)
-   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status,profile_status_text,profile_status_emoji,profile_status_expires_at').single();
+   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;
  return data;
 }
 export async function saveWishlistVisibility(userId,visible){
  const client=await idClient();await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles').update({wishlist_public:!!visible}).eq('id',userId)
-  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status,profile_status_text,profile_status_emoji,profile_status_expires_at').single();
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;return data;
 }
 export async function getFamilyOverview(){
@@ -92,7 +82,7 @@ export async function getFamilyLibrary(){
 export async function saveProfileAppearance(userId,appearance){
  const client=await idClient();await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles').update({profile_appearance:appearance}).eq('id',userId)
-  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status,profile_status_text,profile_status_emoji,profile_status_expires_at').single();
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;return data;
 }
 

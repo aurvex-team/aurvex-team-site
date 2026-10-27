@@ -763,21 +763,6 @@ function officialProfileBadges(titles){
     badges.map(([code,ico,label])=>'<span class="official-profile-title official-profile-title-'+code+'">'+
       icon(ico,16)+' '+t(label)+'</span>').join('')+'</div>';
 }
-const customStatusEmojis=["😀","😎","💻","🎮","🔥","💜","✨","🚀","🌙","🎧","🛠️","☕","💤","❤️","🌸","👾","🧠","🎨","✅","💬"];
-const customStatusDurations=['30m','1h','4h','1d','7d','never'];
-function currentCustomStatus(profile){
- if(!profile||typeof profile!=='object')return null;
- const text=String(profile.profile_status_text||'').slice(0,80);
- const emoji=customStatusEmojis.includes(profile.profile_status_emoji)?profile.profile_status_emoji:'';
- const end=profile.profile_status_expires_at;
- if(end&&(!Number.isFinite(Date.parse(end))||Date.parse(end)<=Date.now()))return null;
- return text||emoji?{text,emoji,expiresAt:end||null}:null;
-}
-function customStatusPill(status){
- return status?'<span class="profile-custom-status" title="'+esc(t('profileCustomStatus'))+'">'+
-  (status.emoji?'<span class="profile-custom-emoji">'+esc(status.emoji)+'</span>':'')+
-  (status.text?'<span class="profile-custom-text">'+esc(status.text)+'</span>':'')+'</span>':'';
-}
 function profileMemberSince(joined,titles){
   // Special launch-era label is server-authorized for the original CEO.
   // All other accounts retain their real registration month and year.
@@ -797,7 +782,6 @@ function steamProfilePage(auth){
   }
   const titles=auth.profileTitles||[];
   const profile=auth.profile||{};
-  const status=currentCustomStatus(profile);
   const bio=profile.profile_bio||'';
   const activity=window.AURVEX_SOCIAL?.gameActivity||{visible:false,games:[],recent_30_days_seconds:0};
   const recent=Array.isArray(activity.games)?activity.games:[];
@@ -821,7 +805,7 @@ function steamProfilePage(auth){
         '<div class="steam-profile-identity"><div class="player-avatar-frame steam-profile-avatar">'+avatar+'</div>'+
           '<div class="steam-profile-name"><span class="smallcaps">'+t('profileProfileId')+'</span><h1>'+esc(nickname)+'</h1>'+
             officialProfileBadges(titles)+'<p>'+icon('calendar',14)+' '+profileMemberSince(joined,titles)+'</p>'+
-            (status?customStatusPill(status):'')+renderProfileLinks(visibleLinks,'header')+
+            renderProfileLinks(visibleLinks,'header')+
           '</div></div></section>'+
       '<div class="steam-profile-layout"><main class="steam-profile-main">'+
         '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span>'+
@@ -870,13 +854,6 @@ function playerProfilePage(auth){
   const aboutDraft=window.AURVEX_SOCIAL?.aboutDraftUser===auth.user?.id?window.AURVEX_SOCIAL?.aboutDraft:null;
   const savedBio=auth.profile?.profile_bio||'';
   const profileBio=aboutDraft?.bio??savedBio;
-  const savedCustomStatus=currentCustomStatus(auth.profile);
-  const customDraft=window.AURVEX_SOCIAL?.customDraftUser===auth.user?.id?window.AURVEX_SOCIAL?.customDraft:null;
-  const customText=customDraft?.text??(savedCustomStatus?.text||'');
-  const rawCustomEmoji=customDraft?.emoji??savedCustomStatus?.emoji??'';
-  const customEmoji=customStatusEmojis.includes(rawCustomEmoji)?rawCustomEmoji:'';
-  const customDuration=customStatusDurations.includes(customDraft?.duration)?customDraft.duration:
-   savedCustomStatus?.expiresAt?'1d':'never';
   const activeTab=['overview','links'].includes(state.profileTab)?state.profileTab:'overview';
   const tabData=[
     ['overview','user','profileTabOverview'],
@@ -919,7 +896,7 @@ function playerProfilePage(auth){
         '<div class="player-name-stack"><div class="smallcaps">'+t('profileProfileId')+'</div><h1>'+esc(nickname)+'</h1>'+
           officialProfileBadges(visibleTitles)+
           '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,visibleTitles)+'</p>'+
-          '<div class="profile-intro-row">'+customStatusPill(savedCustomStatus)+
+          '<div class="profile-intro-row">'+
           (savedBio?'<span class="profile-intro-description">'+esc(savedBio)+'</span>':'')+'</div>'+
           renderProfileLinks(profileLinks,'header')+'</div>'+
         '<span class="player-status">'+icon('shield',15)+' '+t('mfaProfileShield')+'</span>'+
@@ -950,27 +927,7 @@ function playerProfilePage(auth){
           '<textarea id="profile-about-text" name="bio" maxlength="240" rows="3" placeholder="'+esc(t('profileAboutPlaceholder'))+'">'+esc(profileBio)+'</textarea>'+
           '<div class="profile-about-bottom"><button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileAboutSave')+'</button></div>'+
          '</form><p class="profile-about-note">'+icon('info',14)+' '+t('profileAboutPublic')+'</p></section>'+
-        '<section class="profile-status-studio"><div class="profile-status-heading"><div>'+
-          '<span class="smallcaps">AURVEX / STATUS</span><h3>'+icon('sparkle',19)+' '+t('profileCustomStatus')+'</h3>'+
-          '<p>'+t('profileCustomStatusHint')+'</p></div>'+
-          '<div class="profile-status-live">'+
-           (savedCustomStatus?customStatusPill(savedCustomStatus):'<span class="profile-status-empty">'+t('profileStatusEmpty')+'</span>')+
-          '</div></div>'+
-          '<form id="profile-custom-status-form" class="id-form">'+
-            '<label for="profile-custom-status-text">'+t('profileStatusMessageLabel')+'</label>'+
-            '<div class="profile-status-input"><span class="profile-status-input-emoji">'+esc(customEmoji||'💬')+'</span>'+
-              '<input id="profile-custom-status-text" name="custom_text" maxlength="80" type="text" autocomplete="off" value="'+esc(customText)+'" placeholder="'+esc(t('profileStatusMessagePlaceholder'))+'">'+
-              '<span class="profile-status-char-count">'+customText.length+'/80</span></div>'+
-            '<label>'+t('profilePickEmoji')+'</label>'+
-            '<div class="profile-emoji-picker" role="group" aria-label="'+esc(t('profilePickEmoji'))+'">'+
-              '<button type="button" class="profile-emoji-option'+(customEmoji===''?' is-selected':'')+'" data-profile-emoji="" aria-label="'+esc(t('profileNoEmoji'))+'" aria-pressed="'+(customEmoji===''?'true':'false')+'">×</button>'+
-              customStatusEmojis.map(emoji=>'<button type="button" class="profile-emoji-option'+(customEmoji===emoji?' is-selected':'')+'" data-profile-emoji="'+esc(emoji)+'" aria-label="'+esc(emoji)+'" aria-pressed="'+(customEmoji===emoji?'true':'false')+'">'+esc(emoji)+'</button>').join('')+'</div>'+
-            '<input type="hidden" name="custom_emoji" value="'+esc(customEmoji)+'">'+
-            '<div class="profile-status-footer"><label>'+t('profileStatusDuration')+
-               '<select name="duration">'+customStatusDurations.map(duration=>'<option value="'+duration+'"'+(customDuration===duration?' selected':'')+'>'+t('profileDuration_'+duration)+'</option>').join('')+'</select></label>'+
-              '<div class="profile-status-actions"><button type="button" class="btn btn-outline" data-profile-clear-status'+saving+'>'+icon('close',15)+' '+t('profileStatusClear')+'</button>'+
-              '<button type="submit" class="btn btn-primary"'+saving+'>'+icon('check',16)+' '+t('profileStatusSave')+'</button></div></div>'+
-          '</form><p class="profile-about-note">'+icon('clock',14)+' '+t('profileStatusExpirationHint')+'</p></section>'+
+
         renderProfileLinks(profileLinks,'main')+
         '<section class="inventory-privacy-card profile-game-activity"><h3>'+icon('gamepad',19)+' '+t('profileActivityTitle')+'</h3>'+
           '<p>'+t('profileActivityIntro')+'</p>'+
@@ -1185,7 +1142,6 @@ function publicPlayerPage(path){
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
      officialProfileBadges(p.profileTitles)+
      '<p>'+icon('calendar',15)+' '+profileMemberSince(joined,p.profileTitles)+'</p>'+
-     customStatusPill(currentCustomStatus(p))+
      renderProfileLinks(links,'header')+'</div></div>'+
    '<div class="public-profile-body">'+
      (auth.user?.id&&auth.user.id!==id&&auth.mfaVerified?

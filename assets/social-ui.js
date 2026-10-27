@@ -1,5 +1,5 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
-import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,setGameActivityVisibility,loadOwnGameActivity,getFamilyOverview,createFamily,
+import {loadPlayerProfile,saveProfileAbout,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,setGameActivityVisibility,loadOwnGameActivity,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
  from './social-service.js?v=20261027-002';
 import {normalizePublicLinks} from './social-links.js?v=20261018-410';
@@ -7,24 +7,10 @@ import {normalizePublicLinks} from './social-links.js?v=20261018-410';
 const m={profile:null,profileLoading:false,profileTarget:'',profileError:false,
  family:null,familyLibrary:[],familyReady:false,familyLoading:false,gameActivity:null,
  inviteUrl:'',busy:false,message:'',error:false,userId:'',
- socialDraft:null,draftUserId:'',aboutDraft:null,aboutDraftUser:'',customDraft:null,customDraftUser:''};
+ socialDraft:null,draftUserId:'',aboutDraft:null,aboutDraftUser:''};
 window.AURVEX_SOCIAL=m;
 let profileSeq=0,familySeq=0;
 const fire=()=>window.dispatchEvent(new CustomEvent('aurvex:social-state'));
-let customStatusExpirationTimer=0;
-function scheduleCustomStatusExpiration(){
- clearTimeout(customStatusExpirationTimer);
- const now=Date.now();
- const profiles=[window.AURVEX_ID?.profile,m.profile];
- const deadlines=profiles.map(p=>p?.profile_status_expires_at)
-   .filter(Boolean).map(s=>Date.parse(s)).filter(ms=>Number.isFinite(ms)&&ms>now);
- if(!deadlines.length)return;
- const delay=Math.min(...deadlines)-now+80;
- customStatusExpirationTimer=setTimeout(()=>{
-   // Re-render using currentCustomStatus(), which hides elapsed statuses immediately.
-   fire();scheduleCustomStatusExpiration();
- },Math.max(30,delay));
-}
 const isSecure=()=>!!(window.AURVEX_ID?.user?.id&&window.AURVEX_ID?.mfaVerified);
 const owner=()=>isSecure()?window.AURVEX_ID.user.id:'';
 function message(key,error=false){m.message=key;m.error=error;m.busy=false;fire()}
@@ -34,7 +20,7 @@ async function showProfile(id){
  try{
    const p=await loadPlayerProfile(id);
    if(run!==profileSeq)return;
-   m.profile=p;m.profileError=!p;m.profileLoading=false;scheduleCustomStatusExpiration();fire();
+   m.profile=p;m.profileError=!p;m.profileLoading=false;fire();
  }catch(e){
    if(run!==profileSeq)return;
    m.profileLoading=false;m.profileError=true;fire();
@@ -70,16 +56,15 @@ function onRoute(){
 }
 window.addEventListener('hashchange',onRoute);
 window.addEventListener('aurvex:id-state',()=>{
- scheduleCustomStatusExpiration();
  const current=owner();
  if(current)void refreshGameActivity();
  if(!current){
-   if(m.userId||m.draftUserId||m.aboutDraftUser||m.customDraftUser){m.userId='';m.family=null;m.familyLibrary=[];
-     m.familyReady=false;m.inviteUrl='';m.message='';m.gameActivity=null;m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';fire();}
+   if(m.userId||m.draftUserId||m.aboutDraftUser){m.userId='';m.family=null;m.familyLibrary=[];
+     m.familyReady=false;m.inviteUrl='';m.message='';m.gameActivity=null;m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';fire();}
  }else if((m.userId&&m.userId!==current)||(m.draftUserId&&m.draftUserId!==current)||
-    (m.aboutDraftUser&&m.aboutDraftUser!==current)||(m.customDraftUser&&m.customDraftUser!==current)){
+    (m.aboutDraftUser&&m.aboutDraftUser!==current)){
    m.userId=current;m.family=null;m.familyReady=false;m.inviteUrl='';
-   m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';m.customDraft=null;m.customDraftUser='';
+   m.socialDraft=null;m.draftUserId='';m.aboutDraft=null;m.aboutDraftUser='';
    if(location.hash.startsWith('#/family'))void refreshFamily();
  }
 });
@@ -107,22 +92,6 @@ function captureAbout(event){
  const indicator=form.closest('.profile-about-editor')?.querySelector('.profile-about-count');
  if(indicator)indicator.textContent=m.aboutDraft.bio.length+' / 240';
 }
-const knownEmoji=new Set(['','😀','😎','💻','🎮','🔥','💜','✨','🚀','🌙','🎧','🛠️','☕','💤','❤️','🌸','👾','🧠','🎨','✅','💬']);
-const durations=new Set(['30m','1h','4h','1d','7d','never']);
-function readCustomStatusDraft(form){
- const data=new FormData(form);
- return {text:String(data.get('custom_text')||''),emoji:String(data.get('custom_emoji')||''),
-   duration:String(data.get('duration')||'1d')};
-}
-function captureCustomStatus(event){
- const form=event.target?.closest?.('#profile-custom-status-form');
- if(!form||!isSecure()||m.busy)return;
- m.customDraft=readCustomStatusDraft(form);m.customDraftUser=owner();
- const count=form.querySelector('.profile-status-char-count');
- if(count)count.textContent=m.customDraft.text.length+'/80';
-}
-document.addEventListener('input',captureCustomStatus);
-document.addEventListener('change',captureCustomStatus);
 document.addEventListener('input',captureAbout);
 document.addEventListener('change',captureAbout);
 document.addEventListener('change',event=>{
@@ -150,37 +119,12 @@ document.addEventListener('change',event=>{
 });
 document.addEventListener('submit',event=>{
  const form=event.target;
- if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form','profile-about-form','profile-custom-status-form','profile-appearance-form'].includes(form.id))return;
+ if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form','profile-about-form','profile-appearance-form'].includes(form.id))return;
  event.preventDefault();if(!isSecure()||m.busy)return;
  // Read data before any notification could rerender and detach this form.
  const originalUser=owner();
  const data=new FormData(form);
- if(form.id==='profile-custom-status-form'){
-   m.customDraft=readCustomStatusDraft(form);m.customDraftUser=originalUser;
-   const draft=m.customDraft;
-   if(draft.text.trim().length>80||!knownEmoji.has(draft.emoji)||!durations.has(draft.duration)){
-     message('profileStatusInvalid',true);return;
-   }
-   m.busy=true;
-   const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
-   void(async()=>{
-     try{
-       const updated=await saveCustomProfileStatus(draft.text.trim(),draft.emoji,draft.duration);
-       if(owner()!==originalUser)return;
-       window.AURVEX_ID.profile={...(window.AURVEX_ID.profile||{}),
-          profile_status_text:updated.text,profile_status_emoji:updated.emoji,
-          profile_status_expires_at:updated.expiresAt};
-       m.customDraft=null;m.customDraftUser='';
-       window.dispatchEvent(new CustomEvent('aurvex:id-state'));
-       message('profileStatusSaved');
-     }catch(error){
-       if(owner()===originalUser){
-         console.warn('AURVEX custom status update:',error?.code||'error');
-         message('profileStatusSaveFailed',true);
-       }
-     }finally{if(m.busy){m.busy=false;fire()}}
-   })();
- }else if(form.id==='profile-about-form'){
+ if(form.id==='profile-about-form'){
    m.aboutDraft=readAboutDraft(form);m.aboutDraftUser=originalUser;
    const bio=m.aboutDraft.bio.trim(),status=m.aboutDraft.status;
    if(bio.length>240||!['building','open','busy','chilling'].includes(status)){
@@ -276,48 +220,6 @@ document.addEventListener('submit',event=>{
  }
 });
 document.addEventListener('click',event=>{
- const emojiButton=event.target.closest?.('[data-profile-emoji]');
- if(emojiButton){
-   const form=emojiButton.closest('#profile-custom-status-form');
-   if(!form||!isSecure()||m.busy)return;
-   const emoji=emojiButton.dataset.profileEmoji;
-   if(!knownEmoji.has(emoji))return;
-   const hidden=form.querySelector('[name="custom_emoji"]');
-   if(hidden)hidden.value=emoji;
-   form.querySelectorAll('[data-profile-emoji]').forEach(button=>{
-     const active=button.dataset.profileEmoji===emoji;
-     button.classList.toggle('is-selected',active);
-     button.setAttribute('aria-pressed',String(active));
-   });
-   const preview=form.querySelector('.profile-status-input-emoji');
-   if(preview)preview.textContent=emoji||'💬';
-   m.customDraft=readCustomStatusDraft(form);m.customDraftUser=owner();
-   return;
- }
- const clear=event.target.closest?.('[data-profile-clear-status]');
- if(clear){
-   if(!isSecure()||m.busy)return;
-   const who=owner();
-   m.busy=true;
-   void(async()=>{
-     try{
-       const updated=await saveCustomProfileStatus('','','never');
-       if(owner()!==who)return;
-       window.AURVEX_ID.profile={...(window.AURVEX_ID.profile||{}),
-         profile_status_text:updated.text,profile_status_emoji:updated.emoji,
-         profile_status_expires_at:updated.expiresAt};
-       m.customDraft=null;m.customDraftUser='';
-       window.dispatchEvent(new CustomEvent('aurvex:id-state'));
-       message('profileStatusCleared');
-     }catch(error){
-       if(owner()===who){
-        console.warn('AURVEX status clear:',error?.code||'error');
-        message('profileStatusSaveFailed',true);
-       }
-     }finally{if(m.busy){m.busy=false;fire()}}
-   })();
-   return;
- }
  const btn=event.target.closest('[data-social-action]');
  if(!btn)return;
  const action=btn.dataset.socialAction;

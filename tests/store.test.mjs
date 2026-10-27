@@ -1828,68 +1828,24 @@ test('Sidebar promo is static, shows only AURVEX and message with no legacy road
  assert.ok(css.includes('.sidebar{padding:14px 12px 12px;overflow-y:hidden}'));
  assert.ok(css.includes('.sidebar .side-promo{flex-shrink:0'));
 });
-test('Custom Discord-style profile status: 20 emoji, text, six expiration options and safe public preview',()=>{
- const uuid='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
- const auth={user:{id:uuid,email:'private@example.org'},mfaVerified:true,
-   profile:{nickname:'Creator',profile_status_text:'Debugging 🌙',profile_status_emoji:'🛠️',
-     profile_status_expires_at:'2099-10-18T11:00:00Z'}};
- for(const lang of supportedLanguages){
-  const html=render('#/id?mode=edit',lang,false,null,auth).html;
-  for(const k of ['profile-custom-status-form','profile-custom-status-text','data-profile-emoji="',
-    'name="custom_text"','name="custom_emoji"','name="duration"','data-profile-clear-status',
-    'profile-status-char-count','value="1h"','value="4h"','value="1d"','value="7d"',
-    'value="30m"','value="never"','Debugging 🌙','🛠️',
-    translations[lang].profileStatusSave,translations[lang].profileStatusExpirationHint]){
-   assert.ok(html.includes(k),lang+' missing '+k);
-  }
-  assert.equal((html.match(/class="profile-emoji-option/g)||[]).length,21,'20 emojis + no emoji');
-  assert.ok(!html.includes('name="status"'),'Legacy fixed status dropdown removed');
- }
- const p={profileTarget:uuid,profile:{player_id:uuid,nickname:'Creator',
-   profile_status_text:'<img src=x onerror=alert(1)>',profile_status_emoji:'💻',
-   profile_status_expires_at:'2099-10-18T11:00:00Z',joined_at:'2026-10-17T00:00:00Z',
-   public_links:[],wishlist_visible:false}};
- const publicHtml=render('#/player/'+uuid,'en',false,null,null,null,p).html;
- assert.ok(publicHtml.includes('&lt;img src=x onerror=alert(1)&gt;'));
- assert.ok(!publicHtml.includes('<img src=x onerror=alert(1)>'));
- assert.ok(publicHtml.includes('profile-custom-emoji'));
- const expired=render('#/player/'+uuid,'en',false,null,null,null,
-  {...p,profile:{...p.profile,profile_status_expires_at:'2020-01-01T00:00:00Z'}}).html;
- assert.ok(!expired.includes('profile-custom-status'));
- assert.ok(!expired.includes('profile-custom-emoji'));
- const never=render('#/player/'+uuid,'en',false,null,null,null,
-  {...p,profile:{...p.profile,profile_status_expires_at:null}}).html;
- assert.ok(never.includes('profile-custom-status'));
- const ownExpired=render('#/id?mode=edit','en',false,null,{
-   ...auth,profile:{...auth.profile,profile_status_expires_at:'2020-01-01T00:00:00Z'}
- }).html;
- assert.ok(ownExpired.includes(translations.en.profileStatusEmpty));
- assert.ok(!ownExpired.includes('Debugging 🌙'));
-});
-test('Custom status writes require server auth/MFA and server-controlled expiration',()=>{
- const sql=readFileSync(new URL('../supabase/migrations/aurvex_profile_custom_status_v315_20261018.sql',import.meta.url),'utf8');
- for(const fragment of ['profile_status_text','profile_status_emoji','profile_status_expires_at',
-   'aurvex_status_text_limit','aurvex_profile_set_custom_status',
-   'public.aurvex_shop_actor()','aurvex_public_profile_about',
-   'profile_status_expires_at>now()',"when '30m'","when '7d'",
-   'grant execute on function public.aurvex_profile_set_custom_status']){
-  assert.ok(sql.includes(fragment),fragment);
- }
- const client=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
- assert.ok(client.includes("rpc('aurvex_profile_set_custom_status'"));
- assert.ok(client.includes('profile_status_expires_at:about?.customExpiresAt'));
+test('Discord-style custom profile statuses are removed from UI and client',()=>{
+ const app=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
  const controller=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
- for(const check of ['readCustomStatusDraft(form)','profile-custom-status-form',
-    "m.customDraftUser=originalUser","saveCustomProfileStatus('','','never')",
-    "message('profileStatusSaved')","message('profileStatusCleared')",
-    "form.querySelectorAll('[data-profile-emoji]')"]){
-   assert.ok(controller.includes(check),check);
+ const service=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
+ for(const source of [app,controller,service]){
+  for(const fragment of ['profile-custom-status-form','profile-custom-status','profile_status_text','profile_status_emoji',
+    'profile_status_expires_at','saveCustomProfileStatus','data-profile-emoji']){
+   assert.ok(!source.includes(fragment),'custom status feature remains: '+fragment);
+  }
  }
- const profile=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
- assert.ok(profile.includes('profile_status_text,profile_status_emoji,profile_status_expires_at'));
+ const html=render('#/player/9fe33ef1-0f84-4bce-acbb-ae5b5883377f','en',false,null,null,null,{
+  profileTarget:'9fe33ef1-0f84-4bce-acbb-ae5b5883377f',
+  profile:{player_id:'9fe33ef1-0f84-4bce-acbb-ae5b5883377f',nickname:'Creator',
+   profile_status_text:'💻 work',profile_status_emoji:'💻',profile_status_expires_at:null,public_links:[]}
+ }).html;
+ assert.ok(!html.includes('💻 work'));
+ assert.ok(!html.includes('profile-custom-status'));
 });
-
-
 test('Game Library fills the viewport, scrolls only its item list, and uses themed selectors',()=>{
  const ui=readFileSync(new URL('../assets/library-ui.js',import.meta.url),'utf8');
  const css=readFileSync(new URL('../assets/library-steam.css',import.meta.url),'utf8');
