@@ -335,7 +335,7 @@ test('AURVEX ID sign-in methods are clearly gated per provider',()=>{
   assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
   assert.match(html,/id="id-email-form"[^>]*data-mode="signin"/);
   assert.ok(html.includes('id-fmail'));
-  assert.match(html,/id-fmail[^"]*" type="button" disabled/);
+  assert.match(html,/class="id-provider-btn id-fmail"[^>]*disabled/);
   assert.ok(!html.includes('href="https://discord.gg'));
 });
 test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user data',()=>{
@@ -366,7 +366,7 @@ test('AURVEX ID remains isolated, publishable-only and ready for verified provid
   assert.match(config,/googleEnabled:true/);
   assert.match(config,/emailEnabled:false/);
   assert.match(config,/fmailEnabled:false/);
-  assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled)'));
+  assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled||ID_CONFIG.fmailEnabled)'));
   assert.ok(service.includes('ignoreDuplicates:true'));
   assert.match(migration,/revoke update on public.id_wishlist from authenticated/);
   for(const file of [config,ui,service]){
@@ -397,7 +397,7 @@ test('Google sign-in is enabled when the verified Google provider config loads, 
     assert.ok(!html.includes(translations[lang].idSetupTitle));
     assert.match(html,/id="id-email"[^>]*disabled aria-disabled="true"/);
     assert.ok(html.includes('id-fmail'));
-    assert.match(html,/id-fmail[^"]*" type="button" disabled/);
+    assert.match(html,/class="id-provider-btn id-fmail"[^>]*disabled/);
   }
 });
 
@@ -1153,12 +1153,12 @@ test('Other players keep real membership dates even when using founder-like nick
 });
 
 
-test('Profile has Overview and Links, Wishlist visibility in Overview, no Appearance editor',()=>{
+test('Profile has Overview and Links, Wishlist visibility, and saved appearance controls',()=>{
  const user='3e8ddb4b-2815-4863-9594-8ae11ed8e803';
  const auth={user:{id:user},mfaVerified:true,profile:{nickname:'fleki',public_links:[],wishlist_public:true},profileTitles:['aurvex_ceo']};
  for(const lang of supportedLanguages){
   const html=render('#/id',lang,false,null,auth).html;
-  assert.ok(!html.includes('profile-appearance-form'));
+  assert.ok(html.includes('profile-appearance-form'));
   assert.ok(!html.includes('profile-tab-appearance'));
   assert.ok(!html.includes('data-pf-'));
   assert.ok(html.includes('official-profile-title-aurvex_ceo'));
@@ -1173,7 +1173,7 @@ test('Profile removes redundant Friends, Family and Notifications sidebar cards 
  const id='33333333-3333-4333-8333-333333333333';
  const account={user:{id},profile:{nickname:'player'},profileTitles:[],mfaVerified:true};
  const html=render('#/id','en',false,null,account).html;
- assert.ok(!html.includes('id="profile-appearance-form"'));
+ assert.ok(html.includes('id="profile-appearance-form"'));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.friendsNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.familyNav));
  assert.ok(!html.includes('class="player-aside-card player-wish-card"><div class="smallcaps">'+translations.en.social37Nav));
@@ -1237,11 +1237,11 @@ test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
  assert.ok(!view.includes('data-pf-font='));
 });
 
-test('Appearance saving is removed while Wishlist privacy keeps protected saving',()=>{
+test('Appearance and Wishlist privacy both use protected account saving',()=>{
  const ui=readFileSync(new URL('../assets/social-ui.js',import.meta.url),'utf8');
  const service=readFileSync(new URL('../assets/social-service.js',import.meta.url),'utf8');
  assert.ok(!ui.includes('readAppearanceDraft'));
- assert.ok(!ui.includes('profile-appearance-form'));
+ assert.ok(ui.includes('profile-appearance-form'));
  assert.ok(ui.includes('wishlist-privacy-form'));
  assert.ok(ui.includes('saveWishlistVisibility'));
  assert.ok(service.includes('saveWishlistVisibility'));
@@ -1337,7 +1337,7 @@ test('Preview remains separate from editor controls, and public profile has no p
   {user:{id:user},mfaVerified:true,profile:{nickname:'fleki'},profileTitles:[]}).html;
  assert.ok(mine.includes('class="profile-tab-toolbar"'));
  assert.ok(mine.includes('id="social-profile-form"'));
- assert.ok(!mine.includes('id="profile-appearance-form"'));
+ assert.ok(mine.includes('id="profile-appearance-form"'));
  assert.ok(mine.includes('data-social-action="copy-profile"'));
  const publicView=render('#/player/'+user,'en',false,null,null,null,{
   profileTarget:user,profile:{nickname:'fleki',public_links:[],wishlist_visible:false,profileTitles:[]}
