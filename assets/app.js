@@ -147,7 +147,7 @@ function preferenceMenu(type){
  const language=type==='language';
  const current=language?state.language:state.currency;
  const label=t(language?'language':'currency');
- const entries=language?supportedLanguages.map(code=>[code,({en:'🇬🇧',uk:'🇺🇦',pl:'🇵🇱',de:'🇩🇪'})[code],translations[code].langName]):currencyList;
+ const entries=language?supportedLanguages.map(code=>[code,({en:'🇬🇧',uk:'🇺🇦',pl:'🇵🇱',de:'🇩🇪',ru:'🇷🇺',es:'🇪🇸',fr:'🇫🇷'})[code],translations[code].langName]):currencyList;
  const indicator=language?state.language.toUpperCase():state.currency;
  return '<details class="pref-dropdown '+(language?'pref-language':'pref-currency')+'">'+
    '<summary class="pref-trigger" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+
@@ -195,7 +195,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards' ,'/saved','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards','/saved','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/checkout','/payment','/desktop','/game/devive','/legal'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -277,7 +277,7 @@ function sidebar(path){
         (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
-    '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
+    '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong><a class="side-legal-link" href="#/legal">'+t('legalNav')+'</a></div></aside>';
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
@@ -488,6 +488,14 @@ function home(){
     '<section class="home-explore"><nav class="home-explore-grid" aria-label="'+t('browse')+'">'+cards+'</nav></section>'+
   '</div>';
 }
+function legalPage(){
+  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('legalNav')+'</span></div>'+
+    '<div class="legal-page"><header class="legal-heading"><span class="smallcaps">AURVEX</span><h1>'+t('legalTitle')+'</h1><p>'+t('legalIntro')+'</p></header>'+
+    '<section class="legal-card"><h2>'+t('legalPrivacyTitle')+'</h2><p>'+t('legalPrivacyText')+'</p><ul><li>'+t('legalPrivacyIdentity')+'</li><li>'+t('legalPrivacyProfile')+'</li><li>'+t('legalPrivacyActivity')+'</li><li>'+t('legalPrivacyStorage')+'</li></ul></section>'+
+    '<section class="legal-card"><h2>'+t('legalTermsTitle')+'</h2><p>'+t('legalTermsText')+'</p><ul><li>'+t('legalTermsRespect')+'</li><li>'+t('legalTermsAccounts')+'</li><li>'+t('legalTermsCheckout')+'</li></ul></section>'+
+    '<section class="legal-card"><h2>'+t('legalSubmissionsTitle')+'</h2><p>'+t('legalSubmissionsText')+'</p><ul><li>'+t('legalSubmissionsRights')+'</li><li>'+t('legalSubmissionsTesting')+'</li><li>'+t('legalSubmissionsNoPublish')+'</li></ul><a class="btn btn-primary" href="https://t.me/flekusik" target="_blank" rel="noopener noreferrer">'+t('catalogSubmitTelegram')+'</a></section>'+
+    '<p class="legal-contact">'+t('legalContact')+' <a href="https://t.me/flekusik" target="_blank" rel="noopener noreferrer">@flekusik</a></p></div>';
+}
 function heading(title,sub,kicker){
   return '<div class="heading-block"><div class="smallcaps">'+t(kicker)+'</div><h1>'+t(title)+'</h1><p>'+t(sub)+'</p></div>';
 }
@@ -608,7 +616,8 @@ function catalog(route){
   const subtitle=isGame?'gamesSub':isApp?'appsSub':'browseSub';
   const count=catalogMatches(route).length;
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('browse')+'</span></div>'+
-    heading(title,subtitle,'browseKicker')+
+    '<div class="catalog-heading-row">'+heading(title,subtitle,'browseKicker')+
+    '<details class="catalog-submit"><summary class="btn btn-soft">'+icon('plus',16)+' '+t('catalogSubmitCta')+'</summary><div class="catalog-submit-panel"><span class="smallcaps">'+t('catalogSubmitEyebrow')+'</span><h2>'+t('catalogSubmitTitle')+'</h2><p>'+t('catalogSubmitText')+'</p><a class="btn btn-primary" href="https://t.me/flekusik" target="_blank" rel="noopener noreferrer">'+icon('send',15)+' '+t('catalogSubmitTelegram')+'</a><a class="catalog-submit-rules" href="#/legal">'+t('catalogSubmitRules')+'</a></div></details></div>+
     '<div class="catalog-search-row"><label class="catalog-search catalog-search-large">'+icon('search',20)+
       '<input type="search" id="catalog-search" value="'+esc(state.query)+'" placeholder="'+t('searchCatalog')+'" aria-label="'+t('search')+'" autocomplete="off" maxlength="120"></label></div>'+
     '<div class="advanced-filters" aria-label="'+t('filters')+'">'+
@@ -1629,6 +1638,7 @@ function render(keepScroll=false){
   let page;
   if(route.path==='/')page=home();
   else if(route.path==='/desktop')page=desktopPage(route);
+  else if(route.path==='/legal')page=legalPage();
    
   else if(route.path==='/game/devive')page=gamePage();
   else if(route.path==='/rewards'||route.path==='/free')page=rewardsPage();
@@ -1645,7 +1655,7 @@ function render(keepScroll=false){
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path==='/legal'?t('legalNav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=snowfallOverlay()+header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+'</div></main>';
