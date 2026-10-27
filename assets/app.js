@@ -1,4 +1,5 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261025-810';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-001';
+import './weekly-rewards-ui.js?v=20261027-001';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
 const sceneUrl='./assets/devive-scene.svg';
@@ -9,7 +10,7 @@ function store(k,v){try{localStorage.setItem(k,v)}catch{/* Browsing still works 
 const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
   currency:['UAH','USD','EUR','GBP','PLN','CHF','CAD','AUD','JPY','CNY','KRW','SEK','NOK','DKK','CZK','HUF','RON','TRY','INR','BRL','MXN','AED','SAR','ILS','ZAR','SGD','HKD','NZD','THB','IDR','MYR','PHP','VND','KZT','GEL','MDL','AZN'].includes(getStored(STORAGE.currency))?getStored(STORAGE.currency):'UAH',
-  theme:getStored(STORAGE.theme)==='light'?'light':'dark',
+  theme:['dark','light','blue','aurora'].includes(getStored(STORAGE.theme))?getStored(STORAGE.theme):'dark',
   wished:getStored(STORAGE.wish)==='1',
   query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview',profileNicknameDraft:null,profileNicknameOwner:''
 };
@@ -119,6 +120,20 @@ function formatShopMoney(kop){
    style:'currency',currency:state.currency,currencyDisplay:'symbol',
    // Use the ISO 4217 currency fraction digits (JPY/KRW/VND render without decimals).
  }).format(amount);
+}
+function themeMenu(){
+ const choices=[['dark','themeCosmicRed'],['blue','themeNebulaBlue'],['aurora','themeAurora'],['light','themeLight']];
+ const label=t('themeMenu');
+ const current=choices.find(([value])=>value===state.theme)?.[1]||'themeCosmicRed';
+ return '<details class="pref-dropdown pref-theme">'+
+   '<summary class="pref-trigger" aria-label="'+esc(label)+'" title="'+esc(label+': '+t(current))+'">'+
+     icon('sparkle',16)+'<span>'+esc(t(current))+'</span>'+icon('chevron',13)+'</summary>'+
+   '<div class="pref-panel" role="group" aria-label="'+esc(label)+'">'+
+     '<div class="pref-panel-heading"><strong>'+esc(label)+'</strong></div>'+
+     '<div class="pref-options">'+choices.map(([value,key])=>
+       '<button type="button" class="pref-option'+(state.theme===value?' is-selected':'')+'" data-theme-choice="'+value+'" aria-pressed="'+String(state.theme===value)+'">'+
+       '<span class="pref-option-text"><strong>'+esc(t(key))+'</strong></span>'+
+       (state.theme===value?icon('check',16):'')+'</button>').join('')+'</div></div></details>';
 }
 function preferenceMenu(type){
  const language=type==='language';
@@ -236,8 +251,7 @@ function header(path){
     '<span class="brand-crest"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4 29 27H3L16 4Z" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><path d="M16 13 22 24H10l6-11Z" fill="white"/></svg></span><span>AURVEX</span></a>'+
 
     '<form id="global-search-form" class="top-search" role="search">'+icon('search',18)+'<input type="search" name="q" aria-label="'+t('search')+'" placeholder="'+t('searchPlaceholder')+'" maxlength="120"></form>'+
-    '<div class="top-actions">'+liveBadge+preferenceMenu('language')+preferenceMenu('currency')+
-    '<button class="icon-btn" type="button" data-action="theme" title="'+t('toggleTheme')+'" aria-label="'+t('toggleTheme')+'">'+icon(state.theme==='dark'?'sun':'moon',18)+'</button>'+
+    '<div class="top-actions">'+liveBadge+preferenceMenu('language')+preferenceMenu('currency')+themeMenu()+
     '<a class="icon-btn" href="#/saved" aria-label="'+t('saved')+'">'+icon('heart',19)+(state.wished&&!isDeviveOwned()?'<span class="wish-dot"></span>':'')+'</a>'+
     '<div class="notification-popover-wrap"><button class="icon-btn social-bell'+(notificationsOpen?' active':'')+'" type="button" data-action="notifications-toggle" title="'+t('social37Nav')+'" aria-label="'+t('social37Nav')+'" aria-haspopup="dialog" aria-expanded="'+String(notificationsOpen)+'" aria-controls="notifications-popover">'+
       icon('bell',19)+((window.AURVEX_SOCIAL37?.notifications||[]).some(x=>!x.read)?'<span class="wish-dot"></span>':'')+'</button>'+notificationPopover()+'</div>'+
@@ -597,13 +611,39 @@ function catalog(route){
     '<div class="catalog-tip">'+icon('info',19)+'<span>'+t('onlyDevive')+'</span></div>';
 }
 function rewardsPage(){
+  const reward=window.AURVEX_WEEKLY_REWARDS||{};
+  const data=reward.data||{};
+  const id=window.AURVEX_ID||{};
+  const signedIn=!!id.user?.id;
+  const verified=id.mfaVerified===true;
+  const schedule=Array.from({length:8},(_,index)=>({
+    week:index+1,points:500+200*Math.floor(index/2)
+  }));
+  const sunday=data.week_start?new Intl.DateTimeFormat(localeTags[state.language]||'en-US',{
+    weekday:'long',day:'numeric',month:'long',timeZone:'UTC'
+  }).format(new Date(String(data.week_start)+'T12:00:00Z')):t('weeklyRewardStart');
+  let action='';
+  if(!signedIn)action='<a class="btn btn-primary" href="#/id">'+t('weeklyRewardSignIn')+'</a>';
+  else if(!verified)action='<a class="btn btn-primary" href="#/id">'+t('weeklyRewardMfa')+'</a>';
+  else if(reward.busy||reward.loading)action='<button class="btn btn-primary" disabled>'+t('weeklyRewardLoading')+'</button>';
+  else if(data.can_claim)action='<button class="btn btn-primary" type="button" data-weekly-action="claim">'+t('weeklyRewardClaim')+'</button>';
+  else if(data.claimed)action='<button class="btn btn-outline" disabled>'+t('weeklyRewardClaimed')+'</button>';
+  else action='<button class="btn btn-outline" disabled>'+t('weeklyRewardSundayOnly')+'</button>';
+  const message=reward.message==='claimed'?t('weeklyRewardClaimedToast'):
+    reward.message==='wallet'?t('weeklyRewardWalletFull'):
+    reward.message==='error'?t('weeklyRewardClaimError'):'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('freeRewards')+'</span></div>'+
     '<section class="rewards-hero"><div class="rewards-halo" aria-hidden="true">'+icon('gift',170)+'</div>'+
       '<div class="rewards-copy"><span class="smallcaps">'+t('rewardsEyebrow')+'</span><h1>'+t('freeRewards')+'</h1>'+
-      '<p>'+t('rewardsIntro')+'</p><span class="tag tag-amber">'+t('comingSoon')+'</span></div></section>'+
-    '<section class="rewards-empty"><div class="empty-icon">'+icon('gift',35)+'</div>'+
-      '<h2>'+t('rewardsEmptyTitle')+'</h2><p>'+t('rewardsEmptyText')+'</p>'+
-      '<a href="#/browse" class="btn btn-outline">'+t('exploreStore')+' '+icon('arrow',16)+'</a></section>';
+      '<p>'+t('rewardsIntro')+'</p></div></section>'+
+    '<section class="weekly-reward-card">'+
+      '<div class="weekly-reward-heading"><span class="weekly-reward-icon">'+icon('gift',25)+'</span><div><span class="smallcaps">'+t('weeklyRewardTitle')+'</span><p>'+t('weeklyRewardIntro')+'</p></div></div>'+
+      '<div class="weekly-reward-current"><div><span>'+t('weeklyRewardNext')+'</span><strong>'+esc(sunday)+'</strong></div>'+
+        '<div class="weekly-reward-amount"><strong>'+(Number(data.points)||500)+'</strong><span>Stars</span></div>'+action+'</div>'+
+      (message?'<p class="weekly-reward-message'+(reward.error?' is-error':'')+'" role="status">'+esc(message)+'</p>':'')+
+      '<p class="weekly-reward-footnote">'+t('weeklyRewardStart')+'</p></section>'+
+    '<section class="weekly-reward-schedule"><div class="section-heading"><div><span class="smallcaps">'+t('weeklyRewardSchedule')+'</span><h2>'+t('weeklyRewardIntro')+'</h2></div></div>'+
+      '<div class="weekly-reward-grid">'+schedule.map(item=>'<article class="weekly-reward-step'+(Number(data.week_number)===item.week?' is-current':'')+'"><span>'+t('weeklyRewardWeek')+' '+item.week+'</span><strong>'+item.points+' Stars</strong></article>').join('')+'</div></section>';
 }
 function gamePage(){
   const controlItems=[['A / D','move'],['SPACE','jump'],['E','interact'],['TAB','inventory']];
@@ -1630,6 +1670,8 @@ function setMenu(open){
   if(toggle)toggle.setAttribute('aria-expanded',String(open));
 }
 document.addEventListener('click',function(event){
+  const themeChoice=event.target.closest('[data-theme-choice]');
+  if(themeChoice){const value=themeChoice.dataset.themeChoice;if(['dark','light','blue','aurora'].includes(value)){state.theme=value;store(STORAGE.theme,value);render(true)}return}
   if(notificationsOpen&&!event.target.closest('.notification-popover-wrap')){
     notificationsOpen=false;
     const panel=document.getElementById('notifications-popover');if(panel)panel.hidden=true;
