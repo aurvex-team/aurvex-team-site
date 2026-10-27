@@ -872,9 +872,20 @@ function playerProfilePage(auth){
         '<form id="profile-appearance-form" class="player-edit-card profile-appearance-editor">'+
           '<h3>'+icon('sparkle',19)+' '+t('profileThemeLabel')+'</h3>'+
           '<div class="profile-appearance-fields">'+
-           '<label>'+t('profileThemeLabel')+'<select name="profile_theme">'+appearanceOptions([['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon']],auth.profile?.profile_appearance?.profile_theme||'galaxy')+'</select></label>'+
-           '<label>'+t('profileInnerColorLabel')+'<select name="inner_color">'+appearanceOptions([['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold']],auth.profile?.profile_appearance?.inner_color||'violet')+'</select></label>'+
-           '<label class="social-wish-toggle"><input type="checkbox" name="transparent"'+(auth.profile?.profile_appearance?.transparent===true?' checked':'')+'><span><strong>'+t('profileTransparentLabel')+'</strong></span></label>'+
+           '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileThemeLabel')+'</strong><small>'+t('profileThemeHint')+'</small></div>'+
+            '<div class="profile-theme-grid" role="radiogroup" aria-label="'+esc(t('profileThemeLabel'))+'">'+
+             [['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon'],['ocean','profileThemeOcean'],['sunset','profileThemeSunset'],['forest','profileThemeForest'],['rose','profileThemeRose'],['midnight','profileThemeMidnight']].map(([value,label])=>'<label class="profile-theme-option">'+
+               '<input type="radio" name="profile_theme" value="'+value+'"'+((auth.profile?.profile_appearance?.profile_theme||'galaxy')===value?' checked':'')+'>'+
+               '<span class="profile-theme-card"><span class="profile-theme-art theme-'+value+'" aria-hidden="true"></span><strong>'+t(label)+'</strong></span></label>').join('')+
+            '</div></section>'+
+           '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileInnerColorLabel')+'</strong><small>'+t('profileAccentHint')+'</small></div>'+
+            '<div class="profile-color-grid" role="radiogroup" aria-label="'+esc(t('profileInnerColorLabel'))+'">'+
+             [['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold'],['emerald','profileColorEmerald'],['cyan','profileColorCyan'],['red','profileColorRed'],['orange','profileColorOrange'],['white','profileColorWhite']].map(([value,label])=>'<label class="profile-color-option" title="'+esc(t(label))+'">'+
+               '<input type="radio" name="inner_color" value="'+value+'"'+((auth.profile?.profile_appearance?.inner_color||'violet')===value?' checked':'')+'>'+
+               '<span class="profile-color-dot color-'+value+'" aria-hidden="true"></span><span>'+t(label)+'</span></label>').join('')+
+            '</div></section>'+
+           '<label class="profile-toggle-card"><input type="checkbox" name="transparent"'+(auth.profile?.profile_appearance?.transparent===true?' checked':'')+'>'+
+            '<span class="profile-toggle-mark" aria-hidden="true"></span><span class="profile-toggle-copy"><strong>'+t('profileTransparentLabel')+'</strong><small>'+t('profileTransparentHint')+'</small></span></label>'+
           '</div><button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileAppearanceSave')+'</button></form>'+
         '<div class="player-edit-layout">'+
           '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
