@@ -564,8 +564,8 @@ input,select{color:var(--text)}
 .social-notification-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .social-notification-actions .btn{font-size:10px;min-height:33px;padding:8px 10px;
  display:inline-flex;align-items:center;justify-content:center;gap:7px}
-.social37-online-control{margin-top:18px}
-.social37-online-control input{flex-shrink:0}
+.profile-online-visibility-btn{justify-self:start;min-height:40px;padding:10px 14px;display:inline-flex;align-items:center;gap:8px}
+.profile-online-visibility-btn[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent-soft)}
 .public-profile-actions{display:flex;justify-content:flex-end;align-items:center;margin-bottom:14px}
 .public-profile-actions>.btn{font-size:11px;display:flex;align-items:center;gap:8px}
 .friends-player-actions>a.btn{display:flex;align-items:center;justify-content:center;gap:6px;

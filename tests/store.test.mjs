@@ -1722,6 +1722,25 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
 });
 
 
+test('Profile online visibility is a compact button and Recent games has no extra empty copy',()=>{
+ const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
+ const auth={user:{id,email:'private@example.org'},mfaVerified:true,profile:{nickname:'Creator'}};
+ const own=render('#/id?mode=edit','en',false,null,auth,null,null,null,null,null,null,null,null).html;
+ assert.ok(own.includes('data-social37-action="visibility"'));
+ assert.ok(own.includes('class="btn btn-outline profile-online-visibility-btn"'));
+ assert.ok(css.includes('.profile-online-visibility-btn'));
+ assert.ok(appCode.includes('data-social37-action="visibility"'));
+ assert.ok(!own.includes(translations.en.social37Privacy));
+ assert.ok(!own.includes(translations.en.profileActivityIntro));
+ assert.ok(!own.includes('type="checkbox" data-social37-action="visibility"'));
+ assert.ok(own.includes(translations.en.social37ShowOnline));
+ const model={profileTarget:id,profile:{player_id:id,nickname:'Creator',public_links:[],wishlist_visible:false,
+  game_activity:{visible:true,recent_30_days_seconds:0,games:[]}}};
+ const pub=render('#/player/'+id,'en',false,null,null,null,model).html;
+ assert.ok(pub.includes('profileActivityTitle'));
+ assert.ok(!pub.includes(translations.en.profileActivityEmpty));
+ assert.ok(!pub.includes(translations.en.profileActivityIntro));
+});
 test('Profile keeps its core editor without the summary dashboard, theme editor or custom statuses in all locales',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const auth={user:{id,email:'private@example.org',created_at:'2026-10-17T14:12:00Z'},

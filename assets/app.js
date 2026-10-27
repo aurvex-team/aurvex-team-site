@@ -794,7 +794,7 @@ function steamProfilePage(auth){
     return '<li class="steam-profile-game"><span class="steam-profile-game-icon">'+icon('gamepad',19)+'</span>'+
       '<span class="steam-profile-game-name"><strong>'+esc(name)+'</strong><small>'+t('profileActivityLastPlayed')+' '+esc(last)+'</small></span>'+
       '<b>'+esc(formatProfileTime(g.recent_seconds||0))+'</b></li>';
-  }).join(''):'<div class="steam-profile-empty">'+icon('gamepad',23)+'<span>'+t('profileActivityEmpty')+'</span></div>';
+  }).join(''):'';
   const visibleLinks=Array.isArray(profile.public_links)?profile.public_links:[];
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('profileNav')+'</span></div>'+
     '<div class="player-profile steam-profile-page"'+shopStyleAttrs(window.AURVEX_SHOP?.userId===auth.user?.id?window.AURVEX_SHOP?.equipped:null)+'>'+
@@ -809,7 +809,7 @@ function steamProfilePage(auth){
           '</div></div></section>'+
       '<div class="steam-profile-layout"><main class="steam-profile-main">'+
         '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span>'+
-          '<h2>'+t('profileActivityIntro')+'</h2></div></div>'+
+          '</div></div>'+
           '<div class="steam-profile-stats"><div><strong>'+esc(formatProfileTime(activity.recent_30_days_seconds||0))+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
             '<div><strong>'+recent.length+'</strong><span>'+t('profileRecentGamesCount')+'</span></div>'+
             '<div><strong>'+friends+'</strong><span>'+t('friendsNav')+'</span></div></div>'+
@@ -930,14 +930,11 @@ function playerProfilePage(auth){
 
         renderProfileLinks(profileLinks,'main')+
         '<section class="inventory-privacy-card profile-game-activity"><h3>'+icon('gamepad',19)+' '+t('profileActivityTitle')+'</h3>'+
-          '<p>'+t('profileActivityIntro')+'</p>'+
           '<form id="profile-game-activity-form" class="id-form">'+
            '<label class="social-wish-toggle"><input type="checkbox" name="game_activity_public"'+(activity.visible?' checked':'')+'>'+
              '<span><strong>'+t('profileActivityPublic')+'</strong><small>'+t('profileActivityPrivacy')+'</small></span></label>'+
            '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileActivitySave')+'</button></form></section>'+
-        '<section class="inventory-privacy-card profile-online-visibility"><h3>'+icon('eye',19)+' '+t('social37Settings')+'</h3>'+
-          '<label class="social-wish-toggle social37-online-control"><input type="checkbox" data-social37-action="visibility"'+(window.AURVEX_SOCIAL37?.showOnline?' checked':'')+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+
-            '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label></section>'+
+        '<button type="button" class="btn '+(window.AURVEX_SOCIAL37?.showOnline?'btn-primary':'btn-outline')+' profile-online-visibility-btn" data-social37-action="visibility" aria-label="'+esc(t('social37ShowOnline'))+'" aria-pressed="'+String(!!window.AURVEX_SOCIAL37?.showOnline)+'"'+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+icon('eye',16)+' '+t('social37ShowOnline')+'</button>'+
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
           '<form id="wishlist-privacy-form" class="id-form">'+
            '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
@@ -1157,7 +1154,7 @@ function publicPlayerPage(path){
       renderProfileLinks(links,'main')+'</section>':'')+
     (p.game_activity?.visible?'<section class="public-block profile-game-activity-public"><h2>'+t('profileActivityTitle')+'</h2>'+
       '<div class="profile-activity-total"><strong>'+formatProfileTime(p.game_activity.recent_30_days_seconds||0)+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
-      ((p.game_activity.games||[]).length?'<ul class="profile-activity-games">'+p.game_activity.games.map(g=>'<li><span>'+esc(g.game_id==='devive'?'Devive':g.game_id)+'</span><small>'+formatProfileTime(g.recent_seconds||0)+' · '+new Date(g.last_played_at).toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US')+'</small></li>').join('')+'</ul>':'<p>'+t('profileActivityEmpty')+'</p>')+'</section>':'')+
+      ((p.game_activity.games||[]).length?'<ul class="profile-activity-games">'+p.game_activity.games.map(g=>'<li><span>'+esc(g.game_id==='devive'?'Devive':g.game_id)+'</span><small>'+formatProfileTime(g.recent_seconds||0)+' · '+new Date(g.last_played_at).toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US')+'</small></li>').join('')+'</ul>':'')+'</section>':'')+
     '<section class="public-block"><h2>'+t('profileWishlist')+'</h2>'+
      (!p.wishlist_visible?'<div class="friends-empty">'+icon('shield',20)+' '+t('socialWishHidden')+'</div>':
       games.length?'<div class="public-links">'+games.map(g=>g==='devive'?
