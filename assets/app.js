@@ -1591,6 +1591,7 @@ function render(keepScroll=false){
   document.body.classList.toggle('balance-fullscreen',route.path==='/balance');
   document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory');
   document.body.classList.toggle('rewards-fullscreen',route.path==='/rewards'||route.path==='/free');
+  document.body.classList.toggle('desktop-fullscreen',route.path==='/desktop');
   document.documentElement.lang=state.language;
   document.documentElement.dataset.theme=state.theme;
   let page;
