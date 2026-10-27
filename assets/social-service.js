@@ -1,21 +1,19 @@
 // Public-facing AURVEX profiles and family membership are isolated from Google/Auth secrets.
-import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261027-015';
+import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-service.js?v=20261027-016';
 import {loadPublicShopEquipped} from './shop-service.js?v=20261018-391';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles,shopEquipped,about,appearance,gameActivity,profileFriends,profileComments]=await Promise.all([
+ const [{data,error},titles,shopEquipped,about,appearance,gameActivity,profileFriends]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
    getProfileTitles(id),loadPublicShopEquipped(id),
    client.rpc('aurvex_public_profile_about',{target_player:id}).then(({data})=>data||{}).catch(()=>({})),
    client.rpc('aurvex_public_appearance',{target_player:id}).then(({data})=>data||{}).catch(()=>({})),
    client.rpc('aurvex_public_game_activity',{target_player:id}).then(({data})=>data||{visible:false,games:[],games_played:0,recent_30_days_seconds:0}).catch(()=>({visible:true,games_visible:false,games:[],games_played:0,recent_30_days_seconds:0})),
    client.rpc('aurvex_public_profile_friends',{target_player:id}).then(({data})=>(data||[]).map(x=>({...x,avatarUrl:profileMediaUrl(x.avatar_path)}))).catch(()=>[]),
-   client.rpc('aurvex_profile_comments',{target_player:id}).then(({data})=>({...data,comments:(data?.comments||[]).map(c=>({...c,avatarUrl:profileMediaUrl(c.avatar_path)}))})).catch(()=>({visibility:'off',visible:false,can_comment:false,comments:[]}))
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
  return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),profile_appearance:appearance,game_activity:gameActivity,
-    profile_comments_visibility:String(profileComments?.visibility||'friends'),profile_comments:profileComments,
     profile_friends:profileFriends,profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
 }
@@ -30,14 +28,14 @@ export async function saveSocialProfile(userId,links,wishlistPublic){
  await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles')
    .update({public_links:links,wishlist_public:!!wishlistPublic}).eq('id',userId)
-   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;
  return data;
 }
 export async function saveWishlistVisibility(userId,visible){
  const client=await idClient();await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles').update({wishlist_public:!!visible}).eq('id',userId)
-  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;return data;
 }
 export async function getFamilyOverview(){
@@ -85,29 +83,10 @@ export async function getFamilyLibrary(){
 export async function saveProfileAppearance(userId,appearance){
  const client=await idClient();await ensureOwnProfile(client,userId);
  const {data,error}=await client.from('id_profiles').update({profile_appearance:appearance}).eq('id',userId)
-  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_comments_visibility,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
+  .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status').single();
  if(error)throw error;return data;
 }
 
-export async function saveProfileCommentsVisibility(userId,visibility){
- if(!['off','friends','everyone'].includes(visibility))throw new Error('Invalid comments visibility');
- const client=await idClient();await ensureOwnProfile(client,userId);
- const {data,error}=await client.from('id_profiles').update({profile_comments_visibility:visibility}).eq('id',userId)
-  .select('profile_comments_visibility').single();
- if(error)throw error;return data;
-}
-export async function loadProfileComments(userId){
- const client=await idClient();const {data,error}=await client.rpc('aurvex_profile_comments',{target_player:userId});
- if(error)throw error;return data||{visibility:'friends',visible:false,comments:[]};
-}
-export async function addProfileComment(profileId,body){
- const client=await idClient();const {data,error}=await client.rpc('aurvex_profile_comment_add',{target_player:profileId,comment_body:body});
- if(error)throw error;return data;
-}
-export async function deleteProfileComment(commentId){
- const client=await idClient();const {data,error}=await client.rpc('aurvex_profile_comment_delete',{comment_id:commentId});
- if(error)throw error;return data;
-}
 export async function setGameActivityVisibility(visible){
  const client=await idClient();
  const {data,error}=await client.rpc('aurvex_set_game_activity_public',{show_activity:!!visible});
