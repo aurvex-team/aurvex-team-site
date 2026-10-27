@@ -15,6 +15,20 @@
   --accent-soft:#c922451b;--primary:#d31d45;--on-primary:#fff;--success:#157a4b;
   --gold:#a46f2a;--shadow:0 20px 60px #53203220
 }
+:root[data-theme=blue]{
+  color-scheme:dark;--bg:#080b14;--sidebar:#0b1020;--header:#0a0e19f2;--surface:#11182a;
+  --surface-2:#172036;--surface-hover:#222d48;--panel:#121a2d;--text:#f0f4ff;--muted:#a1aecb;
+  --subtle:#71809f;--line:#27314a;--line-strong:#3b4a6a;--accent:#7fa5ff;--accent-hover:#aac3ff;
+  --accent-soft:#7fa5ff24;--primary:#526dca;--on-primary:#fff;--success:#8fddb7;
+  --gold:#edcc84;--shadow:0 24px 72px #020615aa
+}
+:root[data-theme=aurora]{
+  color-scheme:dark;--bg:#07110f;--sidebar:#091815;--header:#081512f2;--surface:#0d1e19;
+  --surface-2:#122720;--surface-hover:#1b382d;--panel:#0e211b;--text:#effbf5;--muted:#a1c4b3;
+  --subtle:#6d9884;--line:#1d382d;--line-strong:#315641;--accent:#53d6a1;--accent-hover:#8be8bd;
+  --accent-soft:#53d6a123;--primary:#16865d;--on-primary:#fff;--success:#8be8bd;
+  --gold:#e9cc7a;--shadow:0 24px 72px #03110d99
+}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:92px}
 body{margin:0;background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;min-width:320px}
@@ -2376,3 +2390,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 @media(max-width:1100px){.mfa-layout{grid-template-columns:minmax(0,1fr) minmax(320px,.85fr);gap:24px;padding:28px}.mfa-cover h1{font-size:clamp(32px,4vw,48px)}}
 @media(max-width:860px){.mfa-layout{grid-template-columns:1fr;gap:25px;min-height:0;padding:clamp(18px,5vw,32px)}.mfa-cover{max-width:none}.mfa-panel{max-width:none;justify-self:stretch}}
 @media(max-width:560px){.mfa-layout{gap:20px;padding:17px;border-radius:17px}.mfa-cover .id-brand-pill{margin-bottom:17px}.mfa-lock-symbol{width:62px;height:62px;margin-bottom:16px;border-radius:18px}.mfa-cover h1{font-size:clamp(30px,9vw,42px);letter-spacing:-1.4px}.mfa-cover>p:not(.mfa-help){font-size:13px}.mfa-panel{padding:18px}.mfa-qr-wrap{padding:12px}.mfa-qr{width:min(64vw,220px);height:min(64vw,220px);max-width:64vw;max-height:64vw}}
+
+/* Sunday Stars rewards */
+.weekly-reward-card,.weekly-reward-schedule{max-width:var(--max);margin:22px auto;padding:clamp(20px,3vw,34px);border:1px solid var(--line);border-radius:20px;background:linear-gradient(135deg,var(--surface),var(--panel));box-shadow:var(--shadow)}
+.weekly-reward-heading{display:flex;align-items:flex-start;gap:16px}
+.weekly-reward-icon{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:15px;color:var(--accent);background:var(--accent-soft)}
+.weekly-reward-heading p{max-width:720px;margin:7px 0 0;color:var(--muted)}
+.weekly-reward-current{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:25px;padding:18px 20px;border:1px solid var(--line);border-radius:15px;background:var(--surface-2)}
+.weekly-reward-current>div:first-child{display:grid;gap:4px;flex:1 1 160px;color:var(--muted)}
+.weekly-reward-current>div:first-child strong{font-size:18px;color:var(--text);text-transform:capitalize}
+.weekly-reward-amount{display:flex;align-items:baseline;gap:7px;color:var(--accent)}
+.weekly-reward-amount strong{font-size:32px;line-height:1}
+.weekly-reward-amount span{font-weight:800}
+.weekly-reward-footnote{margin:16px 0 0;color:var(--subtle);font-size:12px}
+.weekly-reward-message{margin:16px 0 0;color:var(--success);font-weight:700}
+.weekly-reward-message.is-error{color:#ff7186}
+.weekly-reward-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.weekly-reward-step{display:grid;gap:8px;padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--surface-2)}
+.weekly-reward-step span{color:var(--muted);font-size:12px}
+.weekly-reward-step strong{font-size:18px}
+.weekly-reward-step.is-current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-soft) inset}
+.pref-theme .pref-panel{width:230px}
+@media(max-width:700px){.weekly-reward-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.weekly-reward-current{align-items:flex-start}.weekly-reward-current .btn{flex:1 1 100%}}
