@@ -2696,3 +2696,45 @@ body.inventory-fullscreen .si-trade-history{flex:0 1 27%;min-height:85px;overflo
  body.inventory-fullscreen .si-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px}
  body.inventory-fullscreen .si-trade-history{flex-basis:25%;min-height:65px;padding:10px}
 }
+
+/* Family and Notifications use a fixed screen; long content scrolls inside its own panel. */
+body.family-fullscreen,body.notifications-fullscreen{height:100dvh;overflow:hidden;overscroll-behavior:none}
+body.family-fullscreen #app,body.notifications-fullscreen #app{height:100dvh;min-height:0;overflow:hidden}
+body.family-fullscreen .main,body.notifications-fullscreen .main{height:calc(100dvh - 72px);min-height:0;overflow:hidden;box-sizing:border-box}
+body.family-fullscreen .content,body.notifications-fullscreen .content{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;max-width:none;margin:0;padding:16px clamp(14px,3vw,38px) 18px;overflow:hidden}
+body.family-fullscreen .content>.footer,body.notifications-fullscreen .content>.footer{display:none}
+body.family-fullscreen .breadcrumb,body.notifications-fullscreen .breadcrumb{flex:0 0 auto}
+body.family-fullscreen .friends-hero,body.notifications-fullscreen .notifications-hero{flex:0 0 auto}
+body.family-fullscreen .family-columns{flex:1;min-height:0;align-items:stretch;margin:12px 0 0;grid-template-rows:minmax(0,1fr)}
+body.family-fullscreen .family-panel{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+body.family-fullscreen .content>.family-panel{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+body.family-fullscreen .friends-lock{flex:1;min-height:0;overflow:auto}
+body.notifications-fullscreen .friends-alert{flex:0 0 auto}
+body.notifications-fullscreen .social-notifications-layout{flex:1;min-height:0;overflow:hidden;align-items:stretch}
+body.notifications-fullscreen .social-notifications-main{min-height:0;overflow:hidden}
+body.notifications-fullscreen .notifications-panel{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+body.notifications-fullscreen .notifications-toolbar{flex:0 0 auto}
+body.notifications-fullscreen .notifications-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+body.notifications-fullscreen .social-notification-settings{position:static;min-height:0;overflow:auto;overscroll-behavior:contain}
+body.notifications-fullscreen .social-notifications-blocked{min-height:0;overflow:auto}
+body.notifications-fullscreen .friends-lock{flex:1;min-height:0;overflow:auto}
+@media(max-width:1180px){
+ body.family-fullscreen .family-columns{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));overflow:hidden}
+ body.notifications-fullscreen .social-notifications-layout{grid-template-columns:minmax(0,1fr) minmax(220px,.7fr)}
+}
+@media(max-width:690px){
+ body.family-fullscreen .main,body.notifications-fullscreen .main{height:calc(100dvh - 72px);padding-bottom:88px}
+ body.family-fullscreen .content,body.notifications-fullscreen .content{padding:8px 9px}
+ body.family-fullscreen .friends-hero,body.notifications-fullscreen .notifications-hero{padding:13px 14px;margin-bottom:8px}
+ body.family-fullscreen .family-columns{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(3,minmax(0,1fr));gap:7px}
+ body.family-fullscreen .family-panel{padding:10px}
+ body.notifications-fullscreen .social-notifications-layout{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:8px}
+ body.notifications-fullscreen .social-notifications-main{min-height:0}
+ body.notifications-fullscreen .social-notifications-main .friends-panel{padding:10px}
+ body.notifications-fullscreen .notifications-toolbar{gap:6px;padding-bottom:8px}
+ body.notifications-fullscreen .notification-filters{gap:4px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
+ body.notifications-fullscreen .notification-filter{padding:6px 8px}
+ body.notifications-fullscreen .notification-mark-all{flex:0 0 auto;padding:7px;font-size:9px}
+ body.notifications-fullscreen .social-notification-settings{overflow:hidden}
+ body.notifications-fullscreen .social-notifications-blocked{max-height:100%;overflow:auto}
+}

@@ -1949,3 +1949,12 @@ test('Previously saved profile themes and accents no longer render on own or pub
  }
  assert.ok(!appCode.includes('function profilePresentationAttrs'));
 });
+
+test('Only Family and Notifications routes lock page scrolling and keep overflow inside lists',()=>{
+ for(const route of ["family","notifications"]){
+  assert.ok(appCode.includes("document.body.classList.toggle('"+route+"-fullscreen',route.path==='/"+route+"')"),route);
+  assert.ok(css.includes("body."+route+"-fullscreen .main"),route);
+ }
+ assert.ok(css.includes('body.notifications-fullscreen .notifications-list{flex:1;min-height:0;overflow-y:auto'));
+ assert.ok(css.includes('body.family-fullscreen .family-panel{min-height:0;overflow-y:auto'));
+});
