@@ -125,6 +125,19 @@ document.addEventListener('input',captureCustomStatus);
 document.addEventListener('change',captureCustomStatus);
 document.addEventListener('input',captureAbout);
 document.addEventListener('change',captureAbout);
+document.addEventListener('change',event=>{
+ const form=event.target?.closest?.('#profile-appearance-form');
+ if(!form||!isSecure())return;
+ const theme=form.querySelector('[name="profile_theme"]:checked')?.value;
+ const color=form.querySelector('[name="inner_color"]:checked')?.value;
+ const themes=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight'];
+ const colors=['rose','violet','blue','gold','emerald','cyan','red','orange','white'];
+ const profile=document.querySelector('.player-profile:not(.public-profile)');
+ if(profile&&themes.includes(theme)&&colors.includes(color)){
+  profile.dataset.profileTheme=theme;profile.dataset.profileColor=color;
+  profile.dataset.profileTransparent=String(form.querySelector('[name="transparent"]')?.checked===true);
+ }
+});
 document.addEventListener('input',event=>{
  const form=event.target?.closest?.('#social-profile-form');
  if(!form||!isSecure())return;
