@@ -1267,7 +1267,7 @@ test('Compact Profile Studio has two localized accessible editor tabs instead of
   // Hidden panels stay mounted, so their in-progress FormData and event handlers survive tab switches.
   assert.ok(html.includes('id="id-nickname-form"'));
   assert.ok(html.includes('id="social-profile-form"'));
-  assert.ok(!html.includes('id="profile-appearance-form"'));
+  assert.ok(html.includes('id="profile-appearance-form"'));
   assert.ok(html.includes('id="id-avatar-upload"'));
   assert.ok(html.includes('id="id-banner-upload"'));
  }
@@ -1302,7 +1302,7 @@ test('Public profiles keep full banner and display-only layout, not private edit
  }).html;
  assert.ok(page.includes('class="player-profile public-profile"'));
  assert.ok(!page.includes('data-profile-workspace'));
- assert.ok(!page.includes('id="profile-appearance-form"'));
+ assert.ok(page.includes('id="profile-appearance-form"'));
  assert.ok(!page.includes('data-profile-tab'));
  assert.ok(page.includes('class="player-cover"'));
 });
@@ -1741,7 +1741,7 @@ test('Profile keeps its editor without the summary dashboard in all locales',()=
    assert.ok(html.includes(required),lang+': '+required);
   }
   assert.ok(html.includes('Building a scary game'));
-  assert.ok(!html.includes('id="profile-appearance-form"'));
+  assert.ok(html.includes('id="profile-appearance-form"'));
  }
 });
 test('Public profile bio is escaped, optional, and contains no private account information',()=>{
