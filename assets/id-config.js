@@ -6,7 +6,7 @@ export const ID_CONFIG=Object.freeze({
   supabaseUrl:'https://zalzsgfufvppvgvqfocf.supabase.co',
   supabasePublishableKey:'sb_publishable_TbkBRf0gcJwdQpXNE7SSwg_WLe8FrXr',
   googleEnabled:true,
-  emailEnabled:false,
+  emailEnabled:true,
   fmailEnabled:false
 });
 export function isIdConfigured(){
