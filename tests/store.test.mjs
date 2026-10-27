@@ -1924,3 +1924,28 @@ test('Game Library fills the viewport, scrolls only its item list, and uses them
  assert.ok(css.includes('body.library-fullscreen .steam-game-rows{flex:1;min-height:0;max-height:none;overflow-x:hidden;overflow-y:auto'));
  assert.ok(css.includes('steam-sort-picker'));
 });
+
+test('Inventory stays in the viewport and confines scrolling to item lists',()=>{
+ assert.ok(appCode.includes("document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory')"));
+ for(const rule of ['body.inventory-fullscreen{height:100dvh;overflow:hidden}',
+   'body.inventory-fullscreen .si-browser-scroll{flex:1;min-height:0;overflow-y:auto',
+   'body.inventory-fullscreen .si-mini-grid{flex:1;min-height:0;max-height:none;overflow-y:auto']){
+  assert.ok(css.includes(rule),rule);
+ }
+});
+test('Previously saved profile themes and accents no longer render on own or public profiles',()=>{
+ const oldAppearance={profile_theme:'summer',inner_color:'rose',transparent:true};
+ const auth={user:{id:'11111111-2222-4333-8444-555555555555'},mfaVerified:true,
+   profile:{nickname:'tester',profile_appearance:oldAppearance},profileTitles:[]};
+ const own=render('#/id','en',false,null,auth).html;
+ const player='22222222-2222-4333-8444-555555555555';
+ const publicView=render('#/player/'+player,'en',false,null,null,null,{
+   profileTarget:player,profile:{player_id:player,nickname:'other',profile_appearance:oldAppearance,public_links:[],profileTitles:[],wishlist_visible:false}
+ }).html;
+ for(const page of [own,publicView]){
+  assert.ok(!page.includes('data-profile-theme='));
+  assert.ok(!page.includes('data-profile-color='));
+  assert.ok(!page.includes('data-profile-transparent='));
+ }
+ assert.ok(!appCode.includes('function profilePresentationAttrs'));
+});

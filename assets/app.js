@@ -728,12 +728,6 @@ function shopStyleAttrs(equipped){
  const profile=['profile_emerald','profile_cosmic','profile_frost','profile_flame','profile_summer','profile_winter','profile_galaxy','profile_neon','profile_solarflare','profile_voidglass'].includes(e.profile)?e.profile:'none';
  return ' data-shop-avatar="'+avatar+'" data-shop-profile="'+profile+'"';
 }
-function profilePresentationAttrs(raw){
- const safe=raw&&typeof raw==='object'?raw:{};
- const theme=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight','sakura','desert','autumn','arctic','volcanic','starlight'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
- const color=['rose','violet','blue','gold','emerald','cyan','red','orange','white','mint','teal','indigo','coral','lavender','silver'].includes(safe.inner_color)?safe.inner_color:'violet';
- return ' data-profile-theme="'+theme+'" data-profile-color="'+color+'" data-profile-transparent="'+(safe.transparent===true?'true':'false')+'"';
-}
 function renderProfileLinks(links,slot){
  const chosen=(Array.isArray(links)?links:[]).filter(l=>
   (['header','main','footer'].includes(l?.slot)?l.slot:'main')===slot);
@@ -844,7 +838,7 @@ function playerProfilePage(auth){
   const bannerRemove=auth.profile?.banner_path?
     '<button type="button" class="player-remove" data-id-action="remove-banner"'+saving+'>'+icon('close',13)+' '+t('profileRemove')+'</button>':'';
   return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('aurvexId')+'</span></div>'+
-    '<div class="player-profile"'+shopStyleAttrs(window.AURVEX_SHOP?.userId&&window.AURVEX_SHOP.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+profilePresentationAttrs(auth.profile?.profile_appearance)+'>'+
+    '<div class="player-profile"'+shopStyleAttrs(window.AURVEX_SHOP?.userId&&window.AURVEX_SHOP.userId===auth.user?.id?window.AURVEX_SHOP.equipped:null)+'>'+
       '<header class="player-cover">'+banner+
         '<div class="player-cover-shade"></div>'+
         '<div class="player-cover-top"><span>'+icon('shield',17)+' '+t('profileEyebrow')+'</span>'+
@@ -1119,7 +1113,7 @@ function publicPlayerPage(path){
  const date=new Date(p.joined_at);
  const joined=Number.isFinite(date.getTime())?date.toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US',{year:'numeric',month:'long'}):'';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
-  '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+profilePresentationAttrs(p.profile_appearance)+'>'+
+  '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+'>'+
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
    '<div class="player-identity"><div class="player-avatar-frame">'+avatar+'</div>'+
     '<div class="player-name-stack"><div class="smallcaps">AURVEX PLAYER</div><h1>'+esc(p.nickname)+'</h1>'+
@@ -1570,6 +1564,7 @@ function render(keepScroll=false){
   const pos=window.scrollY;
   const route=routeInfo();route.path=safeRoute(route.path);
   document.body.classList.toggle('library-fullscreen',route.path==='/library');
+  document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory');
   document.documentElement.lang=state.language;
   document.documentElement.dataset.theme=state.theme;
   let page;

@@ -2653,3 +2653,46 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .si-search [data-inventory-action="clear-search"]{display:grid;place-items:center;width:25px;height:25px;flex:0 0 25px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
 .si-search [data-inventory-action="clear-search"]:hover{background:var(--surface-hover);color:var(--text)}
 .si-search [data-inventory-action="clear-search"][hidden]{display:none}
+
+/* Inventory viewport: keep the page fixed and confine scrolling to item collections. */
+body.inventory-fullscreen{height:100dvh;overflow:hidden;overscroll-behavior:none}
+body.inventory-fullscreen #app{height:100dvh;min-height:0;overflow:hidden}
+body.inventory-fullscreen .main{height:calc(100dvh - 72px);min-height:0;overflow:hidden;padding-bottom:112px;box-sizing:border-box}
+body.inventory-fullscreen .content{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;max-width:none;margin:0;padding:12px clamp(12px,2vw,28px) 12px;overflow:hidden}
+body.inventory-fullscreen .content>.footer{display:none}
+body.inventory-fullscreen .si-shell{display:flex;flex:1;flex-direction:column;min-height:0;margin:0;overflow:hidden}
+body.inventory-fullscreen .si-header,body.inventory-fullscreen .si-top-tabs{flex:0 0 auto}
+body.inventory-fullscreen .si-workspace{flex:1;min-height:0;overflow:hidden}
+body.inventory-fullscreen .si-categories,body.inventory-fullscreen .si-details-col{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+body.inventory-fullscreen .si-browser{min-height:0;overflow:hidden}
+body.inventory-fullscreen .si-browser-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:var(--line-strong) transparent;scrollbar-width:thin}
+body.inventory-fullscreen .si-shell:has(.si-trade-columns){overflow:hidden}
+body.inventory-fullscreen .si-trade-columns{flex:1;min-height:0;overflow:hidden}
+body.inventory-fullscreen .si-trade-column{display:flex;flex-direction:column;min-height:0}
+body.inventory-fullscreen .si-mini-grid{flex:1;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain}
+body.inventory-fullscreen .si-trade-history{flex:0 1 27%;min-height:85px;overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:700px){
+ body.inventory-fullscreen .main{height:calc(100dvh - 72px);padding-bottom:96px}
+ body.inventory-fullscreen .content{padding:8px 8px 10px}
+ body.inventory-fullscreen .si-header{padding:12px 13px;gap:8px}
+ body.inventory-fullscreen .si-header h1{font-size:22px}
+ body.inventory-fullscreen .si-header p{font-size:10px}
+ body.inventory-fullscreen .si-header-stats>span{padding:6px 8px}
+ body.inventory-fullscreen .si-top-tabs{min-height:42px}
+ body.inventory-fullscreen .si-top-tabs button{padding:10px 8px;font-size:10px}
+ body.inventory-fullscreen .si-workspace{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) minmax(100px,22%);overflow:hidden}
+ body.inventory-fullscreen .si-categories{max-height:48px;padding:5px 8px}
+ body.inventory-fullscreen .si-browser{display:flex;min-height:0}
+ body.inventory-fullscreen .si-browser-scroll{min-height:0;padding:8px}
+ body.inventory-fullscreen .si-details-col{min-height:0;max-height:100%;overflow:auto;border-top:1px solid var(--line)}
+ body.inventory-fullscreen .si-detail{padding:9px 10px}
+ body.inventory-fullscreen .si-detail-art{display:none}
+ body.inventory-fullscreen .si-detail dl{display:none}
+ body.inventory-fullscreen .si-trade-top{padding:10px 12px}
+ body.inventory-fullscreen .si-trade-top h2{font-size:17px}
+ body.inventory-fullscreen .si-trade-top p{display:none}
+ body.inventory-fullscreen .si-trade-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 8px 8px}
+ body.inventory-fullscreen .si-trade-column-head{padding:8px}
+ body.inventory-fullscreen .si-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:7px}
+ body.inventory-fullscreen .si-trade-history{flex-basis:25%;min-height:65px;padding:10px}
+}

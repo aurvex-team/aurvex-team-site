@@ -12,6 +12,8 @@ const shopItems=['avatar_violet','avatar_ruby','avatar_cyan','avatar_gold','avat
 test('Profile theme customization editor is removed while profile cosmetics remain styled',()=>{
  const app=read('assets/app.js'),css=read('assets/site.css'),i18n=read('assets/i18n.js');
  assert.ok(!app.includes('profile-appearance-form'));
+ assert.ok(!app.includes('profilePresentationAttrs'));
+ assert.ok(!app.includes('data-profile-theme'));
  for(const theme of themes){
   assert.ok(css.includes('data-profile-theme="'+theme+'"'),'missing visual theme '+theme);
   const key='profileTheme'+theme[0].toUpperCase()+theme.slice(1);
