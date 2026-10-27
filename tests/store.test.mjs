@@ -2021,3 +2021,25 @@ test('Browse store uses five desktop columns and omits the obsolete release note
  assert.ok(!appCode.includes('function footer()'));
  assert.ok(!appCode.includes('footer()'));
 });
+
+
+test('Browse Store exposes creator submissions and localized help policies',()=>{
+ const browse=render('#/browse','uk').html;
+ assert.ok(browse.includes('catalog-submit'));
+ assert.ok(browse.includes('https://t.me/flekusik'));
+ assert.ok(browse.includes('href="#/legal"'));
+ const legal=render('#/legal','uk').html;
+ assert.ok(legal.includes('legal-page'));
+ assert.ok(legal.includes(translations.uk.legalPrivacyTitle));
+ assert.ok(legal.includes(translations.uk.legalSubmissionsRights));
+});
+
+test('Russian Spanish and French have complete translation key sets for the interface',()=>{
+ for(const lang of ['ru','es','fr']){
+  assert.ok(supportedLanguages.includes(lang));
+  assert.deepEqual(Object.keys(translations[lang]).sort(),Object.keys(translations.en).sort());
+  for(const key of ['langName','browseTitle','idSignIn','catalogSubmitCta','legalTitle','legalPrivacyText']){
+   assert.ok(translations[lang][key],lang+' is missing '+key);
+  }
+ }
+});
