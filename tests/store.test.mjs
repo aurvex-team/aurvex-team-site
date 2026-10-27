@@ -1166,7 +1166,7 @@ test('Profile has Overview and Links while theme editor is removed',()=>{
   const start=html.indexOf('id="profile-panel-overview"'),end=html.indexOf('id="profile-panel-links"');
   assert.ok(start>=0&&end>start);
   assert.ok(html.slice(start,end).includes('id="wishlist-privacy-form"'));
-  assert.ok(!html.slice(start,end).includes('data-social37-action="visibility"'));
+  assert.ok(html.slice(start,end).includes('data-social37-action="visibility"'));
   assert.ok(!html.slice(end).includes('name="wishlist_public"'));
  }
 });
