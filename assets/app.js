@@ -806,6 +806,7 @@ function playerProfilePage(auth){
   const shownLinks=socialDraft?.links||auth.profile?.public_links||[];
   const shownWishlist=!!auth.profile?.wishlist_public;
   const visibleTitles=auth.profileTitles||[];
+  const activity=window.AURVEX_SOCIAL?.gameActivity||{visible:false,games:[],recent_30_days_seconds:0};
   const profileLinks=auth.profile?.public_links||[];
   const aboutDraft=window.AURVEX_SOCIAL?.aboutDraftUser===auth.user?.id?window.AURVEX_SOCIAL?.aboutDraft:null;
   const savedBio=auth.profile?.profile_bio||'';
@@ -918,6 +919,12 @@ function playerProfilePage(auth){
               '<button type="submit" class="btn btn-primary"'+saving+'>'+icon('check',16)+' '+t('profileStatusSave')+'</button></div></div>'+
           '</form><p class="profile-about-note">'+icon('clock',14)+' '+t('profileStatusExpirationHint')+'</p></section>'+
         renderProfileLinks(profileLinks,'main')+
+        '<section class="inventory-privacy-card profile-game-activity"><h3>'+icon('gamepad',19)+' '+t('profileActivityTitle')+'</h3>'+
+          '<p>'+t('profileActivityIntro')+'</p>'+
+          '<form id="profile-game-activity-form" class="id-form">'+
+           '<label class="social-wish-toggle"><input type="checkbox" name="game_activity_public"'+(activity.visible?' checked':'')+'>'+
+             '<span><strong>'+t('profileActivityPublic')+'</strong><small>'+t('profileActivityPrivacy')+'</small></span></label>'+
+           '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileActivitySave')+'</button></form></section>'+
         '<section class="inventory-privacy-card profile-online-visibility"><h3>'+icon('eye',19)+' '+t('social37Settings')+'</h3>'+
           '<label class="social-wish-toggle social37-online-control"><input type="checkbox" data-social37-action="visibility"'+(window.AURVEX_SOCIAL37?.showOnline?' checked':'')+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+
             '<span><strong>'+t('social37ShowOnline')+'</strong><small>'+t('social37Privacy')+'</small></span></label></section>'+
@@ -1128,6 +1135,10 @@ function friendsPage(){
 }
 
 
+function formatProfileTime(seconds){
+ const total=Math.max(0,Math.floor(Number(seconds)||0)),hours=Math.floor(total/3600),minutes=Math.floor(total%3600/60);
+ return hours?hours+' '+t('profileHours')+(minutes?' '+minutes+' '+t('profileMinutes'):''):minutes+' '+t('profileMinutes');
+}
 function publicPlayerPage(path){
  const v=window.AURVEX_SOCIAL||{},id=path.slice(8);
  const p=v.profileTarget===id?v.profile:null,auth=window.AURVEX_ID||{};
@@ -1159,6 +1170,9 @@ function publicPlayerPage(path){
     (links.some(l=>(l.slot||'main')==='main')?
       '<section class="public-block"><h2>'+t('socialLinksTitle')+'</h2>'+
       renderProfileLinks(links,'main')+'</section>':'')+
+    (p.game_activity?.visible?'<section class="public-block profile-game-activity-public"><h2>'+t('profileActivityTitle')+'</h2>'+
+      '<div class="profile-activity-total"><strong>'+formatProfileTime(p.game_activity.recent_30_days_seconds||0)+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
+      ((p.game_activity.games||[]).length?'<ul class="profile-activity-games">'+p.game_activity.games.map(g=>'<li><span>'+esc(g.game_id==='devive'?'Devive':g.game_id)+'</span><small>'+formatProfileTime(g.recent_seconds||0)+' · '+new Date(g.last_played_at).toLocaleDateString({en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US')+'</small></li>').join('')+'</ul>':'<p>'+t('profileActivityEmpty')+'</p>')+'</section>':'')+
     '<section class="public-block"><h2>'+t('profileWishlist')+'</h2>'+
      (!p.wishlist_visible?'<div class="friends-empty">'+icon('shield',20)+' '+t('socialWishHidden')+'</div>':
       games.length?'<div class="public-links">'+games.map(g=>g==='devive'?
