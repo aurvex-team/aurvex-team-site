@@ -1207,7 +1207,9 @@ test('Each social link can be ordered and placed at header, center profile or bo
   profile_appearance:{font:'rounded',glow_name:true,glow_color:'red'}
  }};
  const view=render('#/player/'+id,'en',false,null,null,null,publicModel).html;
- for(const section of ['header','main','footer'])assert.ok(view.includes('profile-placed-'+section),section);
+ assert.ok(view.includes('profile-placed-main'));
+ assert.ok(!view.includes('profile-placed-header'));
+ assert.ok(!view.includes('profile-placed-footer'));
  for(const side of ['left','center','right'])assert.ok(view.includes('profile-align-'+side),side);
  assert.ok(!view.includes('data-pf-font='));
  assert.ok(!view.includes('data-pf-glow-name='));
@@ -1722,13 +1724,13 @@ test('Wallet deposits reuse the protected hosted-checkout flow but cannot charge
 });
 
 
-test('Find me online heading and large panel are removed; profile website remains a compact link',()=>{
+test('Find me online heading is removed; a single profile website link sits beneath the avatar',()=>{
  const id='9fe33ef1-0f84-4bce-acbb-ae5b5883377f';
  const links=[{title:'website',url:'https://flekiii.github.io/',slot:'main'}];
  const auth={user:{id,email:'private@example.org'},mfaVerified:true,profile:{nickname:'Creator',public_links:links}};
  const own=render('#/id','en',false,null,auth).html;
  assert.ok(own.includes('href="https://flekiii.github.io/"'));
- assert.ok(own.includes('profile-placed-links profile-placed-main'));
+ assert.ok(own.includes('profile-placed-links profile-placed-header'));
  assert.ok(!own.includes(translations.en.socialLinksTitle));
  assert.ok(!own.includes('profile-online-visibility-btn'));
  assert.ok(!appCode.includes('profile-online-visibility-btn'));
@@ -1737,6 +1739,7 @@ test('Find me online heading and large panel are removed; profile website remain
  const model={profileTarget:id,profile:{player_id:id,nickname:'Creator',public_links:links,wishlist_visible:false}};
  const pub=render('#/player/'+id,'en',false,null,null,null,model).html;
  assert.ok(pub.includes('href="https://flekiii.github.io/"'));
+ assert.ok(pub.includes('profile-placed-links profile-placed-header'));
  assert.ok(!pub.includes(translations.en.socialLinksTitle));
  const editor=render('#/id?mode=edit','en',false,null,auth).html;
  assert.ok(editor.includes('data-social37-action="visibility"'));
