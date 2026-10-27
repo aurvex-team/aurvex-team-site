@@ -1302,7 +1302,7 @@ test('Public profiles keep full banner and display-only layout, not private edit
  }).html;
  assert.ok(page.includes('class="player-profile public-profile"'));
  assert.ok(!page.includes('data-profile-workspace'));
- assert.ok(page.includes('id="profile-appearance-form"'));
+ assert.ok(!page.includes('id="profile-appearance-form"'));
  assert.ok(!page.includes('data-profile-tab'));
  assert.ok(page.includes('class="player-cover"'));
 });
