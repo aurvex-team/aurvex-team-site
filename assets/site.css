@@ -3025,3 +3025,8 @@ body.desktop-fullscreen .launcher-os-section .download-os-arrow{margin-left:auto
  body.desktop-fullscreen .launcher-os-section .download-os-copy strong{font-size:12px}
  body.desktop-fullscreen .launcher-os-section .download-os-copy small{font-size:9px}
 }
+
+
+/* Prevent the compact OS cards from stretching to fill the remaining panel height. */
+body.desktop-fullscreen .launcher-os-section .download-os-grid{align-content:start;grid-auto-rows:88px}
+@media(max-width:760px){body.desktop-fullscreen .launcher-os-section .download-os-grid{grid-auto-rows:58px}}
