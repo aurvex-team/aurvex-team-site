@@ -473,8 +473,7 @@ function home(){
   }).join('');
   return '<div class="home-redesign">'+
     '<header class="home-topline"><div class="home-intro"><span class="smallcaps">'+t('beta')+'</span>'+
-      '<h1>'+t('welcomeTitle')+'</h1><p>'+t('welcomeText')+'</p></div>'+
-      '<a class="home-top-link" href="#/browse">'+icon('compass',16)+' '+t('showAll')+' '+icon('arrow',14)+'</a></header>'+
+      '<h1>'+t('welcomeTitle')+'</h1><p>'+t('welcomeText')+'</p></div></header>'+
     '<section class="home-feature" aria-label="'+esc(t('heroTitle')+' '+t('heroTitleAccent'))+'">'+
       '<img class="home-feature-art" src="'+sceneUrl+'" alt="'+esc(t('conceptArtwork'))+'" fetchpriority="high">'+
       '<div class="home-feature-shade" aria-hidden="true"></div>'+
@@ -487,8 +486,7 @@ function home(){
           '<span>'+icon('clock',14)+' '+t('inDevelopment')+'</span></div></div>'+
       '<div class="home-feature-art-label"><span class="home-art-orbit">'+icon('sparkle',19)+'</span><span>01</span><small>'+t('conceptArtwork')+'</small></div>'+
     '</section>'+
-    '<section class="home-explore"><div class="home-explore-heading"><div><span class="smallcaps">'+t('selectionKicker')+'</span>'+
-      '<h2>'+t('selectionTitle')+'</h2></div><p>'+t('selectionSubtitle')+'</p></div><nav class="home-explore-grid" aria-label="'+t('browse')+'">'+cards+'</nav></section>'+
+    '<section class="home-explore"><nav class="home-explore-grid" aria-label="'+t('browse')+'">'+cards+'</nav></section>'+
   '</div>';
 }
 function heading(title,sub,kicker){
