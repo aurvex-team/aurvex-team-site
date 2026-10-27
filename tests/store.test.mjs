@@ -2011,7 +2011,7 @@ test('Signed-in profile opens a Steam-style overview and sends editing to its ow
   game_id:'devive',recent_seconds:3600,last_played_at:'2026-10-26T12:00:00Z'
  }]}};
  const view=render('#/id','uk',false,null,auth,null,social).html;
- assert.ok(view.includes('class="steam-profile-page"'));
+ assert.ok(view.includes('class="player-profile steam-profile-page"'));
  assert.ok(view.includes('href="#/id?mode=edit"'));
  assert.ok(view.includes(translations.uk.profileEditButton));
  assert.ok(view.includes(translations.uk.profileActivityLast30Days));
