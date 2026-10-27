@@ -3225,3 +3225,11 @@ body:has(.steam-profile-page) .steam-profile-main,body:has(.steam-profile-page) 
  body:has(.public-profile) .public-profile-columns{display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
  body:has(.public-profile) .public-profile-main,body:has(.public-profile) .public-profile-side{flex:0 0 auto;overflow:visible}
 }
+
+
+/* Browse store: five compact product cards per desktop row, responsive below that. */
+.catalog-results{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1300px){.catalog-results{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1020px){.catalog-results{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.catalog-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.catalog-results{grid-template-columns:minmax(0,1fr)}}
