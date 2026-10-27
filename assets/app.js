@@ -1197,7 +1197,8 @@ function publicPlayerPage(path){
    '</section>':'';
  const wishlistCard=p.wishlist_visible?
    '<section class="public-block public-wishlist-card"><span class="smallcaps">'+t('profileWishlist')+'</span><h2>'+esc(p.nickname)+t('profileWishlistSuffix')+'</h2><details><summary class="btn btn-outline">'+icon('heart',16)+' '+t('profileWishlistView')+'</summary>'+
-    (games.length?'<div class="public-wishlist-items">'+games.map(g=>g==='devive'?'<a href="#/game/devive">'+icon('gamepad',16)+' Devive</a>':'<span>'+icon('gamepad',16)+' '+esc(g)+'</span>').join('')+'</div>':'<p class="profile-wishlist-empty">'+t('socialWishEmpty')+'</p>')+'</details></section>':'';
+    (games.length?'<div class="public-wishlist-items">'+games.map(g=>g==='devive'?'<a href="#/game/devive">'+icon('gamepad',16)+' Devive</a>':'<span>'+icon('gamepad',16)+' '+esc(g)+'</span>').join('')+'</div>':'<p class="profile-wishlist-empty">'+t('socialWishEmpty')+'</p>')+'</details></section>':
+   '<section class="public-block public-wishlist-card is-private"><span class="smallcaps">'+t('profileWishlist')+'</span><h2>'+esc(p.nickname)+t('profileWishlistSuffix')+'</h2><p>'+t('socialWishHidden')+'</p></section>';
  const friendList=friendCount?'<div class="profile-friend-list">'+profileFriendRows(friends)+'</div>':'<p class="profile-friends-empty">'+t('friendsEmpty')+'</p>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
   '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+'>'+
