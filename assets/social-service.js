@@ -3,17 +3,18 @@ import {idClient,profileMediaUrl,ensureOwnProfile,getProfileTitles} from './id-s
 import {loadPublicShopEquipped} from './shop-service.js?v=20261018-391';
 export async function loadPlayerProfile(id){
  const client=await idClient();
- const [{data,error},titles,shopEquipped,about,appearance]=await Promise.all([
+ const [{data,error},titles,shopEquipped,about,appearance,gameActivity]=await Promise.all([
    client.rpc('aurvex_public_profile',{target_player:id}),
    getProfileTitles(id),loadPublicShopEquipped(id),
    client.rpc('aurvex_public_profile_about',{target_player:id}).then(({data})=>data||{}).catch(()=>({})),
-   client.rpc('aurvex_public_appearance',{target_player:id}).then(({data})=>data||{}).catch(()=>({}))
+   client.rpc('aurvex_public_appearance',{target_player:id}).then(({data})=>data||{}).catch(()=>({})),
+   client.rpc('aurvex_public_game_activity',{target_player:id}).then(({data})=>data||{visible:false}).catch(()=>({visible:false}))
  ]);
  if(error)throw error;
  const p=(data||[])[0]||null;
  return p?{...p,profile_bio:String(about?.bio||''),profile_status:String(about?.status||'building'),
    profile_status_text:String(about?.customText||''),profile_status_emoji:String(about?.customEmoji||''),
-   profile_status_expires_at:about?.customExpiresAt||null,profile_appearance:appearance,
+   profile_status_expires_at:about?.customExpiresAt||null,profile_appearance:appearance,game_activity:gameActivity,
     profileTitles:titles,shop_equipped:shopEquipped,avatarUrl:profileMediaUrl(p.avatar_path),
    bannerUrl:profileMediaUrl(p.banner_path)}:null;
 }
@@ -93,4 +94,15 @@ export async function saveProfileAppearance(userId,appearance){
  const {data,error}=await client.from('id_profiles').update({profile_appearance:appearance}).eq('id',userId)
   .select('nickname,avatar_path,banner_path,created_at,public_links,wishlist_public,profile_appearance,hidden_title_codes,profile_bio,profile_status,profile_status_text,profile_status_emoji,profile_status_expires_at').single();
  if(error)throw error;return data;
+}
+
+export async function setGameActivityVisibility(visible){
+ const client=await idClient();
+ const {data,error}=await client.rpc('aurvex_set_game_activity_public',{show_activity:!!visible});
+ if(error)throw error;return data;
+}
+export async function loadOwnGameActivity(userId){
+ const client=await idClient();
+ const {data,error}=await client.rpc('aurvex_public_game_activity',{target_player:userId});
+ if(error)throw error;return data||{visible:false,games:[],recent_30_days_seconds:0};
 }
