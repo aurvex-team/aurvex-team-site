@@ -56,12 +56,13 @@ test('store assets and referenced images exist',()=>{
   assert.ok(css.includes('@media(prefers-reduced-motion:reduce)'),'Respect reduced motion');
 });
 
-test('English + dark mode default on a new browser',()=>{
+test('English + winter theme default on a new browser',()=>{
   const {html,lang,theme,title}=render();
   assert.equal(lang,'en');
-  assert.equal(theme,'dark');
+  assert.equal(theme,'winter');
   assert.match(title,/AURVEX/);
   assert.ok(html.includes('The next chapter starts here.'));
+  assert.ok(html.includes('class="aurvex-snowfall"'),'Winter snowfall should render on the default route');
   assert.ok(html.includes('DEVIVE'));
   assert.ok(html.includes('assets/devive-scene.svg'));
 });
@@ -1964,4 +1965,16 @@ test('Only the Friends route locks page scrolling and scrolls its overflow lists
  assert.ok(css.includes('body.friends-fullscreen .friends-main{min-height:0;grid-template-rows:repeat(3,minmax(0,1fr))'));
  assert.ok(css.includes('body.friends-fullscreen .friends-list{flex:1;min-height:0;overflow-y:auto'));
  assert.ok(css.includes('body.friends-fullscreen{height:100dvh;overflow:hidden'));
+});
+
+\ntest('Winter theme and inventory explanations are translated in every supported language',()=>{
+ for(const lang of supportedLanguages){
+  assert.ok(translations[lang].themeWinter,'Missing winter theme label: '+lang);
+  for(const key of ['siPurpose','siChanges','siAvatarFramePurpose','siAvatarFrameChanges','siProfileFramePurpose','siProfileFrameChanges','siGameItemPurpose','siGameItemChanges','siEquipStatus','siEquipped','siUnequipped']){
+   assert.ok(translations[lang][key],'Missing '+key+' translation: '+lang);
+  }
+ }
+ const winterCss=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
+ assert.ok(winterCss.includes('@keyframes aurvex-snow-fall'));
+ assert.ok(winterCss.includes('.aurvex-snowfall{position:fixed;inset:0'));
 });

@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261027-012';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-013';
 import './weekly-rewards-ui.js?v=20261027-002';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
@@ -10,7 +10,7 @@ function store(k,v){try{localStorage.setItem(k,v)}catch{/* Browsing still works 
 const state={
   language:supportedLanguages.includes(getStored(STORAGE.locale))?getStored(STORAGE.locale):'en',
   currency:['UAH','USD','EUR','GBP','PLN','CHF','CAD','AUD','JPY','CNY','KRW','SEK','NOK','DKK','CZK','HUF','RON','TRY','INR','BRL','MXN','AED','SAR','ILS','ZAR','SGD','HKD','NZD','THB','IDR','MYR','PHP','VND','KZT','GEL','MDL','AZN'].includes(getStored(STORAGE.currency))?getStored(STORAGE.currency):'UAH',
-  theme:['dark','light','blue','aurora'].includes(getStored(STORAGE.theme))?getStored(STORAGE.theme):'dark',
+  theme:['dark','light','blue','aurora','winter'].includes(getStored(STORAGE.theme))?getStored(STORAGE.theme):'winter',
   wished:getStored(STORAGE.wish)==='1',
   query:'',sort:'featured',kind:'all',genre:'all',minPrice:'',maxPrice:'',releaseYear:'',profileTab:'overview',profileNicknameDraft:null,profileNicknameOwner:''
 };
@@ -121,10 +121,18 @@ function formatShopMoney(kop){
    // Use the ISO 4217 currency fraction digits (JPY/KRW/VND render without decimals).
  }).format(amount);
 }
+function snowfallOverlay(){
+ if(state.theme!=='winter')return '';
+ const flakes=Array.from({length:28},(_,i)=>{
+   const left=(i*37+11)%100,top=(i*31+9)%86,delay=-((i*13)%19),duration=12+(i*7)%14,size=3+(i*5)%5,drift=((i*23)%81)-40;
+   return '<i class="aurvex-snowflake" style="--snow-left:'+left+'%;--snow-top:'+top+'vh;--snow-delay:'+delay+'s;--snow-duration:'+duration+'s;--snow-size:'+size+'px;--snow-drift:'+drift+'px"></i>';
+ }).join('');
+ return '<div class="aurvex-snowfall" aria-hidden="true">'+flakes+'</div>';
+}
 function themeMenu(){
- const choices=[['dark','themeCosmicRed'],['blue','themeNebulaBlue'],['aurora','themeAurora'],['light','themeLight']];
+ const choices=[['winter','themeWinter'],['dark','themeCosmicRed'],['blue','themeNebulaBlue'],['aurora','themeAurora'],['light','themeLight']];
  const label=t('themeMenu');
- const current=choices.find(([value])=>value===state.theme)?.[1]||'themeCosmicRed';
+ const current=choices.find(([value])=>value===state.theme)?.[1]||'themeWinter';
  return '<details class="pref-dropdown pref-theme">'+
    '<summary class="pref-trigger" aria-label="'+esc(label)+'" title="'+esc(label+': '+t(current))+'">'+
      icon('sparkle',16)+'<span>'+esc(t(current))+'</span>'+icon('chevron',13)+'</summary>'+
@@ -1223,9 +1231,12 @@ function inventoryPage(){
  const detail=sel?'<div class="si-detail"><div class="smallcaps">'+esc(sel.game)+'</div>'+
    '<div class="si-detail-art">'+art(sel,true)+'</div><div class="si-detail-body"><h2>'+esc(sel.name)+'</h2>'+
    '<p>'+t(sel.section==='frames'?'siFrameDescription':'siGameDescription')+'</p>'+
+   '<div class="si-item-explainer"><section><strong>'+t('siPurpose')+'</strong><p>'+t(sel.section==='frames'?(sel.subtype==='profile'?'siProfileFramePurpose':'siAvatarFramePurpose'):'siGameItemPurpose')+'</p></section>'+
+   '<section><strong>'+t('siChanges')+'</strong><p>'+t(sel.section==='frames'?(sel.subtype==='profile'?'siProfileFrameChanges':'siAvatarFrameChanges'):'siGameItemChanges')+'</p></section></div>'+
    '<dl><div><dt>'+t('siCollection')+'</dt><dd>'+esc(sel.game)+'</dd></div>'+
-   '<div><dt>'+t('siType')+'</dt><dd>'+t(sel.section==='frames'?'invFrames':'invGames')+'</dd></div>'+
-   '<div><dt>'+t('siTradeStatus')+'</dt><dd>'+t(sel.tradable?'invTradable':'invNotTradable')+'</dd></div></dl>'+
+   '<div><dt>'+t('siType')+'</dt><dd>'+t(sel.section==='games'?'siGameItem':sel.subtype==='profile'?'siProfileFrame':'siAvatarFrame')+'</dd></div>'+
+   '<div><dt>'+t('siTradeStatus')+'</dt><dd>'+t(sel.tradable?'invTradable':'invNotTradable')+'</dd></div>'+
+   (sel.section==='frames'?'<div><dt>'+t('siEquipStatus')+'</dt><dd>'+t(sel.equipped?'siEquipped':'siUnequipped')+'</dd></div>':'')+'</dl>'+
    (sel.section==='frames'&&shopItems.some(z=>z.id===sel.ref)?'<button type="button" class="btn btn-primary" data-shop-action="'+(sel.equipped?'unequip':'equip')+
       '" data-item-id="'+esc(sel.ref)+'" data-kind="'+esc(sel.subtype)+'"'+(sh.busy?' disabled':'')+'>'+
      icon('sparkle',16)+' '+t(sel.equipped?'shopUnequip':'shopEquip')+'</button>':'')+
@@ -1591,7 +1602,7 @@ function render(keepScroll=false){
   else page=catalog(route);
   const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
-  document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
+  document.getElementById('app').innerHTML=snowfallOverlay()+header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
   if(route.path==='/library')window.dispatchEvent(new Event('aurvex:library-route'));
   document.body.classList.remove('menu-open');
@@ -1663,7 +1674,7 @@ function setMenu(open){
 }
 document.addEventListener('click',function(event){
   const themeChoice=event.target.closest('[data-theme-choice]');
-  if(themeChoice){const value=themeChoice.dataset.themeChoice;if(['dark','light','blue','aurora'].includes(value)){state.theme=value;store(STORAGE.theme,value);render(true)}return}
+  if(themeChoice){const value=themeChoice.dataset.themeChoice;if(['dark','light','blue','aurora','winter'].includes(value)){state.theme=value;store(STORAGE.theme,value);render(true)}return}
   if(notificationsOpen&&!event.target.closest('.notification-popover-wrap')){
     notificationsOpen=false;
     const panel=document.getElementById('notifications-popover');if(panel)panel.hidden=true;
