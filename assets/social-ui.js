@@ -1,5 +1,5 @@
 // Public profile viewer + AURVEX Family controller; all family mutations require server AAL2.
-import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,getFamilyOverview,createFamily,
+import {loadPlayerProfile,saveProfileAbout,saveCustomProfileStatus,saveSocialProfile,saveWishlistVisibility,saveProfileAppearance,getFamilyOverview,createFamily,
  createFamilyInvite,joinFamily,leaveFamily,removeFamilyMember,setFamilyShare,getFamilyLibrary}
  from './social-service.js?v=20261018-410';
 import {normalizePublicLinks} from './social-links.js?v=20261018-410';
@@ -130,7 +130,7 @@ document.addEventListener('change',event=>{
 });
 document.addEventListener('submit',event=>{
  const form=event.target;
- if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form','profile-about-form','profile-custom-status-form'].includes(form.id))return;
+ if(!form||!['social-profile-form','family-create-form','wishlist-privacy-form','profile-about-form','profile-custom-status-form','profile-appearance-form'].includes(form.id))return;
  event.preventDefault();if(!isSecure()||m.busy)return;
  // Read data before any notification could rerender and detach this form.
  const originalUser=owner();
@@ -184,6 +184,21 @@ document.addEventListener('submit',event=>{
        }
      }finally{if(m.busy){m.busy=false;fire()}}
    })();
+ }else if(form.id==='profile-appearance-form'){
+   const appearance={
+     profile_theme:String(data.get('profile_theme')||'galaxy'),
+     inner_color:String(data.get('inner_color')||'violet'),
+     transparent:data.has('transparent')
+   };
+   m.busy=true;const button=form.querySelector('[type="submit"]');if(button)button.disabled=true;
+   void(async()=>{try{
+     const updated=await saveProfileAppearance(originalUser,appearance);
+     if(owner()!==originalUser)return;
+     window.AURVEX_ID.profile={...(window.AURVEX_ID.profile||{}),...updated};
+     window.dispatchEvent(new CustomEvent('aurvex:id-state'));message('profileAppearanceSaved');
+   }catch(error){
+     console.warn('AURVEX profile appearance save:',error?.code||'error');message('profileAppearanceFailed',true);
+   }finally{if(m.busy){m.busy=false;fire()}}})();
  }else if(form.id==='social-profile-form'){
    m.socialDraft=readSocialDraft(form);m.draftUserId=originalUser;
    m.busy=true;
