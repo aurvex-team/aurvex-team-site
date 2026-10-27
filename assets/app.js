@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261027-002';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-004';
 import './weekly-rewards-ui.js?v=20261027-002';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
