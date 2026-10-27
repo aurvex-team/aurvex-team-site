@@ -2430,3 +2430,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .profile-appearance-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:1rem 0}
 .profile-appearance-fields label{display:grid;gap:.5rem}
 @supports not (color:color-mix(in srgb,red,transparent)){.player-profile[data-profile-transparent="true"] .player-identity,.player-profile[data-profile-transparent="true"] .player-aside-card,.player-profile[data-profile-transparent="true"] .public-block{background:rgba(16,19,30,.68)}}
+
+.profile-activity-total{display:flex;align-items:baseline;gap:.65rem;padding:1rem 0;border-bottom:1px solid var(--line)}
+.profile-activity-total strong{font-size:1.6rem;color:var(--profile-accent,#a78bfa)}
+.profile-activity-total span,.profile-activity-games small{color:var(--muted)}
+.profile-activity-games{list-style:none;padding:0;margin:.5rem 0 0}
+.profile-activity-games li{display:flex;justify-content:space-between;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--line)}
+.profile-activity-games li span{font-weight:700}.profile-activity-games small{white-space:nowrap}
