@@ -1846,6 +1846,7 @@ document.addEventListener('submit',function(event){
   }
 });
 window.addEventListener('aurvex:id-state',function(){render(true)});
+window.addEventListener('aurvex:weekly-state',function(){if(['/free','/rewards'].includes(routeInfo().path))render(true)});
 window.addEventListener('aurvex:library-claim-result',function(event){toast(t(event.detail?.success?'libraryAdded':'libraryClaimError'))});
 window.addEventListener('aurvex:friends-state',function(){render(true)});
 window.addEventListener('aurvex:shop-state',function(){render(true)});
