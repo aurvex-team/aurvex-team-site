@@ -730,8 +730,8 @@ function shopStyleAttrs(equipped){
 }
 function profilePresentationAttrs(raw){
  const safe=raw&&typeof raw==='object'?raw:{};
- const theme=['galaxy','summer','winter','aurora','neon'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
- const color=['rose','violet','blue','gold'].includes(safe.inner_color)?safe.inner_color:'violet';
+ const theme=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
+ const color=['rose','violet','blue','gold','emerald','cyan','red','orange','white'].includes(safe.inner_color)?safe.inner_color:'violet';
  return ' data-profile-theme="'+theme+'" data-profile-color="'+color+'" data-profile-transparent="'+(safe.transparent===true?'true':'false')+'"';
 }
 function renderProfileLinks(links,slot){
