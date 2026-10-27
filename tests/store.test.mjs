@@ -1737,7 +1737,7 @@ test('Profile online visibility is a compact button and Recent games has no extr
  const model={profileTarget:id,profile:{player_id:id,nickname:'Creator',public_links:[],wishlist_visible:false,
   game_activity:{visible:true,recent_30_days_seconds:0,games:[]}}};
  const pub=render('#/player/'+id,'en',false,null,null,null,model).html;
- assert.ok(pub.includes('profileActivityTitle'));
+ assert.ok(pub.includes(translations.en.profileActivityTitle));
  assert.ok(!pub.includes(translations.en.profileActivityEmpty));
  assert.ok(!pub.includes(translations.en.profileActivityIntro));
 });
