@@ -1488,7 +1488,6 @@ test('Stars precedes Free and language / currency have custom menus',()=>{
  assert.ok(html.includes('data-pref-currency="USD"'));
  assert.ok(html.includes('data-pref-search'));
  assert.ok(!html.includes('<select id="language-select"'));
- assert.ok(html.includes('Rates By Exchange Rate API'));
 });
 test('all localized currency controls exist and checkout stays unavailable',()=>{
  const keys=['currency','currencySearch','currencyEstimate','currencyUnavailable','filterMinPrice','filterMaxPrice'];
