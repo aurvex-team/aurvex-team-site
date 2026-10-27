@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {translations,supportedLanguages} from '../assets/i18n.js';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const code=read('assets/app.js').replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'');
+const code=read('assets/app.js').replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'')
+ .replace(/^import\s+['"][^'"]+['"];\s*/gm,'');
 function view(hash,lang='en'){
  const holder={innerHTML:''};
  const fallback={textContent:'',classList:{add(){},remove(){},toggle(){},contains(){return false}},addEventListener(){}};
