@@ -808,8 +808,8 @@ function steamProfilePage(auth){
             renderProfileLinks(visibleLinks,'header')+
           '</div></div></section>'+
       '<div class="steam-profile-layout"><main class="steam-profile-main">'+
-        '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span>'+
-          '</div></div>'+
+        '<section class="steam-profile-panel steam-profile-activity"><div class="steam-profile-panel-heading"><div><span class="smallcaps">'+t('profileActivityTitle')+'</span></div>'+
+          '<button type="button" class="btn '+(window.AURVEX_SOCIAL37?.showOnline?'btn-primary':'btn-outline')+' profile-online-visibility-btn" data-social37-action="visibility" aria-label="'+esc(t('social37ShowOnline'))+'" aria-pressed="'+String(!!window.AURVEX_SOCIAL37?.showOnline)+'"'+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+icon('eye',16)+' '+t('social37ShowOnline')+'</button></div>'+
           '<div class="steam-profile-stats"><div><strong>'+esc(formatProfileTime(activity.recent_30_days_seconds||0))+'</strong><span>'+t('profileActivityLast30Days')+'</span></div>'+
             '<div><strong>'+recent.length+'</strong><span>'+t('profileRecentGamesCount')+'</span></div>'+
             '<div><strong>'+friends+'</strong><span>'+t('friendsNav')+'</span></div></div>'+
@@ -934,7 +934,7 @@ function playerProfilePage(auth){
            '<label class="social-wish-toggle"><input type="checkbox" name="game_activity_public"'+(activity.visible?' checked':'')+'>'+
              '<span><strong>'+t('profileActivityPublic')+'</strong><small>'+t('profileActivityPrivacy')+'</small></span></label>'+
            '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileActivitySave')+'</button></form></section>'+
-        '<button type="button" class="btn '+(window.AURVEX_SOCIAL37?.showOnline?'btn-primary':'btn-outline')+' profile-online-visibility-btn" data-social37-action="visibility" aria-label="'+esc(t('social37ShowOnline'))+'" aria-pressed="'+String(!!window.AURVEX_SOCIAL37?.showOnline)+'"'+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'>'+icon('eye',16)+' '+t('social37ShowOnline')+'</button>'+
+
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
           '<form id="wishlist-privacy-form" class="id-form">'+
            '<label class="social-wish-toggle"><input type="checkbox" name="wishlist_public"'+(shownWishlist?' checked':'')+'>'+
