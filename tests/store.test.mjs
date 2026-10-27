@@ -1992,3 +1992,11 @@ test('Global themes recolor shared navigation, banners, downloads and the separa
   '.si-header{background:'
  ])assert.ok(css.includes(selector),'Missing global theme coverage for '+selector);
 });
+
+
+test('Only Wallet locks page scrolling and scrolls overflowing wallet lists inside their panels',()=>{
+ assert.ok(appCode.includes("document.body.classList.toggle('balance-fullscreen',route.path==='/balance')"));
+ assert.ok(css.includes('body.balance-fullscreen{height:100dvh;overflow:hidden'));
+ assert.ok(css.includes('body.balance-fullscreen .money-content{display:grid'));
+ assert.ok(css.includes('body.balance-fullscreen .money-history .money-ledger-list{flex:1;min-height:0;overflow-y:auto'));
+});

@@ -1578,6 +1578,7 @@ function render(keepScroll=false){
   document.body.classList.toggle('friends-fullscreen',route.path==='/friends');
   document.body.classList.toggle('family-fullscreen',route.path==='/family');
   document.body.classList.toggle('notifications-fullscreen',route.path==='/notifications');
+  document.body.classList.toggle('balance-fullscreen',route.path==='/balance');
   document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory');
   document.documentElement.lang=state.language;
   document.documentElement.dataset.theme=state.theme;
