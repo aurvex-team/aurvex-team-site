@@ -1927,7 +1927,7 @@ test('Game Library fills the viewport, scrolls only its item list, and uses them
 
 test('Inventory stays in the viewport and confines scrolling to item lists',()=>{
  assert.ok(appCode.includes("document.body.classList.toggle('inventory-fullscreen',route.path==='/inventory')"));
- for(const rule of ['body.inventory-fullscreen{height:100dvh;overflow:hidden}',
+ for(const rule of ['body.inventory-fullscreen{height:100dvh;overflow:hidden;',
    'body.inventory-fullscreen .si-browser-scroll{flex:1;min-height:0;overflow-y:auto',
    'body.inventory-fullscreen .si-mini-grid{flex:1;min-height:0;max-height:none;overflow-y:auto']){
   assert.ok(css.includes(rule),rule);
