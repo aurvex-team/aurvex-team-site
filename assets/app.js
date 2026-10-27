@@ -187,7 +187,7 @@ function routeInfo(){
   const params=new URLSearchParams(question<0?'':raw.slice(question+1));
   return {path,params};
 }
-function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards' ,'/saved','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/chat','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
+function safeRoute(path){if(path==='/downloads')return '/desktop';return /^\/player\/[0-9a-f-]{36}$/i.test(path)?path:['/','/browse','/games','/apps','/free','/rewards' ,'/saved','/id','/friends','/family','/notifications','/shop','/inventory','/library','/balance','/checkout','/payment','/desktop','/game/devive'].includes(path)?path:'/'}
 function isActive(path,where){
   if(where==='/browse')return ['/browse','/games','/apps'].includes(path);
   if(where==='/rewards')return path==='/rewards'||path==='/free';
@@ -266,14 +266,14 @@ function sidebar(path){
       navLink('/shop','shopNav','sparkle',path)+navLink('/rewards','free','gift',path)+'</div>'+
     '<div class="side-group"><div class="side-label">'+t('yourSpace')+'</div>'+navLink('/saved','saved','heart',path)+navLink('/id','profileNav','user',path)+navLink('/balance','balanceNav','wallet',path)+navLink('/inventory','inventoryNav','layers',path)+navLink('/library','libraryNav','gamepad',path)+
       navLink('/friends','friendsNav','users',path,
-        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/chat','chatNav','message',path)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
+        (window.AURVEX_FRIENDS?.relations||[]).filter(x=>x.relation==='incoming').length||0)+navLink('/family','familyNav','home',path)+navLink('/notifications','social37Nav','bell',path,
       (window.AURVEX_SOCIAL37?.notifications||[]).filter(n=>!n.read).length)+'</div>'+
     '<div class="side-space"></div><div class="side-promo" aria-label="AURVEX">'+
     '<div class="smallcaps">AURVEX</div><strong>'+t('bannerTitle')+'</strong></div></aside>';
 }
 function mobileNav(path){
   return '<nav class="mobile-bottom" aria-label="Mobile navigation">'+
-   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/shop','shopNav','sparkle',path)+mobileLink('/inventory','inventoryNav','layers',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/chat','chatNav','message',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
+   mobileLink('/','home','home',path)+mobileLink('/browse','browse','compass',path)+mobileLink('/shop','shopNav','sparkle',path)+mobileLink('/inventory','inventoryNav','layers',path)+mobileLink('/friends','friendsNav','users',path)+mobileLink('/id','profileNav','user',path)+'</nav>';
 }
 function mobileLink(route,key,ico,path){return '<a href="'+href(route)+'" class="'+(isActive(path,route)?'active':'')+'">'+icon(ico,19)+'<span>'+t(key)+'</span></a>'}
 function tag(key,cls){return '<span class="tag'+(cls?' '+cls:'')+'">'+t(key)+'</span>'}
@@ -867,26 +867,6 @@ function playerProfilePage(auth){
       tabToolbar+
       '<div class="player-content profile-workspace" data-profile-workspace data-active-profile-tab="'+activeTab+'"><section class="player-main">'+
         panelStart('overview')+
-        '<div class="player-section-heading"><span class="smallcaps">'+t('profileYourIdentity')+'</span><h2>'+t('profilePersonalize')+'</h2>'+
-          '<p>'+t('profilePersonalizeDesc')+'</p></div>'+
-        '<form id="profile-appearance-form" class="player-edit-card profile-appearance-editor">'+
-          '<h3>'+icon('sparkle',19)+' '+t('profileThemeLabel')+'</h3>'+
-          '<div class="profile-appearance-fields">'+
-           '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileThemeLabel')+'</strong><small>'+t('profileThemeHint')+'</small></div>'+
-            '<div class="profile-theme-grid" role="radiogroup" aria-label="'+esc(t('profileThemeLabel'))+'">'+
-             [['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon'],['ocean','profileThemeOcean'],['sunset','profileThemeSunset'],['forest','profileThemeForest'],['rose','profileThemeRose'],['midnight','profileThemeMidnight'],['sakura','profileThemeSakura'],['desert','profileThemeDesert'],['autumn','profileThemeAutumn'],['arctic','profileThemeArctic'],['volcanic','profileThemeVolcanic'],['starlight','profileThemeStarlight']].map(([value,label])=>'<label class="profile-theme-option">'+
-               '<input type="radio" name="profile_theme" value="'+value+'"'+((auth.profile?.profile_appearance?.profile_theme||'galaxy')===value?' checked':'')+'>'+
-               '<span class="profile-theme-card"><span class="profile-theme-art theme-'+value+'" aria-hidden="true"></span><strong>'+t(label)+'</strong></span></label>').join('')+
-            '</div></section>'+
-           '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileInnerColorLabel')+'</strong><small>'+t('profileAccentHint')+'</small></div>'+
-            '<div class="profile-color-grid" role="radiogroup" aria-label="'+esc(t('profileInnerColorLabel'))+'">'+
-             [['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold'],['emerald','profileColorEmerald'],['cyan','profileColorCyan'],['red','profileColorRed'],['orange','profileColorOrange'],['white','profileColorWhite'],['mint','profileColorMint'],['teal','profileColorTeal'],['indigo','profileColorIndigo'],['coral','profileColorCoral'],['lavender','profileColorLavender'],['silver','profileColorSilver']].map(([value,label])=>'<label class="profile-color-option" title="'+esc(t(label))+'">'+
-               '<input type="radio" name="inner_color" value="'+value+'"'+((auth.profile?.profile_appearance?.inner_color||'violet')===value?' checked':'')+'>'+
-               '<span class="profile-color-dot color-'+value+'" aria-hidden="true"></span><span>'+t(label)+'</span></label>').join('')+
-            '</div></section>'+
-           '<label class="profile-toggle-card"><input type="checkbox" name="transparent"'+(auth.profile?.profile_appearance?.transparent===true?' checked':'')+'>'+
-            '<span class="profile-toggle-mark" aria-hidden="true"></span><span class="profile-toggle-copy"><strong>'+t('profileTransparentLabel')+'</strong><small>'+t('profileTransparentHint')+'</small></span></label>'+
-          '</div><button class="btn btn-primary" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileAppearanceSave')+'</button></form>'+
         '<div class="player-edit-layout">'+
           '<div class="player-edit-card"><h3>'+icon('user',20)+' '+t('idProfileName')+'</h3>'+
             '<form id="id-nickname-form" class="id-form"><label for="id-nickname">'+t('idProfileName')+'</label>'+
@@ -1076,30 +1056,6 @@ function friendPlayerRow(player){
      '</div></article>';
 }
 
-function communityChatPage(){
- return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+'<span>'+t('chatNav')+'</span></div>'+
- '<section class="chat-hero"><div><div class="smallcaps">AURVEX COMMUNITY</div><h1>'+icon('message',29)+' '+t('chatTitle')+'</h1>'+
- '<p>'+t('chatIntro')+'</p><div class="chat-hero-tags"><span>'+icon('shield',14)+' '+t('chatVerifyRule')+'</span>'+
- '<span>'+icon('clock',14)+' '+t('chatSlowRule')+'</span><span>'+icon('globe',14)+' '+t('chatReadingRule')+'</span></div></div>'+
- '<div class="chat-hero-mark">'+icon('users',53)+'</div></section>'+
- '<div class="chat-layout"><section class="chat-room"><div class="chat-room-header"><div>'+
- '<span class="chat-presence-dot"></span><strong># '+t('chatGeneral')+'</strong><small id="chat-message-count"></small></div>'+
- '<div class="chat-header-buttons"><button type="button" data-chat-action="refresh" aria-label="'+esc(t('chatRefresh'))+'">'+icon('refresh',17)+'</button>'+
- '<button type="button" data-chat-action="show-hidden" aria-label="'+esc(t('chatShowHidden'))+'">'+icon('eye',17)+'</button>'+
- '<button type="button" class="chat-mobile-staff-button" data-mod-mobile-open hidden aria-label="'+esc(t('modTitle'))+'">'+icon('shield',17)+'</button></div></div>'+
- '<div id="chat-message-feed" class="chat-message-feed" role="log" aria-label="'+esc(t('chatGeneral'))+'" aria-live="off">'+
- '<div class="chat-empty">'+icon('message',27)+'<p>'+t('chatLoading')+'</p></div></div>'+
- '<div id="chat-notice" class="chat-notice" role="status"></div>'+
- '<div id="chat-compose-slot" class="chat-compose-slot" data-chat-mode="initial">'+
- '<div class="chat-locked">'+icon('shield',23)+'<span>'+t('chatReadOnly')+'</span></div></div></section>'+
- '<aside class="chat-side-column"><button type="button" class="chat-admin-backdrop" data-mod-mobile-close aria-label="'+esc(t('modClose'))+'"></button>'+
- '<div id="chat-admin-panel" class="chat-admin-slot"></div>'+
- '<section class="chat-guidelines"><div class="smallcaps">COMMUNITY RULES</div><h2>'+icon('shield',19)+' '+t('chatRules')+'</h2>'+
- '<p>'+t('chatRulesLead')+'</p><ul><li>'+t('chatRule1')+'</li><li>'+t('chatRule2')+'</li>'+
- '<li>'+t('chatRule3')+'</li><li>'+t('chatRule4')+'</li></ul>'+
- '<div class="chat-guideline-note">'+icon('info',18)+'<span>'+t('chatCaution')+'</span></div></section></aside></div>';
-}
-
 function friendsPage(){
   const auth=window.AURVEX_ID||{}, data=window.AURVEX_FRIENDS||{};
   if(!auth.user||!auth.mfaVerified){
@@ -1285,7 +1241,7 @@ function inventoryPage(){
      icon(cat==='frames'?'sparkle':cat==='games'?'gamepad':cat==='tradable'?'arrow':'layers',17)+'<span>'+t(label)+'</span><b>'+count+'</b></button>').join('')+
    '</aside><section class="si-browser"><div class="si-browser-toolbar"><div><span class="smallcaps">'+t('siYourItems')+'</span>'+
    '<h2>'+t('siInventoryTab')+' <span>'+visible.length+' / '+owned.length+'</span></h2></div>'+
-   '<label class="si-search">'+icon('search',16)+'<input data-inventory-search type="search" value="'+esc(m.search||'')+'" placeholder="'+esc(t('siSearch'))+'" autocomplete="off"></label></div>'+
+   '<label class="si-search">'+icon('search',16)+'<input data-inventory-search type="search" aria-label="'+esc(t('siSearch'))+'" value="'+esc(m.search||'')+'" placeholder="'+esc(t('siSearch'))+'" autocomplete="off">'+(m.search?'<button type="button" data-inventory-action="clear-search" aria-label="'+esc(t('siClear'))+'" title="'+esc(t('siClear'))+'">×</button>':'')+'</label></div>'+
    '<div class="si-browser-scroll">'+cards+'</div></section><aside class="si-details-col">'+detail+'</aside></div>';
  const giveItems=owned.filter(x=>x.tradable);
  const giveCount=selectedGive.length,takeCount=selectedTake.length;
@@ -1629,18 +1585,16 @@ function render(keepScroll=false){
   else if(route.path==='/inventory')page=inventoryPage();
   else if(route.path==='/library')page='<section id="aurvex-library" class="library-page"></section>';
   else if(route.path==='/friends')page=friendsPage();
-  else if(route.path==='/chat')page=communityChatPage();
   else if(route.path==='/notifications')page=socialNotificationsPage(route);
   else if(route.path==='/family')page=familyPage(route);
   else if(route.path.startsWith('/player/'))page=publicPlayerPage(route.path);
   else page=catalog(route);
-  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/chat'?t('chatNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
+  const title=route.path==='/game/devive'?'Devive':route.path==='/saved'?t('saved'):route.path==='/rewards'||route.path==='/free'?t('freeRewards'):route.path==='/id'?t('aurvexId'):route.path==='/shop'?t('shopNav'):route.path==='/balance'?t('balanceNav'):route.path==='/checkout'?t('payTitle'):route.path==='/payment'?t('payStatus'):route.path==='/inventory'?t('inventoryNav'):route.path==='/library'?t('libraryNav'):route.path==='/friends'?t('friendsNav'):route.path==='/notifications'?t('social37Nav'):route.path==='/family'?t('familyNav'):route.path==='/desktop'?launcherT('nav'):route.path.startsWith('/player/')?t('socialPlayerProfile'):route.path==='/'?'Store':t('browse');
   document.title=title+' | AURVEX';
   document.getElementById('app').innerHTML=header(route.path)+sidebar(route.path)+mobileNav(route.path)+
     '<main class="main" id="main-content"><div class="content">'+page+footer()+'</div></main>';
   if(route.path==='/library')window.dispatchEvent(new Event('aurvex:library-route'));
   document.body.classList.remove('menu-open');
-  if(route.path==='/chat'){window.AURVEX_CHAT_MOUNT?.();window.AURVEX_CHAT_ADMIN_MOUNT?.();}
   if(keepScroll)window.scrollTo(0,pos);
 }
 function syncCatalogUrl(){

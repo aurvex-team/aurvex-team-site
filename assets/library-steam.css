@@ -143,3 +143,8 @@ body.library-fullscreen .steam-game-rows{flex:1;min-height:0;max-height:none;ove
  body.library-fullscreen .steam-game-column{height:100%;min-height:0;max-height:none;overflow:hidden}
  body.library-fullscreen .steam-game-rows{max-height:none}
 }
+
+.steam-search{gap:6px}
+.steam-search [data-library-action="clear-search"]{display:grid;place-items:center;width:24px;height:24px;flex:0 0 24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--sl-muted);font-size:18px;line-height:1;cursor:pointer}
+.steam-search [data-library-action="clear-search"]:hover{background:var(--sl-hover);color:var(--sl-text)}
+.steam-search [data-library-action="clear-search"][hidden]{display:none}

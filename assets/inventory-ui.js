@@ -140,6 +140,7 @@ document.addEventListener('click',event=>{
  if(!button)return;
  const action=button.dataset.inventoryAction;
  if(action==='view-items'){m.screen='items';fire();return}
+ if(action==='clear-search'){m.search='';fire();return}
  if(action==='view-trades'){m.screen='trades';if(owner()&&!m.loading)void refresh();else fire();return}
  if(action==='category'){
   if(['all','frames','games','tradable'].includes(button.dataset.invCategory)){

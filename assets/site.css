@@ -2648,3 +2648,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .player-profile[data-shop-profile="profile_neon"],.shop-tryon[data-shop-profile="profile_neon"] .shop-tryon-card{border:3px solid #ec4899;box-shadow:0 0 27px #ec489988,inset 0 0 35px #06b6d433}
 .player-profile[data-shop-profile="profile_solarflare"],.shop-tryon[data-shop-profile="profile_solarflare"] .shop-tryon-card{border:3px solid #f59e0b;box-shadow:0 0 28px #f9731699,inset 0 0 36px #fbbf243d}
 .player-profile[data-shop-profile="profile_voidglass"],.shop-tryon[data-shop-profile="profile_voidglass"] .shop-tryon-card{border:3px solid #a78bfa;box-shadow:0 0 28px #6366f199,inset 0 0 42px #312e813d}
+
+.si-search{gap:7px}
+.si-search [data-inventory-action="clear-search"]{display:grid;place-items:center;width:25px;height:25px;flex:0 0 25px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.si-search [data-inventory-action="clear-search"]:hover{background:var(--surface-hover);color:var(--text)}
