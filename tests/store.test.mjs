@@ -1217,6 +1217,21 @@ test('Each social link can be ordered and placed at header, center profile or bo
  assert.ok(view.includes('https://tiktok.com/@x'));
 });
 
+test('Public profile keeps a compact friends column under the wishlist and removes comments and preview notice',()=>{
+ const id='33333333-3333-4333-8333-333333333333';
+ const model={profileTarget:id,profile:{
+  player_id:id,nickname:'tester',public_links:[],wishlist_visible:true,wishlist_products:['devive'],
+  profile_friends:[],profile_bio:'',game_activity:{visible:true,games_visible:false,games:[],recent_30_days_seconds:0,games_played:0}
+ }};
+ const html=render('#/player/'+id,'en',false,null,null,null,model).html;
+ const wishlist=html.indexOf('public-wishlist-card');
+ const friends=html.indexOf('public-profile-friends');
+ assert.ok(wishlist>=0&&friends>wishlist);
+ assert.ok(html.includes('profile-friends-heading'));
+ assert.ok(!html.includes(translations.en.socialPreviewHint));
+ assert.ok(!html.includes('profile-comment-form'));
+ assert.ok(!html.includes('public-block profile-comments'));
+});
 test('Appearance presets reject untrusted CSS, HTML and unsupported fonts',()=>{
  const input={font:'mono',glow_name:true,avatar_frame:'gold'};
  const result=normalizeAppearance(input);
