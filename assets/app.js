@@ -847,10 +847,10 @@ function steamProfilePage(auth){
         '<section class="steam-profile-panel steam-profile-side-card"><span class="smallcaps">'+t('profileWishlist')+'</span>'+
           '<p>'+t(profile.wishlist_public?'socialWishlistPublic':'socialWishlistPrivate')+'</p>'+
           '<a class="btn btn-outline" href="#/saved">'+icon('heart',16)+' '+t('profileWishlistView')+'</a></section>'+
-      '</aside></div>'+
-      '<section class="steam-profile-panel steam-profile-friends"><div class="steam-profile-panel-heading"><span class="smallcaps">'+t('profileFriends')+'</span><b>'+friends+'</b></div>'+
-        (friends?'<div class="profile-friend-list">'+profileFriendRows(friendItems)+'</div>':'<p class="profile-friends-empty">'+t('friendsEmpty')+'</p>')+
-      '</section>'+'</div>';
+        '<section class="steam-profile-panel steam-profile-friends"><div class="steam-profile-panel-heading"><span class="smallcaps">'+t('profileFriends')+'</span><b>'+friends+'</b></div>'+
+          (friends?'<div class="profile-friend-list">'+profileFriendRows(friendItems)+'</div>':'<p class="profile-friends-empty">'+t('friendsEmpty')+'</p>')+
+        '</section>'+
+      '</aside></div></div>';
 }
 function playerProfilePage(auth){
   const nickname=auth.profile?.nickname||auth.user?.user_metadata?.preferred_username||'AURVEX PLAYER';
@@ -877,7 +877,6 @@ function playerProfilePage(auth){
   const visibleTitles=auth.profileTitles||[];
   const activity=window.AURVEX_SOCIAL?.gameActivity||{visible:false,games:[],recent_30_days_seconds:0};
   const profileLinks=auth.profile?.public_links||[];
-  const commentsVisibility=window.AURVEX_SOCIAL?.commentsVisibility||auth.profile?.profile_comments_visibility||'friends';
   const aboutDraft=window.AURVEX_SOCIAL?.aboutDraftUser===auth.user?.id?window.AURVEX_SOCIAL?.aboutDraft:null;
   const savedBio=auth.profile?.profile_bio||'';
   const profileBio=aboutDraft?.bio??savedBio;
@@ -961,16 +960,6 @@ function playerProfilePage(auth){
            '<label class="social-wish-toggle"><input type="checkbox" name="game_activity_public"'+((activity.setting_visible??activity.visible)?' checked':'')+'>'+
              '<span><strong>'+t('profileActivityPublic')+'</strong><small>'+t('profileActivityPrivacy')+'</small></span></label>'+
            '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileActivitySave')+'</button></form></section>'+
-        '<section class="inventory-privacy-card profile-comments-settings"><h3>'+icon('users',19)+' '+t('profileComments')+'</h3>'+
-          '<form id="profile-comments-visibility-form" class="id-form">'+
-            '<label for="profile-comments-visibility">'+t('profileCommentsManage')+'</label>'+
-            '<p class="profile-comments-privacy-hint">'+t('profileCommentsPrivacy')+'</p>'+
-            '<select id="profile-comments-visibility" name="visibility">'+
-              '<option value="off"'+(commentsVisibility==='off'?' selected':'')+'>'+t('profileCommentsOff')+'</option>'+
-              '<option value="friends"'+(commentsVisibility==='friends'?' selected':'')+'>'+t('profileCommentsFriends')+'</option>'+
-              '<option value="everyone"'+(commentsVisibility==='everyone'?' selected':'')+'>'+t('profileCommentsEveryone')+'</option>'+
-            '</select>'+
-            '<button class="btn btn-outline" type="submit"'+saving+'>'+icon('check',16)+' '+t('profileCommentsSave')+'</button></form></section>'+
         '<label class="social-wish-toggle social37-online-control"><input type="checkbox" data-social37-action="visibility"'+(window.AURVEX_SOCIAL37?.showOnline?' checked':'')+(window.AURVEX_SOCIAL37?.busy?' disabled':'')+'><span><strong>'+t('social37ShowOnline')+'</strong></span></label>'+
 
         '<section class="inventory-privacy-card"><h3>'+icon('heart',19)+' '+t('socialWishlistPublic')+'</h3>'+
@@ -1170,7 +1159,6 @@ function publicPlayerPage(path){
  const links=(Array.isArray(p.public_links)?p.public_links:[]).filter(x=>x&&x.url);
  const games=Array.isArray(p.wishlist_products)?p.wishlist_products:[];
  const friends=Array.isArray(p.profile_friends)?p.profile_friends:[];
- const comments=p.profile_comments||{visibility:'off',visible:false,can_comment:false,comments:[]};
  const activity=p.game_activity||{visible:true,games_visible:false,games:[],recent_30_days_seconds:0,games_played:0};
  const date=new Date(p.joined_at);
  const locale={en:'en-US',uk:'uk-UA',pl:'pl-PL',de:'de-DE'}[state.language]||'en-US';
@@ -1182,24 +1170,12 @@ function publicPlayerPage(path){
    return '<li class="profile-activity-game"><span>'+esc(g.game_id==='devive'?'Devive':g.game_id||'')+'</span><small>'+formatProfileTime(g.recent_seconds||0)+' · '+(Number.isFinite(last)?new Date(last).toLocaleDateString(locale,{day:'numeric',month:'short',year:'numeric'}):'')+'</small></li>';
  }).join('');
  const friendCount=friends.length;
- const commentRows=(comments.comments||[]).map(c=>{
-   const commentAvatar=c.avatarUrl?'<img src="'+esc(c.avatarUrl)+'" alt="">':icon('user',18);
-   const time=Date.parse(c.created_at||'');
-   const canDelete=auth.user?.id&&(auth.user.id===id||auth.user.id===c.author_id);
-   return '<article class="profile-comment-row"><span class="profile-comment-avatar">'+commentAvatar+'</span><div class="profile-comment-content"><header><strong>'+esc(c.author_nickname||'AURVEX PLAYER')+'</strong><time>'+ (Number.isFinite(time)?new Date(time).toLocaleDateString(locale,{day:'numeric',month:'short',year:'numeric'}):'')+'</time>'+
-     (canDelete?'<button type="button" class="profile-comment-delete" data-social-action="profile-comment-delete" data-comment-id="'+esc(c.id)+'" aria-label="'+esc(t('profileCommentDelete'))+'">'+icon('close',14)+'</button>':'')+
-     '</header><p>'+esc(c.body)+'</p></div></article>';
- }).join('');
- const commentSection=comments.visible===true?
-   '<section class="public-block profile-comments"><div class="profile-comments-heading"><div><span class="smallcaps">'+t('profileComments')+'</span><h2>'+t('profileComments')+'</h2></div><span class="profile-comment-count">'+(comments.comments||[]).length+'</span></div>'+
-     (commentRows?'<div class="profile-comment-list">'+commentRows+'</div>':'<p class="profile-comments-empty">'+t('profileCommentEmpty')+'</p>')+
-     (comments.can_comment&&auth.mfaVerified?'<form id="profile-comment-form" class="profile-comment-form" data-profile-id="'+esc(id)+'"><label class="sr-only" for="profile-comment-body">'+t('profileCommentPlaceholder')+'</label><textarea id="profile-comment-body" name="body" maxlength="500" required placeholder="'+esc(t('profileCommentPlaceholder'))+'"></textarea><div class="profile-comment-form-foot"><span>0 / 500</span><button class="btn btn-primary" type="submit">'+icon('arrow',15)+' '+t('profileCommentSend')+'</button></div></form>':'')+
-   '</section>':'';
  const wishlistCard=p.wishlist_visible?
    '<section class="public-block public-wishlist-card"><span class="smallcaps">'+t('profileWishlist')+'</span><h2>'+esc(p.nickname)+t('profileWishlistSuffix')+'</h2><details><summary class="btn btn-outline">'+icon('heart',16)+' '+t('profileWishlistView')+'</summary>'+
     (games.length?'<div class="public-wishlist-items">'+games.map(g=>g==='devive'?'<a href="#/game/devive">'+icon('gamepad',16)+' Devive</a>':'<span>'+icon('gamepad',16)+' '+esc(g)+'</span>').join('')+'</div>':'<p class="profile-wishlist-empty">'+t('socialWishEmpty')+'</p>')+'</details></section>':
    '<section class="public-block public-wishlist-card is-private"><span class="smallcaps">'+t('profileWishlist')+'</span><h2>'+esc(p.nickname)+t('profileWishlistSuffix')+'</h2><p>'+t('socialWishHidden')+'</p></section>';
  const friendList=friendCount?'<div class="profile-friend-list">'+profileFriendRows(friends)+'</div>':'<p class="profile-friends-empty">'+t('friendsEmpty')+'</p>';
+ const friendsCard='<section class="public-profile-friends"><div class="profile-friends-heading"><span class="smallcaps">'+t('profileFriends')+'</span><b>'+friendCount+'</b></div>'+friendList+'</section>';
  return '<div class="breadcrumb"><a href="#/">'+t('home')+'</a>'+icon('arrow',13)+t('socialPlayerProfile')+'</div>'+
   '<div class="player-profile public-profile"'+shopStyleAttrs(p.shop_equipped)+'>'+
    '<div class="player-cover">'+art+'<div class="player-cover-shade"></div></div>'+
@@ -1213,8 +1189,6 @@ function publicPlayerPage(path){
       '<div class="public-profile-actions"><button class="btn btn-outline" type="button" data-social37-action="'+
         ((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'unblock':'block')+
         '" data-player-id="'+esc(id)+'">'+icon('ban',16)+' '+t((window.AURVEX_SOCIAL37?.blocked||[]).some(b=>b.id===id)?'social37Unblock':'social37Block')+'</button></div>':'')+
-    (auth.user?.id===id?'<div class="public-preview-note">'+icon('info',16)+' '+t('socialPreviewHint')+
-     ' <a href="#/id">'+t('socialBackSettings')+'</a></div>':'')+
     '<div class="public-profile-columns"><main class="public-profile-main">'+
      (p.profile_bio?'<section class="public-block profile-about-public"><div class="smallcaps">AURVEX PLAYER</div>'+
        '<h2>'+t('profileAboutTitle')+'</h2><p>'+esc(p.profile_bio)+'</p></section>':'')+
@@ -1224,13 +1198,9 @@ function publicPlayerPage(path){
        '<div><strong>'+friendCount+'</strong><span>'+t('friendsNav')+'</span></div></div>'+
       (recent?'<ul class="profile-activity-games">'+recent+'</ul>':'')+'</section>'+
      profileLinksRow+
-     commentSection+
-     '<section class="public-block public-profile-friends"><div class="profile-comments-heading"><div><span class="smallcaps">'+t('profileFriends')+'</span><h2>'+t('profileFriends')+'</h2></div><span class="profile-comment-count">'+friendCount+'</span></div>'+
-       friendList+'</section>'+
-    '</main><aside class="public-profile-side">'+wishlistCard+'</aside></div>'+
+    '</main><aside class="public-profile-side">'+wishlistCard+friendsCard+'</aside></div>'+
        '</div></div>';
 }
-
 
 function inventoryPage(){
  const auth=window.AURVEX_ID||{},sh=window.AURVEX_SHOP||{},m=window.AURVEX_INVENTORY||{};
