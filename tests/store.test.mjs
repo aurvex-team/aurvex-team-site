@@ -349,7 +349,7 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
   assert.ok(config.includes("supabaseUrl:'https://zalzsgfufvppvgvqfocf.supabase.co'"));
   assert.ok(/supabasePublishableKey:'sb_publishable_[A-Za-z0-9_-]+'/.test(config));
   assert.ok(config.includes("googleEnabled:true"));
-  assert.ok(config.includes("emailEnabled:false"));
+  assert.ok(config.includes("emailEnabled:true"));
   assert.ok(config.includes("fmailEnabled:false"));
   assert.ok(ui.includes("window.AURVEX_ID=model"));
   assert.ok(ui.includes("data-id-action"));
@@ -359,13 +359,13 @@ test('AURVEX ID uses provider-managed PKCE and OTP, separate private per-user da
 });
 
 
-test('AURVEX ID remains isolated, publishable-only and ready for verified provider setup',()=>{
+test('AURVEX ID keeps email OTP enabled without exposing private provider credentials',()=>{
   const config=readFileSync(new URL('../assets/id-config.js',import.meta.url),'utf8');
   const ui=readFileSync(new URL('../assets/id-ui.js',import.meta.url),'utf8');
   const service=readFileSync(new URL('../assets/id-service.js',import.meta.url),'utf8');
   const migration=readFileSync(new URL('../supabase/migrations/20261017_aurvex_id_wishlist_permissions.sql',import.meta.url),'utf8');
   assert.match(config,/googleEnabled:true/);
-  assert.match(config,/emailEnabled:false/);
+  assert.match(config,/emailEnabled:true/);
   assert.match(config,/fmailEnabled:false/);
   assert.ok(ui.includes('configured:isIdConfigured()&&(ID_CONFIG.emailEnabled||ID_CONFIG.googleEnabled||ID_CONFIG.fmailEnabled)'));
   assert.ok(service.includes('ignoreDuplicates:true'));
