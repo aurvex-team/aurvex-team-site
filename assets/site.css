@@ -2558,3 +2558,93 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 .player-profile[data-profile-color] .profile-placed-link>a:hover{color:var(--profile-accent);border-color:var(--profile-accent);background:color-mix(in srgb,var(--surface) 75%,var(--profile-accent) 25%)}
 .player-profile[data-profile-color] .official-profile-title{border-color:color-mix(in srgb,var(--profile-accent) 42%,var(--line))}
 .player-profile[data-profile-color] .profile-activity-total{border-color:color-mix(in srgb,var(--profile-accent) 40%,var(--line))}
+
+/* Additional profile accent choices. */
+.player-profile[data-profile-color="mint"]{--profile-accent:#6ee7b7}
+.player-profile[data-profile-color="teal"]{--profile-accent:#2dd4bf}
+.player-profile[data-profile-color="indigo"]{--profile-accent:#818cf8}
+.player-profile[data-profile-color="coral"]{--profile-accent:#fb7185}
+.player-profile[data-profile-color="lavender"]{--profile-accent:#c4b5fd}
+.player-profile[data-profile-color="silver"]{--profile-accent:#cbd5e1}
+.profile-color-dot.color-mint{background:#6ee7b7}.profile-color-dot.color-teal{background:#2dd4bf}.profile-color-dot.color-indigo{background:#818cf8}.profile-color-dot.color-coral{background:#fb7185}.profile-color-dot.color-lavender{background:#c4b5fd}.profile-color-dot.color-silver{background:#cbd5e1}
+
+/* Six new profile themes, each with its own atmosphere. */
+.player-profile[data-profile-theme="sakura"]{--profile-theme-color:#fb7185;--profile-wash:rgba(251,113,133,.18);--profile-cover-gradient:linear-gradient(120deg,rgba(244,114,182,.72),rgba(251,191,36,.25),rgba(190,24,93,.55));--profile-page-background:radial-gradient(ellipse at 12% 6%,rgba(251,113,133,.3),transparent 60%),radial-gradient(ellipse at 90% 90%,rgba(244,114,182,.2),transparent 60%)}
+.player-profile[data-profile-theme="desert"]{--profile-theme-color:#d97706;--profile-wash:rgba(217,119,6,.18);--profile-cover-gradient:linear-gradient(120deg,rgba(217,119,6,.65),rgba(251,191,36,.35),rgba(180,83,9,.52));--profile-page-background:radial-gradient(ellipse at 70% 6%,rgba(251,191,36,.28),transparent 54%),radial-gradient(ellipse at 10% 90%,rgba(180,83,9,.2),transparent 58%),linear-gradient(145deg,rgba(120,53,15,.1),transparent)}
+.player-profile[data-profile-theme="autumn"]{--profile-theme-color:#ea580c;--profile-wash:rgba(234,88,12,.18);--profile-cover-gradient:linear-gradient(120deg,rgba(154,52,18,.64),rgba(234,88,12,.46),rgba(250,204,21,.5));--profile-page-background:radial-gradient(ellipse at 9% 3%,rgba(234,88,12,.29),transparent 61%),radial-gradient(ellipse at 91% 88%,rgba(146,64,14,.22),transparent 60%)}
+.player-profile[data-profile-theme="arctic"]{--profile-theme-color:#67e8f9;--profile-wash:rgba(103,232,249,.16);--profile-cover-gradient:linear-gradient(120deg,rgba(8,145,178,.7),rgba(207,250,254,.38),rgba(96,165,250,.62));--profile-page-background:radial-gradient(ellipse at 8% 3%,rgba(103,232,249,.25),transparent 62%),radial-gradient(ellipse at 90% 91%,rgba(147,197,253,.24),transparent 60%)}
+.player-profile[data-profile-theme="volcanic"]{--profile-theme-color:#f97316;--profile-wash:rgba(249,115,22,.18);--profile-cover-gradient:linear-gradient(120deg,rgba(127,29,29,.72),rgba(249,115,22,.65),rgba(250,204,21,.36));--profile-page-background:radial-gradient(ellipse at 8% 3%,rgba(220,38,38,.25),transparent 58%),radial-gradient(ellipse at 89% 88%,rgba(249,115,22,.27),transparent 61%),linear-gradient(135deg,rgba(69,10,10,.12),transparent)}
+.player-profile[data-profile-theme="starlight"]{--profile-theme-color:#facc15;--profile-wash:rgba(250,204,21,.15);--profile-cover-gradient:radial-gradient(ellipse at 50% 10%,rgba(250,204,21,.72),transparent 46%),linear-gradient(120deg,rgba(30,41,59,.6),rgba(67,56,202,.42),rgba(15,23,42,.7));--profile-page-background:radial-gradient(ellipse at 50% 0%,rgba(250,204,21,.19),transparent 48%),radial-gradient(ellipse at 8% 90%,rgba(79,70,229,.2),transparent 60%),radial-gradient(ellipse at 90% 88%,rgba(15,23,42,.24),transparent 60%)}
+.profile-theme-art.theme-sakura{background:linear-gradient(120deg,#9d174d,#fb7185,#fbcfe8)}
+.profile-theme-art.theme-desert{background:linear-gradient(120deg,#78350f,#d97706,#fde68a)}
+.profile-theme-art.theme-autumn{background:linear-gradient(120deg,#7c2d12,#ea580c,#facc15)}
+.profile-theme-art.theme-arctic{background:linear-gradient(120deg,#164e63,#67e8f9,#bfdbfe)}
+.profile-theme-art.theme-volcanic{background:linear-gradient(120deg,#450a0a,#dc2626,#f97316)}
+.profile-theme-art.theme-starlight{background:radial-gradient(circle at 50% 35%,#fde68a,transparent 25%),linear-gradient(120deg,#0f172a,#312e81,#4338ca)}
+
+/* Gentle theme motion: snow, drifting petals and leaves, fireflies, waves and sparks. */
+@keyframes aurvex-profile-fall{to{background-position:25px 120vh,70px 90vh,110px 140vh}}
+@keyframes aurvex-profile-drift{0%,100%{transform:translate3d(-1%,0,0);opacity:.18}50%{transform:translate3d(1%,1%,0);opacity:.38}}
+@keyframes aurvex-profile-twinkle{0%,100%{opacity:.18}50%{opacity:.5}}
+@keyframes aurvex-profile-shimmer{0%,100%{background-position:0% 45%,100% 65%}50%{background-position:100% 55%,0% 35%}}
+.player-profile[data-profile-theme="winter"]::after,
+.player-profile[data-profile-theme="arctic"]::after,
+.player-profile[data-profile-theme="sakura"]::after,
+.player-profile[data-profile-theme="autumn"]::after,
+.player-profile[data-profile-theme="volcanic"]::after{
+ content:"";position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:screen;
+ background-size:160px 210px,220px 260px,280px 300px;
+ animation:aurvex-profile-fall 18s linear infinite;
+}
+.player-profile[data-profile-theme="winter"]::after{opacity:.35;background-image:radial-gradient(circle,rgba(255,255,255,.9) 1.2px,transparent 2px),radial-gradient(circle,rgba(224,242,254,.75) 1.4px,transparent 2.2px),radial-gradient(circle,rgba(255,255,255,.55) 2px,transparent 3px)}
+.player-profile[data-profile-theme="arctic"]::after{opacity:.42;background-image:radial-gradient(circle,rgba(207,250,254,.9) 1.2px,transparent 2px),radial-gradient(circle,rgba(224,242,254,.8) 1.4px,transparent 2.2px),radial-gradient(circle,rgba(255,255,255,.6) 2px,transparent 3px)}
+.player-profile[data-profile-theme="sakura"]::after{opacity:.45;background-image:radial-gradient(ellipse 4px 2px at center,rgba(251,113,133,.92) 70%,transparent 75%),radial-gradient(ellipse 4px 2px at center,rgba(244,114,182,.8) 70%,transparent 75%),radial-gradient(ellipse 4px 2px at center,rgba(255,228,230,.8) 70%,transparent 75%)}
+.player-profile[data-profile-theme="autumn"]::after{opacity:.38;background-image:radial-gradient(ellipse 4px 2px at center,rgba(249,115,22,.9) 70%,transparent 75%),radial-gradient(ellipse 4px 2px at center,rgba(234,179,8,.82) 70%,transparent 75%),radial-gradient(ellipse 4px 2px at center,rgba(185,28,28,.75) 70%,transparent 75%)}
+.player-profile[data-profile-theme="volcanic"]::after{opacity:.48;background-image:radial-gradient(circle,rgba(255,196,102,.95) 1.4px,transparent 2px),radial-gradient(circle,rgba(251,146,60,.8) 1.2px,transparent 2px),radial-gradient(circle,rgba(248,113,113,.7) 1px,transparent 1.8px)}
+.player-profile[data-profile-theme="galaxy"]::after,
+.player-profile[data-profile-theme="midnight"]::after,
+.player-profile[data-profile-theme="starlight"]::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:screen;opacity:.33;background-image:radial-gradient(circle,white 1px,transparent 1.7px),radial-gradient(circle,#c4b5fd 1.3px,transparent 2px);background-size:83px 97px,137px 151px;animation:aurvex-profile-twinkle 4s ease-in-out infinite}
+.player-profile[data-profile-theme="sakura"]::after,.player-profile[data-profile-theme="autumn"]::after{animation-duration:24s}
+.player-profile[data-profile-theme="forest"]::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.36;background-image:radial-gradient(circle,#bef264 1.3px,transparent 2px),radial-gradient(circle,#fde68a 1.2px,transparent 2px);background-size:87px 131px,151px 171px;animation:aurvex-profile-twinkle 5s ease-in-out infinite}
+.player-profile[data-profile-theme="aurora"]::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.25;background:radial-gradient(ellipse at 17% 33%,rgba(52,211,153,.4),transparent 40%),radial-gradient(ellipse at 78% 65%,rgba(139,92,246,.3),transparent 45%);animation:aurvex-profile-drift 11s ease-in-out infinite}
+.player-profile[data-profile-theme="ocean"]::after{content:"";position:absolute;left:0;right:0;bottom:0;height:46%;z-index:3;pointer-events:none;opacity:.22;background:repeating-linear-gradient(176deg,transparent 0 28px,rgba(103,232,249,.32) 30px 31px,transparent 34px 58px);animation:aurvex-profile-shimmer 12s ease-in-out infinite}
+.player-profile[data-profile-theme="sunset"]::after{content:"";position:absolute;top:12%;right:9%;width:180px;height:180px;border-radius:50%;z-index:2;pointer-events:none;opacity:.3;background:radial-gradient(circle,#fff7c2 0 18%,#fbbf24 22% 30%,transparent 32%);filter:blur(1px)}
+.player-profile[data-profile-theme="desert"]::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.18;background:linear-gradient(110deg,transparent 30%,rgba(253,230,138,.35) 50%,transparent 68%);background-size:240% 100%;animation:aurvex-profile-shimmer 9s ease-in-out infinite}
+.player-profile[data-profile-theme="neon"]::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.22;background:linear-gradient(115deg,transparent 35%,rgba(236,72,153,.6),rgba(34,211,238,.55),transparent 65%);background-size:240% 100%;animation:aurvex-profile-shimmer 8s ease-in-out infinite}
+.player-profile[data-profile-theme="volcanic"]::after{animation-duration:14s}
+.player-profile[data-profile-theme="winter"]::after{animation-duration:20s}
+.player-profile[data-profile-theme="arctic"]::after{animation-duration:24s}
+@media(prefers-reduced-motion:reduce){.player-profile[data-profile-theme]::after{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.player-profile[data-profile-theme]::after{animation:none!important}}
+
+/* Preserve summer beach imagery through tinted profile panels. */
+.player-profile[data-profile-theme="summer"]{
+ --profile-page-background:linear-gradient(180deg,rgba(10,24,39,.26),rgba(10,24,39,.42)),url('./profile-summer-beach.png');
+ background-size:cover;
+ background-position:center 52%;
+ background-repeat:no-repeat;
+}
+.player-profile[data-profile-theme="summer"] .player-identity,
+.player-profile[data-profile-theme="summer"] .player-aside-card,
+.player-profile[data-profile-theme="summer"] .public-block,
+.player-profile[data-profile-theme="summer"] .profile-status-studio,
+.player-profile[data-profile-theme="summer"] .profile-appearance-editor,
+.player-profile[data-profile-theme="summer"] .player-edit-card{
+ background-color:color-mix(in srgb,var(--surface) 46%,transparent);
+ backdrop-filter:blur(11px);
+}
+.player-profile[data-profile-theme="summer"]::before{content:"";position:absolute;top:15%;right:12%;width:124px;height:124px;border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle,rgba(255,244,190,.96) 0 42%,rgba(255,180,70,.26) 67%,transparent 72%);filter:blur(.5px)}
+@media(prefers-reduced-motion:reduce){.player-profile[data-profile-theme]::after{animation:none!important}}
+
+/* Newly added Stars cosmetics: apply on own profile, public profile and shop try-on. */
+.player-profile[data-shop-avatar="avatar_summer"] .player-avatar-frame,.shop-tryon[data-shop-avatar="avatar_summer"] .shop-tryon-avatar{border:5px double #fbbf24;box-shadow:0 0 18px #fb923c99,0 0 0 2px #fb7185}
+.player-profile[data-shop-avatar="avatar_frostnova"] .player-avatar-frame,.shop-tryon[data-shop-avatar="avatar_frostnova"] .shop-tryon-avatar{border:5px ridge #a5f3fc;box-shadow:0 0 24px #67e8f999,0 0 0 2px #e0f2fe}
+.player-profile[data-shop-avatar="avatar_galaxy"] .player-avatar-frame,.shop-tryon[data-shop-avatar="avatar_galaxy"] .shop-tryon-avatar{border:5px double #c4b5fd;box-shadow:0 0 24px #8b5cf699,0 0 0 2px #4338ca}
+.player-profile[data-shop-avatar="avatar_nebula"] .player-avatar-frame,.shop-tryon[data-shop-avatar="avatar_nebula"] .shop-tryon-avatar{border:5px groove #c084fc;box-shadow:0 0 25px #a855f799,0 0 0 2px #6b21a8}
+.player-profile[data-shop-avatar="avatar_aurora"] .player-avatar-frame,.shop-tryon[data-shop-avatar="avatar_aurora"] .shop-tryon-avatar{border:5px double #5eead4;box-shadow:0 0 26px #2dd4bf99,0 0 0 2px #15803d}
+.player-profile[data-shop-profile="profile_summer"],.shop-tryon[data-shop-profile="profile_summer"] .shop-tryon-card{border:3px solid #fbbf24;box-shadow:0 0 24px #fb923c88,inset 0 0 34px #fb718533}
+.player-profile[data-shop-profile="profile_winter"],.shop-tryon[data-shop-profile="profile_winter"] .shop-tryon-card{border:3px double #a5f3fc;box-shadow:0 0 25px #67e8f988,inset 0 0 34px #e0f2fe33}
+.player-profile[data-shop-profile="profile_galaxy"],.shop-tryon[data-shop-profile="profile_galaxy"] .shop-tryon-card{border:3px solid #c4b5fd;box-shadow:0 0 26px #8b5cf699,inset 0 0 40px #4338ca33}
+.player-profile[data-shop-profile="profile_neon"],.shop-tryon[data-shop-profile="profile_neon"] .shop-tryon-card{border:3px solid #ec4899;box-shadow:0 0 27px #ec489988,inset 0 0 35px #06b6d433}
+.player-profile[data-shop-profile="profile_solarflare"],.shop-tryon[data-shop-profile="profile_solarflare"] .shop-tryon-card{border:3px solid #f59e0b;box-shadow:0 0 28px #f9731699,inset 0 0 36px #fbbf243d}
+.player-profile[data-shop-profile="profile_voidglass"],.shop-tryon[data-shop-profile="profile_voidglass"] .shop-tryon-card{border:3px solid #a78bfa;box-shadow:0 0 28px #6366f199,inset 0 0 42px #312e813d}
