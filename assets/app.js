@@ -1,4 +1,4 @@
-import { translations, supportedLanguages } from './i18n.js?v=20261027-004';
+import { translations, supportedLanguages } from './i18n.js?v=20261027-012';
 import './weekly-rewards-ui.js?v=20261027-002';
 
 const repoUrl='https://github.com/aurvex-team/aurvex-team-site';
@@ -724,14 +724,14 @@ function mfaGatePage(auth){
 // Shop cosmetics are rendered through a fixed allowlist, never arbitrary CSS.
 function shopStyleAttrs(equipped){
  const e=equipped&&typeof equipped==='object'?equipped:{};
- const avatar=['avatar_violet','avatar_ruby','avatar_cyan','avatar_gold'].includes(e.avatar)?e.avatar:'none';
- const profile=['profile_emerald','profile_cosmic','profile_frost','profile_flame'].includes(e.profile)?e.profile:'none';
+ const avatar=['avatar_violet','avatar_ruby','avatar_cyan','avatar_gold','avatar_summer','avatar_frostnova','avatar_galaxy','avatar_nebula','avatar_aurora'].includes(e.avatar)?e.avatar:'none';
+ const profile=['profile_emerald','profile_cosmic','profile_frost','profile_flame','profile_summer','profile_winter','profile_galaxy','profile_neon','profile_solarflare','profile_voidglass'].includes(e.profile)?e.profile:'none';
  return ' data-shop-avatar="'+avatar+'" data-shop-profile="'+profile+'"';
 }
 function profilePresentationAttrs(raw){
  const safe=raw&&typeof raw==='object'?raw:{};
- const theme=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
- const color=['rose','violet','blue','gold','emerald','cyan','red','orange','white'].includes(safe.inner_color)?safe.inner_color:'violet';
+ const theme=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight','sakura','desert','autumn','arctic','volcanic','starlight'].includes(safe.profile_theme)?safe.profile_theme:'galaxy';
+ const color=['rose','violet','blue','gold','emerald','cyan','red','orange','white','mint','teal','indigo','coral','lavender','silver'].includes(safe.inner_color)?safe.inner_color:'violet';
  return ' data-profile-theme="'+theme+'" data-profile-color="'+color+'" data-profile-transparent="'+(safe.transparent===true?'true':'false')+'"';
 }
 function renderProfileLinks(links,slot){
@@ -874,13 +874,13 @@ function playerProfilePage(auth){
           '<div class="profile-appearance-fields">'+
            '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileThemeLabel')+'</strong><small>'+t('profileThemeHint')+'</small></div>'+
             '<div class="profile-theme-grid" role="radiogroup" aria-label="'+esc(t('profileThemeLabel'))+'">'+
-             [['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon'],['ocean','profileThemeOcean'],['sunset','profileThemeSunset'],['forest','profileThemeForest'],['rose','profileThemeRose'],['midnight','profileThemeMidnight']].map(([value,label])=>'<label class="profile-theme-option">'+
+             [['galaxy','profileThemeGalaxy'],['summer','profileThemeSummer'],['winter','profileThemeWinter'],['aurora','profileThemeAurora'],['neon','profileThemeNeon'],['ocean','profileThemeOcean'],['sunset','profileThemeSunset'],['forest','profileThemeForest'],['rose','profileThemeRose'],['midnight','profileThemeMidnight'],['sakura','profileThemeSakura'],['desert','profileThemeDesert'],['autumn','profileThemeAutumn'],['arctic','profileThemeArctic'],['volcanic','profileThemeVolcanic'],['starlight','profileThemeStarlight']].map(([value,label])=>'<label class="profile-theme-option">'+
                '<input type="radio" name="profile_theme" value="'+value+'"'+((auth.profile?.profile_appearance?.profile_theme||'galaxy')===value?' checked':'')+'>'+
                '<span class="profile-theme-card"><span class="profile-theme-art theme-'+value+'" aria-hidden="true"></span><strong>'+t(label)+'</strong></span></label>').join('')+
             '</div></section>'+
            '<section class="profile-choice-section"><div class="profile-choice-heading"><strong>'+t('profileInnerColorLabel')+'</strong><small>'+t('profileAccentHint')+'</small></div>'+
             '<div class="profile-color-grid" role="radiogroup" aria-label="'+esc(t('profileInnerColorLabel'))+'">'+
-             [['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold'],['emerald','profileColorEmerald'],['cyan','profileColorCyan'],['red','profileColorRed'],['orange','profileColorOrange'],['white','profileColorWhite']].map(([value,label])=>'<label class="profile-color-option" title="'+esc(t(label))+'">'+
+             [['rose','profileColorRose'],['violet','profileColorViolet'],['blue','profileColorBlue'],['gold','profileColorGold'],['emerald','profileColorEmerald'],['cyan','profileColorCyan'],['red','profileColorRed'],['orange','profileColorOrange'],['white','profileColorWhite'],['mint','profileColorMint'],['teal','profileColorTeal'],['indigo','profileColorIndigo'],['coral','profileColorCoral'],['lavender','profileColorLavender'],['silver','profileColorSilver']].map(([value,label])=>'<label class="profile-color-option" title="'+esc(t(label))+'">'+
                '<input type="radio" name="inner_color" value="'+value+'"'+((auth.profile?.profile_appearance?.inner_color||'violet')===value?' checked':'')+'>'+
                '<span class="profile-color-dot color-'+value+'" aria-hidden="true"></span><span>'+t(label)+'</span></label>').join('')+
             '</div></section>'+
