@@ -130,8 +130,8 @@ document.addEventListener('change',event=>{
  if(!form||!isSecure())return;
  const theme=form.querySelector('[name="profile_theme"]:checked')?.value;
  const color=form.querySelector('[name="inner_color"]:checked')?.value;
- const themes=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight'];
- const colors=['rose','violet','blue','gold','emerald','cyan','red','orange','white'];
+ const themes=['galaxy','summer','winter','aurora','neon','ocean','sunset','forest','rose','midnight','sakura','desert','autumn','arctic','volcanic','starlight'];
+ const colors=['rose','violet','blue','gold','emerald','cyan','red','orange','white','mint','teal','indigo','coral','lavender','silver'];
  const profile=document.querySelector('.player-profile:not(.public-profile)');
  if(profile&&themes.includes(theme)&&colors.includes(color)){
   profile.dataset.profileTheme=theme;profile.dataset.profileColor=color;
