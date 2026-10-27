@@ -6,7 +6,7 @@ import { normalizePublicLinks } from '../assets/social-links.js';
 import { normalizeAppearance,normalizeHiddenTitles,visibleTeamTitles } from '../assets/profile-customization.js';
 
 const appCode=readFileSync(new URL('../assets/app.js',import.meta.url),'utf8');
-const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'');
+const source=appCode.replace(/^import\s+\{\s*translations,\s*supportedLanguages\s*\}\s+from\s+['"].\/i18n\.js(?:\?v=[a-zA-Z0-9-]+)?['"];\s*/,'')
   .replace(/^import\s+['"][^'"]+['"];\s*/gm,'');
 const index=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
