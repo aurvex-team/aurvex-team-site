@@ -2809,3 +2809,71 @@ body.friends-fullscreen .friends-lock{flex:1;min-height:0;overflow:auto}
 .si-item-explainer section{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
 .si-item-explainer strong{display:block;color:var(--accent);font-size:12px}
 .si-item-explainer p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+
+
+/* Theme coverage: global navigation, hero surfaces and feature banners use theme tokens. */
+:root{--theme-hero-overlay:linear-gradient(90deg,#07111bf0 0%,#0b1824e6 40%,#1121319c 72%,#10203320),linear-gradient(0deg,#07111bbd,transparent 46%)}
+:root[data-theme=dark]{--theme-hero-overlay:linear-gradient(90deg,#14080af5 0%,#160c0ee5 40%,#1b101281 72%,#13080a22),linear-gradient(0deg,#170b0dbd,transparent 46%)}
+:root[data-theme=blue]{--theme-hero-overlay:linear-gradient(90deg,#080b14f5 0%,#0b1020e8 40%,#111b3288 72%,#111b3222),linear-gradient(0deg,#080b14c9,transparent 46%)}
+:root[data-theme=aurora]{--theme-hero-overlay:linear-gradient(90deg,#07110ff5 0%,#091815e8 40%,#0d201b8f 72%,#0d201b20),linear-gradient(0deg,#07110fc9,transparent 46%)}
+:root[data-theme=light]{--theme-hero-overlay:linear-gradient(90deg,#2a1118f5 0%,#32161be8 40%,#32161b8f 72%,#32161b20),linear-gradient(0deg,#2a1118c9,transparent 46%)}
+.topbar{border-bottom-color:var(--line)}
+.sidebar{background:linear-gradient(180deg,var(--sidebar),var(--bg));border-right-color:var(--line)}
+.mobile-bottom{border-top-color:var(--line)}
+.hero{background-color:var(--surface);border-color:var(--line-strong)}
+.hero:after{background:var(--theme-hero-overlay)}
+.hero-label::before{background:var(--accent)}
+.hero-headline{color:var(--text)}
+.hero-description,.hero-facts{color:var(--muted)}
+.hero-facts svg{color:var(--accent)}
+.btn-primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.btn-primary:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--on-primary);border-color:var(--accent)}
+.active-filter-chip{border-color:color-mix(in srgb,var(--accent) 65%,var(--line))}
+.upcoming-card{background:radial-gradient(circle at 90% 11%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 50%),var(--surface)}
+.rewards-hero,.inventory-hero,.money-hero{border-color:var(--brand-border);background:radial-gradient(ellipse at 90% 10%,color-mix(in srgb,var(--accent) 20%,transparent),transparent 52%),var(--brand-panel);color:var(--brand-soft)}
+.rewards-hero .smallcaps,.inventory-hero .smallcaps,.money-hero .smallcaps{color:var(--brand-highlight)}
+.inventory-hero p,.money-hero-main p,.money-hero-foot,.money-hero-sub{color:var(--brand-soft)}
+.si-header .smallcaps{color:var(--brand-highlight)}
+.si-header p,.si-header-stats>span{color:var(--muted)}
+.si-header-stats svg{color:var(--accent)}
+.game-cover,.detail-hero{background-color:var(--surface-2);border-color:var(--line-strong)}
+.si-art-game{--art-color:var(--accent);background:linear-gradient(140deg,var(--surface-2),var(--surface))}
+
+
+/* Theme the separate Steam inspired library stylesheet as well. */
+:root[data-theme] .library-hero{border-color:var(--line-strong);background:radial-gradient(ellipse at 88% 40%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 38%),linear-gradient(120deg,var(--surface-2),var(--surface) 62%,var(--bg))}
+:root[data-theme] .library-eyebrow,:root[data-theme] .library-section-head span,:root[data-theme] .library-section-head>b,:root[data-theme] .library-badge small{color:var(--accent)}
+:root[data-theme] .library-hero h1{color:var(--text)}
+:root[data-theme] .library-hero p,:root[data-theme] .library-stats strong i{color:var(--muted)}
+:root[data-theme] .library-orb{border-color:color-mix(in srgb,var(--accent) 70%,var(--line));background:radial-gradient(circle at 32% 26%,var(--text),var(--accent) 22%,var(--primary) 52%,var(--surface) 76%);box-shadow:0 0 42px color-mix(in srgb,var(--accent) 28%,transparent)}
+:root[data-theme] .library-stats article>span,:root[data-theme] .library-section-head>b,:root[data-theme] .library-badge-icon,:root[data-theme] .library-game-achievements span.earned{background:var(--accent-soft);color:var(--accent)}
+:root[data-theme] .library-game:hover{border-color:var(--accent)}
+:root[data-theme] .library-cover,:root[data-theme] .library-cover.devive{background:radial-gradient(circle at 70% 10%,color-mix(in srgb,var(--accent) 30%,var(--surface)),var(--surface-2) 52%,var(--bg));color:var(--accent)}
+:root[data-theme] .library-playtime strong,:root[data-theme] .library-game-achievements span.earned{color:var(--accent)}
+:root[data-theme] .library-game-bottom a,:root[data-theme] .library-game-bottom button,:root[data-theme] .library-empty-action{background:var(--primary);color:var(--on-primary)}
+:root[data-theme] .library-playbar{background:var(--surface-2)}
+:root[data-theme] .library-playbar i{background:linear-gradient(90deg,var(--primary),var(--accent))}
+:root[data-theme] .library-badge.earned{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:linear-gradient(110deg,var(--accent-soft),var(--surface))}
+:root[data-theme] .library-empty{border-color:var(--line-strong);background:radial-gradient(ellipse at 50% 20%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 60%),var(--surface)}
+/* Download and platform picker accents follow the same palette. */
+:root[data-theme] .downloads-hero,:root[data-theme] .download-platform-hero{border-color:var(--brand-border);background:radial-gradient(circle at 88% 28%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 40%),var(--brand-panel);color:var(--brand-soft)}
+:root[data-theme] .downloads-hero .smallcaps,:root[data-theme] .download-platform-heading .smallcaps{color:var(--brand-highlight)}
+:root[data-theme] .downloads-hero p,:root[data-theme] .download-platform-heading p{color:var(--brand-soft)}
+:root[data-theme] .downloads-hero-glow,:root[data-theme] .download-platform-hero:after{border-color:color-mix(in srgb,var(--accent) 35%,transparent);box-shadow:0 0 0 28px color-mix(in srgb,var(--accent) 7%,transparent),0 0 0 58px color-mix(in srgb,var(--accent) 4%,transparent)}
+:root[data-theme] .downloads-live-chip,:root[data-theme] .download-status-pill,:root[data-theme] .download-platform-status{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:var(--accent-soft);color:var(--text)}
+:root[data-theme] .download-os-card:hover,:root[data-theme] .download-os-card.is-selected,:root[data-theme] .download-choice-card:hover,:root[data-theme] .download-choice-card.is-selected,:root[data-theme] .download-back:hover{border-color:var(--accent);background:var(--accent-soft)}
+:root[data-theme] .download-os-symbol,:root[data-theme] .download-platform-icon,:root[data-theme] .download-choice-status,:root[data-theme] .download-release-check{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft);color:var(--accent)}
+:root[data-theme] .download-build-note,:root[data-theme] .linux-launcher-download{border-color:var(--line-strong);background:linear-gradient(135deg,var(--surface-2),var(--surface))}
+:root[data-theme] .linux-download-mark,:root[data-theme] .linux-download-copy .smallcaps{border-color:var(--line-strong);color:var(--accent)}
+/* Wallet, notification and friend banners now use theme-aware type and borders. */
+:root[data-theme] .money-wallet-status,:root[data-theme] .money-hero-mark{color:var(--brand-highlight)}
+:root[data-theme] .money-hero-mark{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft)}
+:root[data-theme] .money-hero-sub,:root[data-theme] .money-hero-foot{color:var(--brand-soft)}
+:root[data-theme] .money-hero-sub strong{color:var(--text)}
+:root[data-theme] .notification-hero-stats>span{border-color:var(--line-strong);background:var(--accent-soft);color:var(--text)}
+:root[data-theme] .notifications-auth-gate,:root[data-theme] .friends-lock{border-color:var(--brand-border);background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 55%),var(--surface)}
+:root[data-theme] .friends-hero>p{color:var(--brand-soft)}
+
+.topbar{box-shadow:0 10px 40px color-mix(in srgb,var(--accent) 8%,transparent)}.sidebar{box-shadow:0 16px 54px color-mix(in srgb,var(--accent) 10%,transparent)}.mobile-bottom{box-shadow:0 18px 65px color-mix(in srgb,var(--accent) 10%,transparent)}
+:root[data-theme] .linux-download-mark{background:var(--accent-soft)}

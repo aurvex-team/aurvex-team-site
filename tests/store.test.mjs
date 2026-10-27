@@ -1979,3 +1979,16 @@ test('Winter theme and inventory explanations are translated in every supported 
  assert.ok(winterCss.includes('@keyframes aurvex-snow-fall'));
  assert.ok(winterCss.includes('.aurvex-snowfall{position:fixed;inset:0'));
 });
+
+
+test('Global themes recolor shared navigation, banners, downloads and the separate game library',()=>{
+ const css=readFileSync(new URL('../assets/site.css',import.meta.url),'utf8');
+ for(const selector of [
+  '.topbar{border-bottom-color:var(--line)',
+  ':root[data-theme] .library-hero{',
+  ':root[data-theme] .downloads-hero',
+  ':root[data-theme] .money-wallet-status',
+  ':root[data-theme] .notification-hero-stats',
+  '.si-header{background:'
+ ])assert.ok(css.includes(selector),'Missing global theme coverage for '+selector);
+});
